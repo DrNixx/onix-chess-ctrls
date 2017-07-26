@@ -1,0 +1,9 @@
+node_modules
+built
+.vscode
+
+public/onix-chess-ctrls.js
+public/onix-chess-ctrls.js.map
+onix-chess-ctrls.js
+onix-chess-ctrls.js.map
+npm-debug.log

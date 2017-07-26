@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Square</title>
+        <style>
+            html, body {
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+        </style>
+    </head>
+    <body>
+        <p><div id="control"></div></p>
+        <script src="chess-ctrls.react.js"></script>
+        <script src="chess-ctrls.app.js"></script>        
+        <script src="chess-ctrls.tests.js"></script>
+        <script>
+            var props = {};
+            OnixChessCtrls.PieceSelectorTest({}, document.getElementById("control"));            
+        </script>
+    </body>
+</html>
