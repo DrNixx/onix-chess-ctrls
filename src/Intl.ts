@@ -1,10 +1,13 @@
 import { Intl as IntlCore } from 'onix-core';
+import { registerStrings as chessIntl } from 'onix-chess';
 
 var intlInitialized = false;
 
 export function registerStrings() {
     if (!intlInitialized) {
         
+        chessIntl();
+
         IntlCore.registerStrings('chess-ctrls', {
             'ru-ru': {
                 set_board: "Установить позицию",

@@ -160,7 +160,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.oe = function(err) { console.error(err); throw err; };
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 602);
+/******/ 	return __webpack_require__(__webpack_require__.s = 541);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -358,6 +358,16 @@ process.umask = function() { return 0; };
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+
+
+module.exports = __webpack_require__(30);
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
 /* WEBPACK VAR INJECTION */(function(process) {/**
  * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -416,7 +426,7 @@ module.exports = invariant;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -432,7 +442,7 @@ module.exports = invariant;
 
 
 
-var emptyFunction = __webpack_require__(12);
+var emptyFunction = __webpack_require__(11);
 
 /**
  * Similar to invariant but only logs a warning if the condition is not met.
@@ -487,17 +497,51 @@ module.exports = warning;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+/**
+ * Copyright (c) 2013-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * 
+ */
 
 
-module.exports = __webpack_require__(17);
+/**
+ * WARNING: DO NOT manually require this module.
+ * This is a replacement for `invariant(...)` used by the error code system
+ * and will _only_ be required by the corresponding babel pass.
+ * It always throws.
+ */
 
+function reactProdInvariant(code) {
+  var argCount = arguments.length - 1;
+
+  var message = 'Minified React error #' + code + '; visit ' + 'http://facebook.github.io/react/docs/error-decoder.html?invariant=' + code;
+
+  for (var argIdx = 0; argIdx < argCount; argIdx++) {
+    message += '&args[]=' + encodeURIComponent(arguments[argIdx + 1]);
+  }
+
+  message += ' for the full message or use the non-minified dev environment' + ' for full errors and additional helpful warnings.';
+
+  var error = new Error(message);
+  error.name = 'Invariant Violation';
+  error.framesToPop = 1; // we don't care about reactProdInvariant's own frame
+
+  throw error;
+}
+
+module.exports = reactProdInvariant;
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -594,7 +638,263 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 
 
 /***/ }),
-/* 5 */
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
+  Copyright (c) 2016 Jed Watson.
+  Licensed under the MIT License (MIT), see
+  http://jedwatson.github.io/classnames
+*/
+/* global define */
+
+(function () {
+	'use strict';
+
+	var hasOwn = {}.hasOwnProperty;
+
+	function classNames () {
+		var classes = [];
+
+		for (var i = 0; i < arguments.length; i++) {
+			var arg = arguments[i];
+			if (!arg) continue;
+
+			var argType = typeof arg;
+
+			if (argType === 'string' || argType === 'number') {
+				classes.push(arg);
+			} else if (Array.isArray(arg)) {
+				classes.push(classNames.apply(null, arg));
+			} else if (argType === 'object') {
+				for (var key in arg) {
+					if (hasOwn.call(arg, key) && arg[key]) {
+						classes.push(key);
+					}
+				}
+			}
+		}
+
+		return classes.join(' ');
+	}
+
+	if (typeof module !== 'undefined' && module.exports) {
+		module.exports = classNames;
+	} else if (true) {
+		// register as 'classnames', consistent with npm package name
+		!(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = function () {
+			return classNames;
+		}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	} else {
+		window.classNames = classNames;
+	}
+}());
+
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(process) {/**
+ * Copyright 2013-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ */
+
+
+
+var _prodInvariant = __webpack_require__(4);
+
+var DOMProperty = __webpack_require__(19);
+var ReactDOMComponentFlags = __webpack_require__(181);
+
+var invariant = __webpack_require__(2);
+
+var ATTR_NAME = DOMProperty.ID_ATTRIBUTE_NAME;
+var Flags = ReactDOMComponentFlags;
+
+var internalInstanceKey = '__reactInternalInstance$' + Math.random().toString(36).slice(2);
+
+/**
+ * Check if a given node should be cached.
+ */
+function shouldPrecacheNode(node, nodeID) {
+  return node.nodeType === 1 && node.getAttribute(ATTR_NAME) === String(nodeID) || node.nodeType === 8 && node.nodeValue === ' react-text: ' + nodeID + ' ' || node.nodeType === 8 && node.nodeValue === ' react-empty: ' + nodeID + ' ';
+}
+
+/**
+ * Drill down (through composites and empty components) until we get a host or
+ * host text component.
+ *
+ * This is pretty polymorphic but unavoidable with the current structure we have
+ * for `_renderedChildren`.
+ */
+function getRenderedHostOrTextFromComponent(component) {
+  var rendered;
+  while (rendered = component._renderedComponent) {
+    component = rendered;
+  }
+  return component;
+}
+
+/**
+ * Populate `_hostNode` on the rendered host/text component with the given
+ * DOM node. The passed `inst` can be a composite.
+ */
+function precacheNode(inst, node) {
+  var hostInst = getRenderedHostOrTextFromComponent(inst);
+  hostInst._hostNode = node;
+  node[internalInstanceKey] = hostInst;
+}
+
+function uncacheNode(inst) {
+  var node = inst._hostNode;
+  if (node) {
+    delete node[internalInstanceKey];
+    inst._hostNode = null;
+  }
+}
+
+/**
+ * Populate `_hostNode` on each child of `inst`, assuming that the children
+ * match up with the DOM (element) children of `node`.
+ *
+ * We cache entire levels at once to avoid an n^2 problem where we access the
+ * children of a node sequentially and have to walk from the start to our target
+ * node every time.
+ *
+ * Since we update `_renderedChildren` and the actual DOM at (slightly)
+ * different times, we could race here and see a newer `_renderedChildren` than
+ * the DOM nodes we see. To avoid this, ReactMultiChild calls
+ * `prepareToManageChildren` before we change `_renderedChildren`, at which
+ * time the container's child nodes are always cached (until it unmounts).
+ */
+function precacheChildNodes(inst, node) {
+  if (inst._flags & Flags.hasCachedChildNodes) {
+    return;
+  }
+  var children = inst._renderedChildren;
+  var childNode = node.firstChild;
+  outer: for (var name in children) {
+    if (!children.hasOwnProperty(name)) {
+      continue;
+    }
+    var childInst = children[name];
+    var childID = getRenderedHostOrTextFromComponent(childInst)._domID;
+    if (childID === 0) {
+      // We're currently unmounting this child in ReactMultiChild; skip it.
+      continue;
+    }
+    // We assume the child nodes are in the same order as the child instances.
+    for (; childNode !== null; childNode = childNode.nextSibling) {
+      if (shouldPrecacheNode(childNode, childID)) {
+        precacheNode(childInst, childNode);
+        continue outer;
+      }
+    }
+    // We reached the end of the DOM children without finding an ID match.
+     true ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Unable to find element with ID %s.', childID) : _prodInvariant('32', childID) : void 0;
+  }
+  inst._flags |= Flags.hasCachedChildNodes;
+}
+
+/**
+ * Given a DOM node, return the closest ReactDOMComponent or
+ * ReactDOMTextComponent instance ancestor.
+ */
+function getClosestInstanceFromNode(node) {
+  if (node[internalInstanceKey]) {
+    return node[internalInstanceKey];
+  }
+
+  // Walk up the tree until we find an ancestor whose instance we have cached.
+  var parents = [];
+  while (!node[internalInstanceKey]) {
+    parents.push(node);
+    if (node.parentNode) {
+      node = node.parentNode;
+    } else {
+      // Top of the tree. This node must not be part of a React tree (or is
+      // unmounted, potentially).
+      return null;
+    }
+  }
+
+  var closest;
+  var inst;
+  for (; node && (inst = node[internalInstanceKey]); node = parents.pop()) {
+    closest = inst;
+    if (parents.length) {
+      precacheChildNodes(inst, node);
+    }
+  }
+
+  return closest;
+}
+
+/**
+ * Given a DOM node, return the ReactDOMComponent or ReactDOMTextComponent
+ * instance, or null if the node was not rendered by this React.
+ */
+function getInstanceFromNode(node) {
+  var inst = getClosestInstanceFromNode(node);
+  if (inst != null && inst._hostNode === node) {
+    return inst;
+  } else {
+    return null;
+  }
+}
+
+/**
+ * Given a ReactDOMComponent or ReactDOMTextComponent, return the corresponding
+ * DOM node.
+ */
+function getNodeFromInstance(inst) {
+  // Without this first invariant, passing a non-DOM-component triggers the next
+  // invariant for a missing parent, which is super confusing.
+  !(inst._hostNode !== undefined) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'getNodeFromInstance: Invalid argument.') : _prodInvariant('33') : void 0;
+
+  if (inst._hostNode) {
+    return inst._hostNode;
+  }
+
+  // Walk up the tree until we find an ancestor whose DOM node we have cached.
+  var parents = [];
+  while (!inst._hostNode) {
+    parents.push(inst);
+    !inst._hostParent ? process.env.NODE_ENV !== 'production' ? invariant(false, 'React DOM tree root should always have a node reference.') : _prodInvariant('34') : void 0;
+    inst = inst._hostParent;
+  }
+
+  // Now parents contains each ancestor that does *not* have a cached native
+  // node, and `inst` is the deepest ancestor that does.
+  for (; parents.length; inst = parents.pop()) {
+    precacheChildNodes(inst, inst._hostNode);
+  }
+
+  return inst._hostNode;
+}
+
+var ReactDOMComponentTree = {
+  getClosestInstanceFromNode: getClosestInstanceFromNode,
+  getInstanceFromNode: getInstanceFromNode,
+  getNodeFromInstance: getNodeFromInstance,
+  precacheChildNodes: precacheChildNodes,
+  precacheNode: precacheNode,
+  uncacheNode: uncacheNode
+};
+
+module.exports = ReactDOMComponentTree;
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -635,52 +935,8 @@ var ExecutionEnvironment = {
 module.exports = ExecutionEnvironment;
 
 /***/ }),
-/* 6 */,
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- * 
- */
-
-
-/**
- * WARNING: DO NOT manually require this module.
- * This is a replacement for `invariant(...)` used by the error code system
- * and will _only_ be required by the corresponding babel pass.
- * It always throws.
- */
-
-function reactProdInvariant(code) {
-  var argCount = arguments.length - 1;
-
-  var message = 'Minified React error #' + code + '; visit ' + 'http://facebook.github.io/react/docs/error-decoder.html?invariant=' + code;
-
-  for (var argIdx = 0; argIdx < argCount; argIdx++) {
-    message += '&args[]=' + encodeURIComponent(arguments[argIdx + 1]);
-  }
-
-  message += ' for the full message or use the non-minified dev environment' + ' for full errors and additional helpful warnings.';
-
-  var error = new Error(message);
-  error.name = 'Invariant Violation';
-  error.framesToPop = 1; // we don't care about reactProdInvariant's own frame
-
-  throw error;
-}
-
-module.exports = reactProdInvariant;
-
-/***/ }),
-/* 8 */
+/* 9 */,
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -697,12 +953,12 @@ module.exports = reactProdInvariant;
 
 
 
-var _prodInvariant = __webpack_require__(42);
+var _prodInvariant = __webpack_require__(31);
 
-var ReactCurrentOwner = __webpack_require__(13);
+var ReactCurrentOwner = __webpack_require__(14);
 
-var invariant = __webpack_require__(1);
-var warning = __webpack_require__(2);
+var invariant = __webpack_require__(2);
+var warning = __webpack_require__(3);
 
 function isNative(fn) {
   // Based on isNative() from Lodash
@@ -1065,264 +1321,7 @@ module.exports = ReactComponentTreeHook;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
-  Copyright (c) 2016 Jed Watson.
-  Licensed under the MIT License (MIT), see
-  http://jedwatson.github.io/classnames
-*/
-/* global define */
-
-(function () {
-	'use strict';
-
-	var hasOwn = {}.hasOwnProperty;
-
-	function classNames () {
-		var classes = [];
-
-		for (var i = 0; i < arguments.length; i++) {
-			var arg = arguments[i];
-			if (!arg) continue;
-
-			var argType = typeof arg;
-
-			if (argType === 'string' || argType === 'number') {
-				classes.push(arg);
-			} else if (Array.isArray(arg)) {
-				classes.push(classNames.apply(null, arg));
-			} else if (argType === 'object') {
-				for (var key in arg) {
-					if (hasOwn.call(arg, key) && arg[key]) {
-						classes.push(key);
-					}
-				}
-			}
-		}
-
-		return classes.join(' ');
-	}
-
-	if (typeof module !== 'undefined' && module.exports) {
-		module.exports = classNames;
-	} else if (true) {
-		// register as 'classnames', consistent with npm package name
-		!(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = function () {
-			return classNames;
-		}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	} else {
-		window.classNames = classNames;
-	}
-}());
-
-
-/***/ }),
-/* 10 */,
 /* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(process) {/**
- * Copyright 2013-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
-
-
-var _prodInvariant = __webpack_require__(7);
-
-var DOMProperty = __webpack_require__(25);
-var ReactDOMComponentFlags = __webpack_require__(226);
-
-var invariant = __webpack_require__(1);
-
-var ATTR_NAME = DOMProperty.ID_ATTRIBUTE_NAME;
-var Flags = ReactDOMComponentFlags;
-
-var internalInstanceKey = '__reactInternalInstance$' + Math.random().toString(36).slice(2);
-
-/**
- * Check if a given node should be cached.
- */
-function shouldPrecacheNode(node, nodeID) {
-  return node.nodeType === 1 && node.getAttribute(ATTR_NAME) === String(nodeID) || node.nodeType === 8 && node.nodeValue === ' react-text: ' + nodeID + ' ' || node.nodeType === 8 && node.nodeValue === ' react-empty: ' + nodeID + ' ';
-}
-
-/**
- * Drill down (through composites and empty components) until we get a host or
- * host text component.
- *
- * This is pretty polymorphic but unavoidable with the current structure we have
- * for `_renderedChildren`.
- */
-function getRenderedHostOrTextFromComponent(component) {
-  var rendered;
-  while (rendered = component._renderedComponent) {
-    component = rendered;
-  }
-  return component;
-}
-
-/**
- * Populate `_hostNode` on the rendered host/text component with the given
- * DOM node. The passed `inst` can be a composite.
- */
-function precacheNode(inst, node) {
-  var hostInst = getRenderedHostOrTextFromComponent(inst);
-  hostInst._hostNode = node;
-  node[internalInstanceKey] = hostInst;
-}
-
-function uncacheNode(inst) {
-  var node = inst._hostNode;
-  if (node) {
-    delete node[internalInstanceKey];
-    inst._hostNode = null;
-  }
-}
-
-/**
- * Populate `_hostNode` on each child of `inst`, assuming that the children
- * match up with the DOM (element) children of `node`.
- *
- * We cache entire levels at once to avoid an n^2 problem where we access the
- * children of a node sequentially and have to walk from the start to our target
- * node every time.
- *
- * Since we update `_renderedChildren` and the actual DOM at (slightly)
- * different times, we could race here and see a newer `_renderedChildren` than
- * the DOM nodes we see. To avoid this, ReactMultiChild calls
- * `prepareToManageChildren` before we change `_renderedChildren`, at which
- * time the container's child nodes are always cached (until it unmounts).
- */
-function precacheChildNodes(inst, node) {
-  if (inst._flags & Flags.hasCachedChildNodes) {
-    return;
-  }
-  var children = inst._renderedChildren;
-  var childNode = node.firstChild;
-  outer: for (var name in children) {
-    if (!children.hasOwnProperty(name)) {
-      continue;
-    }
-    var childInst = children[name];
-    var childID = getRenderedHostOrTextFromComponent(childInst)._domID;
-    if (childID === 0) {
-      // We're currently unmounting this child in ReactMultiChild; skip it.
-      continue;
-    }
-    // We assume the child nodes are in the same order as the child instances.
-    for (; childNode !== null; childNode = childNode.nextSibling) {
-      if (shouldPrecacheNode(childNode, childID)) {
-        precacheNode(childInst, childNode);
-        continue outer;
-      }
-    }
-    // We reached the end of the DOM children without finding an ID match.
-     true ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Unable to find element with ID %s.', childID) : _prodInvariant('32', childID) : void 0;
-  }
-  inst._flags |= Flags.hasCachedChildNodes;
-}
-
-/**
- * Given a DOM node, return the closest ReactDOMComponent or
- * ReactDOMTextComponent instance ancestor.
- */
-function getClosestInstanceFromNode(node) {
-  if (node[internalInstanceKey]) {
-    return node[internalInstanceKey];
-  }
-
-  // Walk up the tree until we find an ancestor whose instance we have cached.
-  var parents = [];
-  while (!node[internalInstanceKey]) {
-    parents.push(node);
-    if (node.parentNode) {
-      node = node.parentNode;
-    } else {
-      // Top of the tree. This node must not be part of a React tree (or is
-      // unmounted, potentially).
-      return null;
-    }
-  }
-
-  var closest;
-  var inst;
-  for (; node && (inst = node[internalInstanceKey]); node = parents.pop()) {
-    closest = inst;
-    if (parents.length) {
-      precacheChildNodes(inst, node);
-    }
-  }
-
-  return closest;
-}
-
-/**
- * Given a DOM node, return the ReactDOMComponent or ReactDOMTextComponent
- * instance, or null if the node was not rendered by this React.
- */
-function getInstanceFromNode(node) {
-  var inst = getClosestInstanceFromNode(node);
-  if (inst != null && inst._hostNode === node) {
-    return inst;
-  } else {
-    return null;
-  }
-}
-
-/**
- * Given a ReactDOMComponent or ReactDOMTextComponent, return the corresponding
- * DOM node.
- */
-function getNodeFromInstance(inst) {
-  // Without this first invariant, passing a non-DOM-component triggers the next
-  // invariant for a missing parent, which is super confusing.
-  !(inst._hostNode !== undefined) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'getNodeFromInstance: Invalid argument.') : _prodInvariant('33') : void 0;
-
-  if (inst._hostNode) {
-    return inst._hostNode;
-  }
-
-  // Walk up the tree until we find an ancestor whose DOM node we have cached.
-  var parents = [];
-  while (!inst._hostNode) {
-    parents.push(inst);
-    !inst._hostParent ? process.env.NODE_ENV !== 'production' ? invariant(false, 'React DOM tree root should always have a node reference.') : _prodInvariant('34') : void 0;
-    inst = inst._hostParent;
-  }
-
-  // Now parents contains each ancestor that does *not* have a cached native
-  // node, and `inst` is the deepest ancestor that does.
-  for (; parents.length; inst = parents.pop()) {
-    precacheChildNodes(inst, inst._hostNode);
-  }
-
-  return inst._hostNode;
-}
-
-var ReactDOMComponentTree = {
-  getClosestInstanceFromNode: getClosestInstanceFromNode,
-  getInstanceFromNode: getInstanceFromNode,
-  getNodeFromInstance: getNodeFromInstance,
-  precacheChildNodes: precacheChildNodes,
-  precacheNode: precacheNode,
-  uncacheNode: uncacheNode
-};
-
-module.exports = ReactDOMComponentTree;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1366,43 +1365,7 @@ emptyFunction.thatReturnsArgument = function (arg) {
 module.exports = emptyFunction;
 
 /***/ }),
-/* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * Copyright 2013-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- * 
- */
-
-
-
-/**
- * Keeps track of the current owner.
- *
- * The current owner is the component who should own any components that are
- * currently being constructed.
- */
-var ReactCurrentOwner = {
-  /**
-   * @internal
-   * @type {ReactComponent}
-   */
-  current: null
-};
-
-module.exports = ReactCurrentOwner;
-
-/***/ }),
-/* 14 */,
-/* 15 */,
-/* 16 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1424,7 +1387,7 @@ module.exports = ReactCurrentOwner;
 var debugTool = null;
 
 if (process.env.NODE_ENV !== 'production') {
-  var ReactDebugTool = __webpack_require__(534);
+  var ReactDebugTool = __webpack_require__(472);
   debugTool = ReactDebugTool;
 }
 
@@ -1432,7 +1395,7 @@ module.exports = { debugTool: debugTool };
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 17 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1448,155 +1411,16 @@ module.exports = { debugTool: debugTool };
 
 
 
-var _assign = __webpack_require__(4);
+var _prodInvariant = __webpack_require__(4),
+    _assign = __webpack_require__(5);
 
-var ReactBaseClasses = __webpack_require__(245);
-var ReactChildren = __webpack_require__(578);
-var ReactDOMFactories = __webpack_require__(579);
-var ReactElement = __webpack_require__(31);
-var ReactPropTypes = __webpack_require__(581);
-var ReactVersion = __webpack_require__(583);
+var CallbackQueue = __webpack_require__(179);
+var PooledClass = __webpack_require__(23);
+var ReactFeatureFlags = __webpack_require__(184);
+var ReactReconciler = __webpack_require__(29);
+var Transaction = __webpack_require__(63);
 
-var createReactClass = __webpack_require__(585);
-var onlyChild = __webpack_require__(586);
-
-var createElement = ReactElement.createElement;
-var createFactory = ReactElement.createFactory;
-var cloneElement = ReactElement.cloneElement;
-
-if (process.env.NODE_ENV !== 'production') {
-  var lowPriorityWarning = __webpack_require__(140);
-  var canDefineProperty = __webpack_require__(86);
-  var ReactElementValidator = __webpack_require__(247);
-  var didWarnPropTypesDeprecated = false;
-  createElement = ReactElementValidator.createElement;
-  createFactory = ReactElementValidator.createFactory;
-  cloneElement = ReactElementValidator.cloneElement;
-}
-
-var __spread = _assign;
-var createMixin = function (mixin) {
-  return mixin;
-};
-
-if (process.env.NODE_ENV !== 'production') {
-  var warnedForSpread = false;
-  var warnedForCreateMixin = false;
-  __spread = function () {
-    lowPriorityWarning(warnedForSpread, 'React.__spread is deprecated and should not be used. Use ' + 'Object.assign directly or another helper function with similar ' + 'semantics. You may be seeing this warning due to your compiler. ' + 'See https://fb.me/react-spread-deprecation for more details.');
-    warnedForSpread = true;
-    return _assign.apply(null, arguments);
-  };
-
-  createMixin = function (mixin) {
-    lowPriorityWarning(warnedForCreateMixin, 'React.createMixin is deprecated and should not be used. ' + 'In React v16.0, it will be removed. ' + 'You can use this mixin directly instead. ' + 'See https://fb.me/createmixin-was-never-implemented for more info.');
-    warnedForCreateMixin = true;
-    return mixin;
-  };
-}
-
-var React = {
-  // Modern
-
-  Children: {
-    map: ReactChildren.map,
-    forEach: ReactChildren.forEach,
-    count: ReactChildren.count,
-    toArray: ReactChildren.toArray,
-    only: onlyChild
-  },
-
-  Component: ReactBaseClasses.Component,
-  PureComponent: ReactBaseClasses.PureComponent,
-
-  createElement: createElement,
-  cloneElement: cloneElement,
-  isValidElement: ReactElement.isValidElement,
-
-  // Classic
-
-  PropTypes: ReactPropTypes,
-  createClass: createReactClass,
-  createFactory: createFactory,
-  createMixin: createMixin,
-
-  // This looks DOM specific but these are actually isomorphic helpers
-  // since they are just generating DOM strings.
-  DOM: ReactDOMFactories,
-
-  version: ReactVersion,
-
-  // Deprecated hook for JSX spread, don't use this for anything.
-  __spread: __spread
-};
-
-if (process.env.NODE_ENV !== 'production') {
-  var warnedForCreateClass = false;
-  if (canDefineProperty) {
-    Object.defineProperty(React, 'PropTypes', {
-      get: function () {
-        lowPriorityWarning(didWarnPropTypesDeprecated, 'Accessing PropTypes via the main React package is deprecated,' + ' and will be removed in  React v16.0.' + ' Use the latest available v15.* prop-types package from npm instead.' + ' For info on usage, compatibility, migration and more, see ' + 'https://fb.me/prop-types-docs');
-        didWarnPropTypesDeprecated = true;
-        return ReactPropTypes;
-      }
-    });
-
-    Object.defineProperty(React, 'createClass', {
-      get: function () {
-        lowPriorityWarning(warnedForCreateClass, 'Accessing createClass via the main React package is deprecated,' + ' and will be removed in React v16.0.' + " Use a plain JavaScript class instead. If you're not yet " + 'ready to migrate, create-react-class v15.* is available ' + 'on npm as a temporary, drop-in replacement. ' + 'For more info see https://fb.me/react-create-class');
-        warnedForCreateClass = true;
-        return createReactClass;
-      }
-    });
-  }
-
-  // React.DOM factories are deprecated. Wrap these methods so that
-  // invocations of the React.DOM namespace and alert users to switch
-  // to the `react-dom-factories` package.
-  React.DOM = {};
-  var warnedForFactories = false;
-  Object.keys(ReactDOMFactories).forEach(function (factory) {
-    React.DOM[factory] = function () {
-      if (!warnedForFactories) {
-        lowPriorityWarning(false, 'Accessing factories like React.DOM.%s has been deprecated ' + 'and will be removed in v16.0+. Use the ' + 'react-dom-factories package instead. ' + ' Version 1.0 provides a drop-in replacement.' + ' For more info, see https://fb.me/react-dom-factories', factory);
-        warnedForFactories = true;
-      }
-      return ReactDOMFactories[factory].apply(ReactDOMFactories, arguments);
-    };
-  });
-}
-
-module.exports = React;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 18 */,
-/* 19 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(process) {/**
- * Copyright 2013-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
-
-
-var _prodInvariant = __webpack_require__(7),
-    _assign = __webpack_require__(4);
-
-var CallbackQueue = __webpack_require__(224);
-var PooledClass = __webpack_require__(30);
-var ReactFeatureFlags = __webpack_require__(229);
-var ReactReconciler = __webpack_require__(41);
-var Transaction = __webpack_require__(83);
-
-var invariant = __webpack_require__(1);
+var invariant = __webpack_require__(2);
 
 var dirtyComponents = [];
 var updateBatchNumber = 0;
@@ -1828,31 +1652,41 @@ module.exports = ReactUpdates;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 20 */,
-/* 21 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+/**
+ * Copyright 2013-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * 
+ */
 
-function __export(m) {
-    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
-}
-Object.defineProperty(exports, "__esModule", { value: true });
-__export(__webpack_require__(39));
-__export(__webpack_require__(442));
-__export(__webpack_require__(453));
-__export(__webpack_require__(116));
-__export(__webpack_require__(445));
-__export(__webpack_require__(455));
-__export(__webpack_require__(440));
-var Logger_1 = __webpack_require__(438);
-exports.Logger = Logger_1.Logger;
-var Intl_1 = __webpack_require__(437);
-exports.Intl = Intl_1.Intl;
 
+
+/**
+ * Keeps track of the current owner.
+ *
+ * The current owner is the component who should own any components that are
+ * currently being constructed.
+ */
+var ReactCurrentOwner = {
+  /**
+   * @internal
+   * @type {ReactComponent}
+   */
+  current: null
+};
+
+module.exports = ReactCurrentOwner;
 
 /***/ }),
-/* 22 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1868,12 +1702,12 @@ exports.Intl = Intl_1.Intl;
 
 
 
-var _assign = __webpack_require__(4);
+var _assign = __webpack_require__(5);
 
-var PooledClass = __webpack_require__(30);
+var PooledClass = __webpack_require__(23);
 
-var emptyFunction = __webpack_require__(12);
-var warning = __webpack_require__(2);
+var emptyFunction = __webpack_require__(11);
+var warning = __webpack_require__(3);
 
 var didWarnForAddedNewProperty = false;
 var isProxySupported = typeof Proxy === 'function';
@@ -2124,8 +1958,46 @@ function getPooledWarningPropertyDefinition(propName, getVal) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 23 */,
-/* 24 */
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = __webpack_require__(457);
+
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var Intl_1 = __webpack_require__(350);
+exports.registerStrings = Intl_1.registerStrings;
+var Color_1 = __webpack_require__(22);
+exports.Color = Color_1.Color;
+var Castle_1 = __webpack_require__(147);
+exports.Castle = Castle_1.Castle;
+var Piece_1 = __webpack_require__(36);
+exports.Piece = Piece_1.Piece;
+var Square_1 = __webpack_require__(37);
+exports.Square = Square_1.Square;
+var Move_1 = __webpack_require__(149);
+exports.Move = Move_1.Move;
+var SimpleMove_1 = __webpack_require__(82);
+exports.SimpleMove = SimpleMove_1.SimpleMove;
+var Position_1 = __webpack_require__(150);
+exports.Position = Position_1.Position;
+exports.FenStandartStart = Position_1.FenStandartStart;
+exports.FenEmptyBoard = Position_1.FenEmptyBoard;
+var Chess_1 = __webpack_require__(351);
+exports.Chess = Chess_1.Chess;
+
+
+/***/ }),
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(process) {/**
@@ -2152,17 +2024,17 @@ if (process.env.NODE_ENV !== 'production') {
   // By explicitly using `prop-types` you are opting into new development behavior.
   // http://fb.me/prop-types-in-prod
   var throwOnDirectAccess = true;
-  module.exports = __webpack_require__(215)(isValidElement, throwOnDirectAccess);
+  module.exports = __webpack_require__(170)(isValidElement, throwOnDirectAccess);
 } else {
   // By explicitly using `prop-types` you are opting into new production behavior.
   // http://fb.me/prop-types-in-prod
-  module.exports = __webpack_require__(484)();
+  module.exports = __webpack_require__(422)();
 }
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 25 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2178,9 +2050,9 @@ if (process.env.NODE_ENV !== 'production') {
 
 
 
-var _prodInvariant = __webpack_require__(7);
+var _prodInvariant = __webpack_require__(4);
 
-var invariant = __webpack_require__(1);
+var invariant = __webpack_require__(2);
 
 function checkMask(value, bitmask) {
   return (value & bitmask) === bitmask;
@@ -2377,10 +2249,9 @@ module.exports = DOMProperty;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 26 */,
-/* 27 */,
-/* 28 */,
-/* 29 */
+/* 20 */,
+/* 21 */,
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2410,7 +2281,7 @@ exports.Color = Color;
 
 
 /***/ }),
-/* 30 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2427,9 +2298,9 @@ exports.Color = Color;
 
 
 
-var _prodInvariant = __webpack_require__(7);
+var _prodInvariant = __webpack_require__(4);
 
-var invariant = __webpack_require__(1);
+var invariant = __webpack_require__(2);
 
 /**
  * Static poolers. Several custom versions for each potential number of
@@ -2528,7 +2399,7 @@ module.exports = PooledClass;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 31 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2544,15 +2415,15 @@ module.exports = PooledClass;
 
 
 
-var _assign = __webpack_require__(4);
+var _assign = __webpack_require__(5);
 
-var ReactCurrentOwner = __webpack_require__(13);
+var ReactCurrentOwner = __webpack_require__(14);
 
-var warning = __webpack_require__(2);
-var canDefineProperty = __webpack_require__(86);
+var warning = __webpack_require__(3);
+var canDefineProperty = __webpack_require__(66);
 var hasOwnProperty = Object.prototype.hasOwnProperty;
 
-var REACT_ELEMENT_TYPE = __webpack_require__(246);
+var REACT_ELEMENT_TYPE = __webpack_require__(201);
 
 var RESERVED_PROPS = {
   key: true,
@@ -2875,146 +2746,8 @@ module.exports = ReactElement;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 32 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = __webpack_require__(519);
-
-
-/***/ }),
-/* 33 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(process) {/**
- * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
-
-
-var emptyObject = {};
-
-if (process.env.NODE_ENV !== 'production') {
-  Object.freeze(emptyObject);
-}
-
-module.exports = emptyObject;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 34 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- * @typechecks
- * 
- */
-
-/*eslint-disable no-self-compare */
-
-
-
-var hasOwnProperty = Object.prototype.hasOwnProperty;
-
-/**
- * inlined Object.is polyfill to avoid requiring consumers ship their own
- * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is
- */
-function is(x, y) {
-  // SameValue algorithm
-  if (x === y) {
-    // Steps 1-5, 7-10
-    // Steps 6.b-6.e: +0 != -0
-    // Added the nonzero y check to make Flow happy, but it is redundant
-    return x !== 0 || y !== 0 || 1 / x === 1 / y;
-  } else {
-    // Step 6.a: NaN == NaN
-    return x !== x && y !== y;
-  }
-}
-
-/**
- * Performs equality by iterating through keys on an object and returning false
- * when any key has values which are not strictly equal between the arguments.
- * Returns true when the values of all keys are strictly equal.
- */
-function shallowEqual(objA, objB) {
-  if (is(objA, objB)) {
-    return true;
-  }
-
-  if (typeof objA !== 'object' || objA === null || typeof objB !== 'object' || objB === null) {
-    return false;
-  }
-
-  var keysA = Object.keys(objA);
-  var keysB = Object.keys(objB);
-
-  if (keysA.length !== keysB.length) {
-    return false;
-  }
-
-  // Test for A's keys different from B.
-  for (var i = 0; i < keysA.length; i++) {
-    if (!hasOwnProperty.call(objB, keysA[i]) || !is(objA[keysA[i]], objB[keysA[i]])) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-module.exports = shallowEqual;
-
-/***/ }),
-/* 35 */,
-/* 36 */,
-/* 37 */,
-/* 38 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var Color_1 = __webpack_require__(29);
-exports.Color = Color_1.Color;
-var Castle_1 = __webpack_require__(199);
-exports.Castle = Castle_1.Castle;
-var Piece_1 = __webpack_require__(50);
-exports.Piece = Piece_1.Piece;
-var Square_1 = __webpack_require__(51);
-exports.Square = Square_1.Square;
-var Move_1 = __webpack_require__(201);
-exports.Move = Move_1.Move;
-var SimpleMove_1 = __webpack_require__(114);
-exports.SimpleMove = SimpleMove_1.SimpleMove;
-var Position_1 = __webpack_require__(202);
-exports.Position = Position_1.Position;
-exports.FenStandartStart = Position_1.FenStandartStart;
-exports.FenEmptyBoard = Position_1.FenEmptyBoard;
-var Chess_1 = __webpack_require__(436);
-exports.Chess = Chess_1.Chess;
-
-
-/***/ }),
-/* 39 */
+/* 25 */,
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3056,7 +2789,30 @@ exports.isEmptyObject = function (obj) {
 
 
 /***/ }),
-/* 40 */
+/* 27 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
+Object.defineProperty(exports, "__esModule", { value: true });
+__export(__webpack_require__(38));
+__export(__webpack_require__(379));
+__export(__webpack_require__(391));
+__export(__webpack_require__(86));
+__export(__webpack_require__(382));
+__export(__webpack_require__(393));
+__export(__webpack_require__(376));
+var Logger_1 = __webpack_require__(374);
+exports.Logger = Logger_1.Logger;
+var Intl_1 = __webpack_require__(373);
+exports.Intl = Intl_1.Intl;
+
+
+/***/ }),
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3072,11 +2828,11 @@ exports.isEmptyObject = function (obj) {
 
 
 
-var DOMNamespaces = __webpack_require__(126);
-var setInnerHTML = __webpack_require__(85);
+var DOMNamespaces = __webpack_require__(95);
+var setInnerHTML = __webpack_require__(65);
 
-var createMicrosoftUnsafeLocalFunction = __webpack_require__(133);
-var setTextContent = __webpack_require__(243);
+var createMicrosoftUnsafeLocalFunction = __webpack_require__(102);
+var setTextContent = __webpack_require__(198);
 
 var ELEMENT_NODE_TYPE = 1;
 var DOCUMENT_FRAGMENT_NODE_TYPE = 11;
@@ -3179,7 +2935,7 @@ DOMLazyTree.queueText = queueText;
 module.exports = DOMLazyTree;
 
 /***/ }),
-/* 41 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3195,10 +2951,10 @@ module.exports = DOMLazyTree;
 
 
 
-var ReactRef = __webpack_require__(548);
-var ReactInstrumentation = __webpack_require__(16);
+var ReactRef = __webpack_require__(486);
+var ReactInstrumentation = __webpack_require__(12);
 
-var warning = __webpack_require__(2);
+var warning = __webpack_require__(3);
 
 /**
  * Helper to call ReactRef.attachRefs with this composite component, split out
@@ -3351,7 +3107,145 @@ module.exports = ReactReconciler;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 42 */
+/* 30 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(process) {/**
+ * Copyright 2013-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ */
+
+
+
+var _assign = __webpack_require__(5);
+
+var ReactBaseClasses = __webpack_require__(200);
+var ReactChildren = __webpack_require__(516);
+var ReactDOMFactories = __webpack_require__(517);
+var ReactElement = __webpack_require__(24);
+var ReactPropTypes = __webpack_require__(519);
+var ReactVersion = __webpack_require__(521);
+
+var createReactClass = __webpack_require__(523);
+var onlyChild = __webpack_require__(525);
+
+var createElement = ReactElement.createElement;
+var createFactory = ReactElement.createFactory;
+var cloneElement = ReactElement.cloneElement;
+
+if (process.env.NODE_ENV !== 'production') {
+  var lowPriorityWarning = __webpack_require__(109);
+  var canDefineProperty = __webpack_require__(66);
+  var ReactElementValidator = __webpack_require__(202);
+  var didWarnPropTypesDeprecated = false;
+  createElement = ReactElementValidator.createElement;
+  createFactory = ReactElementValidator.createFactory;
+  cloneElement = ReactElementValidator.cloneElement;
+}
+
+var __spread = _assign;
+var createMixin = function (mixin) {
+  return mixin;
+};
+
+if (process.env.NODE_ENV !== 'production') {
+  var warnedForSpread = false;
+  var warnedForCreateMixin = false;
+  __spread = function () {
+    lowPriorityWarning(warnedForSpread, 'React.__spread is deprecated and should not be used. Use ' + 'Object.assign directly or another helper function with similar ' + 'semantics. You may be seeing this warning due to your compiler. ' + 'See https://fb.me/react-spread-deprecation for more details.');
+    warnedForSpread = true;
+    return _assign.apply(null, arguments);
+  };
+
+  createMixin = function (mixin) {
+    lowPriorityWarning(warnedForCreateMixin, 'React.createMixin is deprecated and should not be used. ' + 'In React v16.0, it will be removed. ' + 'You can use this mixin directly instead. ' + 'See https://fb.me/createmixin-was-never-implemented for more info.');
+    warnedForCreateMixin = true;
+    return mixin;
+  };
+}
+
+var React = {
+  // Modern
+
+  Children: {
+    map: ReactChildren.map,
+    forEach: ReactChildren.forEach,
+    count: ReactChildren.count,
+    toArray: ReactChildren.toArray,
+    only: onlyChild
+  },
+
+  Component: ReactBaseClasses.Component,
+  PureComponent: ReactBaseClasses.PureComponent,
+
+  createElement: createElement,
+  cloneElement: cloneElement,
+  isValidElement: ReactElement.isValidElement,
+
+  // Classic
+
+  PropTypes: ReactPropTypes,
+  createClass: createReactClass,
+  createFactory: createFactory,
+  createMixin: createMixin,
+
+  // This looks DOM specific but these are actually isomorphic helpers
+  // since they are just generating DOM strings.
+  DOM: ReactDOMFactories,
+
+  version: ReactVersion,
+
+  // Deprecated hook for JSX spread, don't use this for anything.
+  __spread: __spread
+};
+
+if (process.env.NODE_ENV !== 'production') {
+  var warnedForCreateClass = false;
+  if (canDefineProperty) {
+    Object.defineProperty(React, 'PropTypes', {
+      get: function () {
+        lowPriorityWarning(didWarnPropTypesDeprecated, 'Accessing PropTypes via the main React package is deprecated,' + ' and will be removed in  React v16.0.' + ' Use the latest available v15.* prop-types package from npm instead.' + ' For info on usage, compatibility, migration and more, see ' + 'https://fb.me/prop-types-docs');
+        didWarnPropTypesDeprecated = true;
+        return ReactPropTypes;
+      }
+    });
+
+    Object.defineProperty(React, 'createClass', {
+      get: function () {
+        lowPriorityWarning(warnedForCreateClass, 'Accessing createClass via the main React package is deprecated,' + ' and will be removed in React v16.0.' + " Use a plain JavaScript class instead. If you're not yet " + 'ready to migrate, create-react-class v15.* is available ' + 'on npm as a temporary, drop-in replacement. ' + 'For more info see https://fb.me/react-create-class');
+        warnedForCreateClass = true;
+        return createReactClass;
+      }
+    });
+  }
+
+  // React.DOM factories are deprecated. Wrap these methods so that
+  // invocations of the React.DOM namespace and alert users to switch
+  // to the `react-dom-factories` package.
+  React.DOM = {};
+  var warnedForFactories = false;
+  Object.keys(ReactDOMFactories).forEach(function (factory) {
+    React.DOM[factory] = function () {
+      if (!warnedForFactories) {
+        lowPriorityWarning(false, 'Accessing factories like React.DOM.%s has been deprecated ' + 'and will be removed in v16.0+. Use the ' + 'react-dom-factories package instead. ' + ' Version 1.0 provides a drop-in replacement.' + ' For more info, see https://fb.me/react-dom-factories', factory);
+        warnedForFactories = true;
+      }
+      return ReactDOMFactories[factory].apply(ReactDOMFactories, arguments);
+    };
+  });
+}
+
+module.exports = React;
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3395,20 +3289,17 @@ function reactProdInvariant(code) {
 module.exports = reactProdInvariant;
 
 /***/ }),
-/* 43 */,
-/* 44 */,
-/* 45 */,
-/* 46 */,
-/* 47 */,
-/* 48 */,
-/* 49 */,
-/* 50 */
+/* 32 */,
+/* 33 */,
+/* 34 */,
+/* 35 */,
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var Color_1 = __webpack_require__(29);
+var Color_1 = __webpack_require__(22);
 /**
  * Zero (empty) piece
  */
@@ -3524,14 +3415,14 @@ exports.Piece = Piece;
 
 
 /***/ }),
-/* 51 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var Color_1 = __webpack_require__(29);
-var Direction_1 = __webpack_require__(200);
+var Color_1 = __webpack_require__(22);
+var Direction_1 = __webpack_require__(148);
 /**
  * Zero (invalid) square
  */
@@ -3883,7 +3774,49 @@ exports.Square = Square;
 
 
 /***/ }),
-/* 52 */
+/* 38 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+// ===================== Types =======================
+/** @returns object string name (using Object.prototype.toString.call) */
+exports.getType = function (x) {
+    return Object.prototype.toString.call(x);
+};
+/** @returns true if object is number */
+exports.isNumber = function (x) {
+    return exports.getType(x) === "[object Number]";
+};
+/** @returns true if object is string */
+exports.isString = function (x) {
+    return exports.getType(x) === "[object String]";
+};
+/** @returns true if object is Date */
+exports.isDate = function (x) {
+    return exports.getType(x) === "[object Date]";
+};
+/** @returns true if object is function */
+exports.isFunction = function (x) {
+    return exports.getType(x) === "[object Function]";
+};
+/** @returns true if object is array */
+exports.isArray = function (x) {
+    return exports.getType(x) === "[object Array]";
+};
+/** @return true if object is empty object  */
+exports.isEmptyObject = function (obj) {
+    var name;
+    for (name in obj) {
+        return false;
+    }
+    return true;
+};
+
+
+/***/ }),
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3892,11 +3825,11 @@ function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
 Object.defineProperty(exports, "__esModule", { value: true });
-__export(__webpack_require__(482));
+__export(__webpack_require__(420));
 
 
 /***/ }),
-/* 53 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3912,15 +3845,15 @@ __export(__webpack_require__(482));
 
 
 
-var _prodInvariant = __webpack_require__(7);
+var _prodInvariant = __webpack_require__(4);
 
-var EventPluginRegistry = __webpack_require__(80);
-var EventPluginUtils = __webpack_require__(127);
-var ReactErrorUtils = __webpack_require__(131);
+var EventPluginRegistry = __webpack_require__(60);
+var EventPluginUtils = __webpack_require__(96);
+var ReactErrorUtils = __webpack_require__(100);
 
-var accumulateInto = __webpack_require__(236);
-var forEachAccumulated = __webpack_require__(237);
-var invariant = __webpack_require__(1);
+var accumulateInto = __webpack_require__(191);
+var forEachAccumulated = __webpack_require__(192);
+var invariant = __webpack_require__(2);
 
 /**
  * Internal store for event listeners
@@ -4176,7 +4109,7 @@ module.exports = EventPluginHub;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 54 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4192,12 +4125,12 @@ module.exports = EventPluginHub;
 
 
 
-var EventPluginHub = __webpack_require__(53);
-var EventPluginUtils = __webpack_require__(127);
+var EventPluginHub = __webpack_require__(40);
+var EventPluginUtils = __webpack_require__(96);
 
-var accumulateInto = __webpack_require__(236);
-var forEachAccumulated = __webpack_require__(237);
-var warning = __webpack_require__(2);
+var accumulateInto = __webpack_require__(191);
+var forEachAccumulated = __webpack_require__(192);
+var warning = __webpack_require__(3);
 
 var getListener = EventPluginHub.getListener;
 
@@ -4316,7 +4249,7 @@ module.exports = EventPropagators;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 55 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4367,7 +4300,7 @@ var ReactInstanceMap = {
 module.exports = ReactInstanceMap;
 
 /***/ }),
-/* 56 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4383,9 +4316,9 @@ module.exports = ReactInstanceMap;
 
 
 
-var SyntheticEvent = __webpack_require__(22);
+var SyntheticEvent = __webpack_require__(15);
 
-var getEventTarget = __webpack_require__(136);
+var getEventTarget = __webpack_require__(105);
 
 /**
  * @interface UIEvent
@@ -4431,15 +4364,13 @@ SyntheticEvent.augmentClass(SyntheticUIEvent, UIEventInterface);
 module.exports = SyntheticUIEvent;
 
 /***/ }),
-/* 57 */,
-/* 58 */,
-/* 59 */
+/* 44 */,
+/* 45 */,
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(process) {
-
-/**
+/* WEBPACK VAR INJECTION */(function(process) {/**
  * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
@@ -4447,167 +4378,31 @@ module.exports = SyntheticUIEvent;
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @typechecks
  */
 
-var emptyFunction = __webpack_require__(12);
 
-/**
- * Upstream version of event listener. Does not take into account specific
- * nature of platform.
- */
-var EventListener = {
-  /**
-   * Listen to DOM events during the bubble phase.
-   *
-   * @param {DOMEventTarget} target DOM element to register listener on.
-   * @param {string} eventType Event type, e.g. 'click' or 'mouseover'.
-   * @param {function} callback Callback function.
-   * @return {object} Object with a `remove` method.
-   */
-  listen: function listen(target, eventType, callback) {
-    if (target.addEventListener) {
-      target.addEventListener(eventType, callback, false);
-      return {
-        remove: function remove() {
-          target.removeEventListener(eventType, callback, false);
-        }
-      };
-    } else if (target.attachEvent) {
-      target.attachEvent('on' + eventType, callback);
-      return {
-        remove: function remove() {
-          target.detachEvent('on' + eventType, callback);
-        }
-      };
-    }
-  },
 
-  /**
-   * Listen to DOM events during the capture phase.
-   *
-   * @param {DOMEventTarget} target DOM element to register listener on.
-   * @param {string} eventType Event type, e.g. 'click' or 'mouseover'.
-   * @param {function} callback Callback function.
-   * @return {object} Object with a `remove` method.
-   */
-  capture: function capture(target, eventType, callback) {
-    if (target.addEventListener) {
-      target.addEventListener(eventType, callback, true);
-      return {
-        remove: function remove() {
-          target.removeEventListener(eventType, callback, true);
-        }
-      };
-    } else {
-      if (process.env.NODE_ENV !== 'production') {
-        console.error('Attempted to listen to events during the capture phase on a ' + 'browser that does not support the capture phase. Your application ' + 'will not receive some events.');
-      }
-      return {
-        remove: emptyFunction
-      };
-    }
-  },
+var emptyObject = {};
 
-  registerDefault: function registerDefault() {}
-};
+if (process.env.NODE_ENV !== 'production') {
+  Object.freeze(emptyObject);
+}
 
-module.exports = EventListener;
+module.exports = emptyObject;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 60 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
-
-
-/**
- * @param {DOMElement} node input/textarea to focus
- */
-
-function focusNode(node) {
-  // IE8 can throw "Can't move focus to the control because it is invisible,
-  // not enabled, or of a type that does not accept the focus." for all kinds of
-  // reasons that are too expensive and fragile to test.
-  try {
-    node.focus();
-  } catch (e) {}
-}
-
-module.exports = focusNode;
-
-/***/ }),
-/* 61 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/**
- * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- * @typechecks
- */
-
-/* eslint-disable fb-www/typeof-undefined */
-
-/**
- * Same as document.activeElement but wraps in a try-catch block. In IE it is
- * not safe to call document.activeElement if there is nothing focused.
- *
- * The activeElement will be null only if the document or document body is not
- * yet defined.
- *
- * @param {?DOMDocument} doc Defaults to current document.
- * @return {?DOMElement}
- */
-function getActiveElement(doc) /*?DOMElement*/{
-  doc = doc || (typeof document !== 'undefined' ? document : undefined);
-  if (typeof doc === 'undefined') {
-    return null;
-  }
-  try {
-    return doc.activeElement || doc.body;
-  } catch (e) {
-    return doc.body;
-  }
-}
-
-module.exports = getActiveElement;
-
-/***/ }),
-/* 62 */,
-/* 63 */,
-/* 64 */,
-/* 65 */,
-/* 66 */,
-/* 67 */,
-/* 68 */,
-/* 69 */,
-/* 70 */,
-/* 71 */,
-/* 72 */,
-/* 73 */,
-/* 74 */,
-/* 75 */,
-/* 76 */,
-/* 77 */
+/* 47 */,
+/* 48 */,
+/* 49 */,
+/* 50 */,
+/* 51 */,
+/* 52 */,
+/* 53 */,
+/* 54 */,
+/* 55 */,
+/* 56 */,
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4634,7 +4429,7 @@ exports.intVal = function (mixed_var, base) {
 
 
 /***/ }),
-/* 78 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4676,8 +4471,8 @@ exports.Style = {
 
 
 /***/ }),
-/* 79 */,
-/* 80 */
+/* 59 */,
+/* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4694,9 +4489,9 @@ exports.Style = {
 
 
 
-var _prodInvariant = __webpack_require__(7);
+var _prodInvariant = __webpack_require__(4);
 
-var invariant = __webpack_require__(1);
+var invariant = __webpack_require__(2);
 
 /**
  * Injectable ordering of event plugins.
@@ -4936,7 +4731,7 @@ module.exports = EventPluginRegistry;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 81 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4952,14 +4747,14 @@ module.exports = EventPluginRegistry;
 
 
 
-var _assign = __webpack_require__(4);
+var _assign = __webpack_require__(5);
 
-var EventPluginRegistry = __webpack_require__(80);
-var ReactEventEmitterMixin = __webpack_require__(538);
-var ViewportMetrics = __webpack_require__(235);
+var EventPluginRegistry = __webpack_require__(60);
+var ReactEventEmitterMixin = __webpack_require__(476);
+var ViewportMetrics = __webpack_require__(190);
 
-var getVendorPrefixedEventName = __webpack_require__(573);
-var isEventSupported = __webpack_require__(137);
+var getVendorPrefixedEventName = __webpack_require__(511);
+var isEventSupported = __webpack_require__(106);
 
 /**
  * Summary of `ReactBrowserEventEmitter` event handling:
@@ -5265,7 +5060,7 @@ var ReactBrowserEventEmitter = _assign({}, ReactEventEmitterMixin, {
 module.exports = ReactBrowserEventEmitter;
 
 /***/ }),
-/* 82 */
+/* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5281,10 +5076,10 @@ module.exports = ReactBrowserEventEmitter;
 
 
 
-var SyntheticUIEvent = __webpack_require__(56);
-var ViewportMetrics = __webpack_require__(235);
+var SyntheticUIEvent = __webpack_require__(43);
+var ViewportMetrics = __webpack_require__(190);
 
-var getEventModifierState = __webpack_require__(135);
+var getEventModifierState = __webpack_require__(104);
 
 /**
  * @interface MouseEvent
@@ -5342,7 +5137,7 @@ SyntheticUIEvent.augmentClass(SyntheticMouseEvent, MouseEventInterface);
 module.exports = SyntheticMouseEvent;
 
 /***/ }),
-/* 83 */
+/* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5359,9 +5154,9 @@ module.exports = SyntheticMouseEvent;
 
 
 
-var _prodInvariant = __webpack_require__(7);
+var _prodInvariant = __webpack_require__(4);
 
-var invariant = __webpack_require__(1);
+var invariant = __webpack_require__(2);
 
 var OBSERVED_ERROR = {};
 
@@ -5576,7 +5371,7 @@ module.exports = TransactionImpl;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 84 */
+/* 64 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5703,7 +5498,7 @@ function escapeTextContentForBrowser(text) {
 module.exports = escapeTextContentForBrowser;
 
 /***/ }),
-/* 85 */
+/* 65 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5719,13 +5514,13 @@ module.exports = escapeTextContentForBrowser;
 
 
 
-var ExecutionEnvironment = __webpack_require__(5);
-var DOMNamespaces = __webpack_require__(126);
+var ExecutionEnvironment = __webpack_require__(8);
+var DOMNamespaces = __webpack_require__(95);
 
 var WHITESPACE_TEST = /^[ \r\n\t\f]/;
 var NONVISIBLE_TEST = /<(!--|link|noscript|meta|script|style)[ \r\n\t\f\/>]/;
 
-var createMicrosoftUnsafeLocalFunction = __webpack_require__(133);
+var createMicrosoftUnsafeLocalFunction = __webpack_require__(102);
 
 // SVG temp container for IE lacking innerHTML
 var reusableSVGContainer;
@@ -5806,7 +5601,7 @@ if (ExecutionEnvironment.canUseDOM) {
 module.exports = setInnerHTML;
 
 /***/ }),
-/* 86 */
+/* 66 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5838,13 +5633,13 @@ module.exports = canDefineProperty;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 87 */
+/* 67 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var randomFromSeed = __webpack_require__(595);
+var randomFromSeed = __webpack_require__(534);
 
 var ORIGINAL = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-';
 var alphabet;
@@ -5943,7 +5738,7 @@ module.exports = {
 
 
 /***/ }),
-/* 88 */
+/* 68 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6011,40 +5806,100 @@ module.exports = warning;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 89 */,
-/* 90 */,
-/* 91 */,
-/* 92 */,
-/* 93 */,
-/* 94 */,
-/* 95 */,
-/* 96 */,
-/* 97 */,
-/* 98 */,
-/* 99 */,
-/* 100 */,
-/* 101 */,
-/* 102 */,
-/* 103 */,
-/* 104 */,
-/* 105 */,
-/* 106 */,
-/* 107 */,
-/* 108 */,
-/* 109 */,
-/* 110 */,
-/* 111 */,
-/* 112 */,
-/* 113 */,
-/* 114 */
+/* 69 */,
+/* 70 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/**
+ * Copyright (c) 2013-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @typechecks
+ * 
+ */
+
+/*eslint-disable no-self-compare */
+
+
+
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+
+/**
+ * inlined Object.is polyfill to avoid requiring consumers ship their own
+ * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is
+ */
+function is(x, y) {
+  // SameValue algorithm
+  if (x === y) {
+    // Steps 1-5, 7-10
+    // Steps 6.b-6.e: +0 != -0
+    // Added the nonzero y check to make Flow happy, but it is redundant
+    return x !== 0 || y !== 0 || 1 / x === 1 / y;
+  } else {
+    // Step 6.a: NaN == NaN
+    return x !== x && y !== y;
+  }
+}
+
+/**
+ * Performs equality by iterating through keys on an object and returning false
+ * when any key has values which are not strictly equal between the arguments.
+ * Returns true when the values of all keys are strictly equal.
+ */
+function shallowEqual(objA, objB) {
+  if (is(objA, objB)) {
+    return true;
+  }
+
+  if (typeof objA !== 'object' || objA === null || typeof objB !== 'object' || objB === null) {
+    return false;
+  }
+
+  var keysA = Object.keys(objA);
+  var keysB = Object.keys(objB);
+
+  if (keysA.length !== keysB.length) {
+    return false;
+  }
+
+  // Test for A's keys different from B.
+  for (var i = 0; i < keysA.length; i++) {
+    if (!hasOwnProperty.call(objB, keysA[i]) || !is(objA[keysA[i]], objB[keysA[i]])) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+module.exports = shallowEqual;
+
+/***/ }),
+/* 71 */,
+/* 72 */,
+/* 73 */,
+/* 74 */,
+/* 75 */,
+/* 76 */,
+/* 77 */,
+/* 78 */,
+/* 79 */,
+/* 80 */,
+/* 81 */,
+/* 82 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var Color_1 = __webpack_require__(29);
-var Piece_1 = __webpack_require__(50);
-var Square_1 = __webpack_require__(51);
+var Color_1 = __webpack_require__(22);
+var Piece_1 = __webpack_require__(36);
+var Square_1 = __webpack_require__(37);
 /**
  * Move data.
  */
@@ -6077,7 +5932,7 @@ exports.SimpleMove = SimpleMove;
 
 
 /***/ }),
-/* 115 */
+/* 83 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6098,26 +5953,7 @@ exports.inArray = function (needle, haystack, strict) {
 
 
 /***/ }),
-/* 116 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var IntVal_1 = __webpack_require__(77);
-exports.intVal = IntVal_1.intVal;
-var IsValueOutOfRange_1 = __webpack_require__(447);
-exports.isValueOutOfRange = IsValueOutOfRange_1.isValueOutOfRange;
-var EnsureValueInRange_1 = __webpack_require__(446);
-exports.ensureValueInRange = EnsureValueInRange_1.ensureValueInRange;
-var Average_1 = __webpack_require__(207);
-exports.average = Average_1.average;
-var StdDeviation_1 = __webpack_require__(448);
-exports.stdDeviation = StdDeviation_1.stdDeviation;
-
-
-/***/ }),
-/* 117 */
+/* 84 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6130,13 +5966,72 @@ exports.pad = function (str, len, chr, leftJustify) {
 
 
 /***/ }),
-/* 118 */
+/* 85 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var react_dom_1 = __webpack_require__(32);
+exports.intVal = function (mixed_var, base) {
+    base = base || 10;
+    if (typeof mixed_var === "string") {
+        var tmp = parseInt(mixed_var, base);
+        if (isNaN(tmp)) {
+            return 0;
+        }
+        else {
+            return tmp;
+        }
+    }
+    else if (typeof mixed_var === "number") {
+        return Math.floor(mixed_var);
+    }
+    else {
+        return 0;
+    }
+};
+
+
+/***/ }),
+/* 86 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var IntVal_1 = __webpack_require__(85);
+exports.intVal = IntVal_1.intVal;
+var IsValueOutOfRange_1 = __webpack_require__(384);
+exports.isValueOutOfRange = IsValueOutOfRange_1.isValueOutOfRange;
+var EnsureValueInRange_1 = __webpack_require__(383);
+exports.ensureValueInRange = EnsureValueInRange_1.ensureValueInRange;
+var Average_1 = __webpack_require__(162);
+exports.average = Average_1.average;
+var StdDeviation_1 = __webpack_require__(385);
+exports.stdDeviation = StdDeviation_1.stdDeviation;
+
+
+/***/ }),
+/* 87 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.pad = function (str, len, chr, leftJustify) {
+    var padding = (str.length >= len) ? '' : Array(1 + len - str.length >>> 0).join(chr);
+    return leftJustify ? str + padding : padding + str;
+};
+
+
+/***/ }),
+/* 88 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var react_dom_1 = __webpack_require__(16);
 function isEventFromHandle(e, handles) {
     return Object.keys(handles)
         .some(function (key) { return e.target === react_dom_1.findDOMNode(handles[key]); });
@@ -6170,7 +6065,7 @@ exports.getHandleCenterPosition = getHandleCenterPosition;
 
 
 /***/ }),
-/* 119 */
+/* 89 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6203,8 +6098,8 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(3);
-var classNames = __webpack_require__(9);
+var React = __webpack_require__(1);
+var classNames = __webpack_require__(6);
 var Icon = (function (_super) {
     __extends(Icon, _super);
     function Icon(props) {
@@ -6221,35 +6116,7 @@ exports.Icon = Icon;
 
 
 /***/ }),
-/* 120 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * Copyright 2013-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- */
-
-
-
-// React 15.5 references this module, and assumes PropTypes are still callable in production.
-// Therefore we re-export development-only version with all the PropTypes checks here.
-// However if one is migrating to the `prop-types` npm library, they will go through the
-// `index.js` entry point, and it will branch depending on the environment.
-var factory = __webpack_require__(215);
-module.exports = function(isValidElement) {
-  // It is still allowed in 15.5.
-  var throwOnDirectAccess = false;
-  return factory(isValidElement, throwOnDirectAccess);
-};
-
-
-/***/ }),
-/* 121 */
+/* 90 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6270,10 +6137,10 @@ module.exports = ReactPropTypesSecret;
 
 
 /***/ }),
-/* 122 */,
-/* 123 */,
-/* 124 */,
-/* 125 */
+/* 91 */,
+/* 92 */,
+/* 93 */,
+/* 94 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6289,14 +6156,14 @@ module.exports = ReactPropTypesSecret;
 
 
 
-var DOMLazyTree = __webpack_require__(40);
-var Danger = __webpack_require__(511);
-var ReactDOMComponentTree = __webpack_require__(11);
-var ReactInstrumentation = __webpack_require__(16);
+var DOMLazyTree = __webpack_require__(28);
+var Danger = __webpack_require__(449);
+var ReactDOMComponentTree = __webpack_require__(7);
+var ReactInstrumentation = __webpack_require__(12);
 
-var createMicrosoftUnsafeLocalFunction = __webpack_require__(133);
-var setInnerHTML = __webpack_require__(85);
-var setTextContent = __webpack_require__(243);
+var createMicrosoftUnsafeLocalFunction = __webpack_require__(102);
+var setInnerHTML = __webpack_require__(65);
+var setTextContent = __webpack_require__(198);
 
 function getNodeAfter(parentNode, node) {
   // Special case for text components, which return [open, close] comments
@@ -6505,7 +6372,7 @@ module.exports = DOMChildrenOperations;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 126 */
+/* 95 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6530,7 +6397,7 @@ var DOMNamespaces = {
 module.exports = DOMNamespaces;
 
 /***/ }),
-/* 127 */
+/* 96 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6546,12 +6413,12 @@ module.exports = DOMNamespaces;
 
 
 
-var _prodInvariant = __webpack_require__(7);
+var _prodInvariant = __webpack_require__(4);
 
-var ReactErrorUtils = __webpack_require__(131);
+var ReactErrorUtils = __webpack_require__(100);
 
-var invariant = __webpack_require__(1);
-var warning = __webpack_require__(2);
+var invariant = __webpack_require__(2);
+var warning = __webpack_require__(3);
 
 /**
  * Injected dependencies:
@@ -6762,7 +6629,7 @@ module.exports = EventPluginUtils;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 128 */
+/* 97 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6826,7 +6693,7 @@ var KeyEscapeUtils = {
 module.exports = KeyEscapeUtils;
 
 /***/ }),
-/* 129 */
+/* 98 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6842,16 +6709,16 @@ module.exports = KeyEscapeUtils;
 
 
 
-var _prodInvariant = __webpack_require__(7);
+var _prodInvariant = __webpack_require__(4);
 
-var ReactPropTypesSecret = __webpack_require__(234);
-var propTypesFactory = __webpack_require__(120);
+var ReactPropTypesSecret = __webpack_require__(189);
+var propTypesFactory = __webpack_require__(169);
 
-var React = __webpack_require__(17);
+var React = __webpack_require__(30);
 var PropTypes = propTypesFactory(React.isValidElement);
 
-var invariant = __webpack_require__(1);
-var warning = __webpack_require__(2);
+var invariant = __webpack_require__(2);
+var warning = __webpack_require__(3);
 
 var hasReadOnlyValue = {
   button: true,
@@ -6970,7 +6837,7 @@ module.exports = LinkedValueUtils;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 130 */
+/* 99 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6987,9 +6854,9 @@ module.exports = LinkedValueUtils;
 
 
 
-var _prodInvariant = __webpack_require__(7);
+var _prodInvariant = __webpack_require__(4);
 
-var invariant = __webpack_require__(1);
+var invariant = __webpack_require__(2);
 
 var injected = false;
 
@@ -7020,7 +6887,7 @@ module.exports = ReactComponentEnvironment;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 131 */
+/* 100 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7102,7 +6969,7 @@ module.exports = ReactErrorUtils;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 132 */
+/* 101 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7118,15 +6985,15 @@ module.exports = ReactErrorUtils;
 
 
 
-var _prodInvariant = __webpack_require__(7);
+var _prodInvariant = __webpack_require__(4);
 
-var ReactCurrentOwner = __webpack_require__(13);
-var ReactInstanceMap = __webpack_require__(55);
-var ReactInstrumentation = __webpack_require__(16);
-var ReactUpdates = __webpack_require__(19);
+var ReactCurrentOwner = __webpack_require__(14);
+var ReactInstanceMap = __webpack_require__(42);
+var ReactInstrumentation = __webpack_require__(12);
+var ReactUpdates = __webpack_require__(13);
 
-var invariant = __webpack_require__(1);
-var warning = __webpack_require__(2);
+var invariant = __webpack_require__(2);
+var warning = __webpack_require__(3);
 
 function enqueueUpdate(internalInstance) {
   ReactUpdates.enqueueUpdate(internalInstance);
@@ -7342,7 +7209,7 @@ module.exports = ReactUpdateQueue;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 133 */
+/* 102 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7379,7 +7246,7 @@ var createMicrosoftUnsafeLocalFunction = function (func) {
 module.exports = createMicrosoftUnsafeLocalFunction;
 
 /***/ }),
-/* 134 */
+/* 103 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7434,7 +7301,7 @@ function getEventCharCode(nativeEvent) {
 module.exports = getEventCharCode;
 
 /***/ }),
-/* 135 */
+/* 104 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7482,7 +7349,7 @@ function getEventModifierState(nativeEvent) {
 module.exports = getEventModifierState;
 
 /***/ }),
-/* 136 */
+/* 105 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7522,7 +7389,7 @@ function getEventTarget(nativeEvent) {
 module.exports = getEventTarget;
 
 /***/ }),
-/* 137 */
+/* 106 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7538,7 +7405,7 @@ module.exports = getEventTarget;
 
 
 
-var ExecutionEnvironment = __webpack_require__(5);
+var ExecutionEnvironment = __webpack_require__(8);
 
 var useHasFeature;
 if (ExecutionEnvironment.canUseDOM) {
@@ -7587,7 +7454,7 @@ function isEventSupported(eventNameSuffix, capture) {
 module.exports = isEventSupported;
 
 /***/ }),
-/* 138 */
+/* 107 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7634,7 +7501,7 @@ function shouldUpdateReactComponent(prevElement, nextElement) {
 module.exports = shouldUpdateReactComponent;
 
 /***/ }),
-/* 139 */
+/* 108 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7650,10 +7517,10 @@ module.exports = shouldUpdateReactComponent;
 
 
 
-var _assign = __webpack_require__(4);
+var _assign = __webpack_require__(5);
 
-var emptyFunction = __webpack_require__(12);
-var warning = __webpack_require__(2);
+var emptyFunction = __webpack_require__(11);
+var warning = __webpack_require__(3);
 
 var validateDOMNesting = emptyFunction;
 
@@ -8011,7 +7878,7 @@ module.exports = validateDOMNesting;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 140 */
+/* 109 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8082,9 +7949,9 @@ module.exports = lowPriorityWarning;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 141 */,
-/* 142 */,
-/* 143 */
+/* 110 */,
+/* 111 */,
+/* 112 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8100,8 +7967,8 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(3);
-var onix_ui_1 = __webpack_require__(52);
+var React = __webpack_require__(1);
+var onix_ui_1 = __webpack_require__(39);
 var PieceSelector = (function (_super) {
     __extends(PieceSelector, _super);
     /**
@@ -8144,7 +8011,7 @@ exports.PieceSelector = PieceSelector;
 
 
 /***/ }),
-/* 144 */
+/* 113 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8160,8 +8027,8 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(3);
-var onix_ui_1 = __webpack_require__(52);
+var React = __webpack_require__(1);
+var onix_ui_1 = __webpack_require__(39);
 var SquareSelector = (function (_super) {
     __extends(SquareSelector, _super);
     /**
@@ -8205,7 +8072,7 @@ exports.SquareSelector = SquareSelector;
 
 
 /***/ }),
-/* 145 */
+/* 114 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8221,11 +8088,11 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(3);
-var onix_core_1 = __webpack_require__(21);
-var onix_chess_1 = __webpack_require__(38);
-var onix_ui_1 = __webpack_require__(52);
-var Intl_1 = __webpack_require__(254);
+var React = __webpack_require__(1);
+var onix_core_1 = __webpack_require__(27);
+var onix_chess_1 = __webpack_require__(17);
+var onix_ui_1 = __webpack_require__(39);
+var Intl_1 = __webpack_require__(208);
 var StartPosSelector = (function (_super) {
     __extends(StartPosSelector, _super);
     /**
@@ -8275,7 +8142,7 @@ exports.StartPosSelector = StartPosSelector;
 
 
 /***/ }),
-/* 146 */
+/* 115 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8291,9 +8158,9 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(3);
-var onix_core_1 = __webpack_require__(21);
-var onix_ui_1 = __webpack_require__(52);
+var React = __webpack_require__(1);
+var onix_core_1 = __webpack_require__(27);
+var onix_ui_1 = __webpack_require__(39);
 var WhoMoveSelector = (function (_super) {
     __extends(WhoMoveSelector, _super);
     /**
@@ -8325,100 +8192,10 @@ exports.WhoMoveSelector = WhoMoveSelector;
 
 
 /***/ }),
-/* 147 */,
-/* 148 */,
-/* 149 */,
-/* 150 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- * @typechecks
- */
-
-
-
-var camelize = __webpack_require__(279);
-
-var msPattern = /^-ms-/;
-
-/**
- * Camelcases a hyphenated CSS property name, for example:
- *
- *   > camelizeStyleName('background-color')
- *   < "backgroundColor"
- *   > camelizeStyleName('-moz-transition')
- *   < "MozTransition"
- *   > camelizeStyleName('-ms-transition')
- *   < "msTransition"
- *
- * As Andi Smith suggests
- * (http://www.andismith.com/blog/2012/02/modernizr-prefixed/), an `-ms` prefix
- * is converted to lowercase `ms`.
- *
- * @param {string} string
- * @return {string}
- */
-function camelizeStyleName(string) {
-  return camelize(string.replace(msPattern, 'ms-'));
-}
-
-module.exports = camelizeStyleName;
-
-/***/ }),
-/* 151 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/**
- * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- * 
- */
-
-var isTextNode = __webpack_require__(284);
-
-/*eslint-disable no-bitwise */
-
-/**
- * Checks if a given DOM node contains or is another DOM node.
- */
-function containsNode(outerNode, innerNode) {
-  if (!outerNode || !innerNode) {
-    return false;
-  } else if (outerNode === innerNode) {
-    return true;
-  } else if (isTextNode(outerNode)) {
-    return false;
-  } else if (isTextNode(innerNode)) {
-    return containsNode(outerNode, innerNode.parentNode);
-  } else if ('contains' in outerNode) {
-    return outerNode.contains(innerNode);
-  } else if (outerNode.compareDocumentPosition) {
-    return !!(outerNode.compareDocumentPosition(innerNode) & 16);
-  } else {
-    return false;
-  }
-}
-
-module.exports = containsNode;
-
-/***/ }),
-/* 152 */
+/* 116 */,
+/* 117 */,
+/* 118 */,
+/* 119 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8435,80 +8212,73 @@ module.exports = containsNode;
  * @typechecks
  */
 
-/*eslint-disable fb-www/unsafe-html*/
-
-var ExecutionEnvironment = __webpack_require__(5);
-
-var createArrayFromMixed = __webpack_require__(280);
-var getMarkupWrap = __webpack_require__(281);
-var invariant = __webpack_require__(1);
+var emptyFunction = __webpack_require__(11);
 
 /**
- * Dummy container used to render all markup.
+ * Upstream version of event listener. Does not take into account specific
+ * nature of platform.
  */
-var dummyNode = ExecutionEnvironment.canUseDOM ? document.createElement('div') : null;
-
-/**
- * Pattern used by `getNodeName`.
- */
-var nodeNamePattern = /^\s*<(\w+)/;
-
-/**
- * Extracts the `nodeName` of the first element in a string of markup.
- *
- * @param {string} markup String of markup.
- * @return {?string} Node name of the supplied markup.
- */
-function getNodeName(markup) {
-  var nodeNameMatch = markup.match(nodeNamePattern);
-  return nodeNameMatch && nodeNameMatch[1].toLowerCase();
-}
-
-/**
- * Creates an array containing the nodes rendered from the supplied markup. The
- * optionally supplied `handleScript` function will be invoked once for each
- * <script> element that is rendered. If no `handleScript` function is supplied,
- * an exception is thrown if any <script> elements are rendered.
- *
- * @param {string} markup A string of valid HTML markup.
- * @param {?function} handleScript Invoked once for each rendered <script>.
- * @return {array<DOMElement|DOMTextNode>} An array of rendered nodes.
- */
-function createNodesFromMarkup(markup, handleScript) {
-  var node = dummyNode;
-  !!!dummyNode ? process.env.NODE_ENV !== 'production' ? invariant(false, 'createNodesFromMarkup dummy not initialized') : invariant(false) : void 0;
-  var nodeName = getNodeName(markup);
-
-  var wrap = nodeName && getMarkupWrap(nodeName);
-  if (wrap) {
-    node.innerHTML = wrap[1] + markup + wrap[2];
-
-    var wrapDepth = wrap[0];
-    while (wrapDepth--) {
-      node = node.lastChild;
+var EventListener = {
+  /**
+   * Listen to DOM events during the bubble phase.
+   *
+   * @param {DOMEventTarget} target DOM element to register listener on.
+   * @param {string} eventType Event type, e.g. 'click' or 'mouseover'.
+   * @param {function} callback Callback function.
+   * @return {object} Object with a `remove` method.
+   */
+  listen: function listen(target, eventType, callback) {
+    if (target.addEventListener) {
+      target.addEventListener(eventType, callback, false);
+      return {
+        remove: function remove() {
+          target.removeEventListener(eventType, callback, false);
+        }
+      };
+    } else if (target.attachEvent) {
+      target.attachEvent('on' + eventType, callback);
+      return {
+        remove: function remove() {
+          target.detachEvent('on' + eventType, callback);
+        }
+      };
     }
-  } else {
-    node.innerHTML = markup;
-  }
+  },
 
-  var scripts = node.getElementsByTagName('script');
-  if (scripts.length) {
-    !handleScript ? process.env.NODE_ENV !== 'production' ? invariant(false, 'createNodesFromMarkup(...): Unexpected <script> element rendered.') : invariant(false) : void 0;
-    createArrayFromMixed(scripts).forEach(handleScript);
-  }
+  /**
+   * Listen to DOM events during the capture phase.
+   *
+   * @param {DOMEventTarget} target DOM element to register listener on.
+   * @param {string} eventType Event type, e.g. 'click' or 'mouseover'.
+   * @param {function} callback Callback function.
+   * @return {object} Object with a `remove` method.
+   */
+  capture: function capture(target, eventType, callback) {
+    if (target.addEventListener) {
+      target.addEventListener(eventType, callback, true);
+      return {
+        remove: function remove() {
+          target.removeEventListener(eventType, callback, true);
+        }
+      };
+    } else {
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Attempted to listen to events during the capture phase on a ' + 'browser that does not support the capture phase. Your application ' + 'will not receive some events.');
+      }
+      return {
+        remove: emptyFunction
+      };
+    }
+  },
 
-  var nodes = Array.from(node.childNodes);
-  while (node.lastChild) {
-    node.removeChild(node.lastChild);
-  }
-  return nodes;
-}
+  registerDefault: function registerDefault() {}
+};
 
-module.exports = createNodesFromMarkup;
+module.exports = EventListener;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 153 */
+/* 120 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8520,199 +8290,96 @@ module.exports = createNodesFromMarkup;
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @typechecks
  */
 
 
 
 /**
- * Gets the scroll position of the supplied element or window.
- *
- * The return values are unbounded, unlike `getScrollPosition`. This means they
- * may be negative or exceed the element boundaries (which is possible using
- * inertial scrolling).
- *
- * @param {DOMWindow|DOMElement} scrollable
- * @return {object} Map with `x` and `y` keys.
+ * @param {DOMElement} node input/textarea to focus
  */
 
-function getUnboundedScrollPosition(scrollable) {
-  if (scrollable.Window && scrollable instanceof scrollable.Window) {
-    return {
-      x: scrollable.pageXOffset || scrollable.document.documentElement.scrollLeft,
-      y: scrollable.pageYOffset || scrollable.document.documentElement.scrollTop
-    };
+function focusNode(node) {
+  // IE8 can throw "Can't move focus to the control because it is invisible,
+  // not enabled, or of a type that does not accept the focus." for all kinds of
+  // reasons that are too expensive and fragile to test.
+  try {
+    node.focus();
+  } catch (e) {}
+}
+
+module.exports = focusNode;
+
+/***/ }),
+/* 121 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/**
+ * Copyright (c) 2013-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @typechecks
+ */
+
+/* eslint-disable fb-www/typeof-undefined */
+
+/**
+ * Same as document.activeElement but wraps in a try-catch block. In IE it is
+ * not safe to call document.activeElement if there is nothing focused.
+ *
+ * The activeElement will be null only if the document or document body is not
+ * yet defined.
+ *
+ * @param {?DOMDocument} doc Defaults to current document.
+ * @return {?DOMElement}
+ */
+function getActiveElement(doc) /*?DOMElement*/{
+  doc = doc || (typeof document !== 'undefined' ? document : undefined);
+  if (typeof doc === 'undefined') {
+    return null;
   }
-  return {
-    x: scrollable.scrollLeft,
-    y: scrollable.scrollTop
-  };
+  try {
+    return doc.activeElement || doc.body;
+  } catch (e) {
+    return doc.body;
+  }
 }
 
-module.exports = getUnboundedScrollPosition;
+module.exports = getActiveElement;
 
 /***/ }),
-/* 154 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- * @typechecks
- */
-
-
-
-var hyphenate = __webpack_require__(282);
-
-var msPattern = /^ms-/;
-
-/**
- * Hyphenates a camelcased CSS property name, for example:
- *
- *   > hyphenateStyleName('backgroundColor')
- *   < "background-color"
- *   > hyphenateStyleName('MozTransition')
- *   < "-moz-transition"
- *   > hyphenateStyleName('msTransition')
- *   < "-ms-transition"
- *
- * As Modernizr suggests (http://modernizr.com/docs/#prefixed), an `ms` prefix
- * is converted to `-ms-`.
- *
- * @param {string} string
- * @return {string}
- */
-function hyphenateStyleName(string) {
-  return hyphenate(string).replace(msPattern, '-ms-');
-}
-
-module.exports = hyphenateStyleName;
-
-/***/ }),
-/* 155 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- * 
- * @typechecks static-only
- */
-
-
-
-/**
- * Memoizes the return value of a function that accepts one string argument.
- */
-
-function memoizeStringOnly(callback) {
-  var cache = {};
-  return function (string) {
-    if (!cache.hasOwnProperty(string)) {
-      cache[string] = callback.call(this, string);
-    }
-    return cache[string];
-  };
-}
-
-module.exports = memoizeStringOnly;
-
-/***/ }),
-/* 156 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/**
- * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- * @typechecks
- */
-
-var performance = __webpack_require__(285);
-
-var performanceNow;
-
-/**
- * Detect if we can use `window.performance.now()` and gracefully fallback to
- * `Date.now()` if it doesn't exist. We need to support Firefox < 15 for now
- * because of Facebook's testing infrastructure.
- */
-if (performance.now) {
-  performanceNow = function performanceNow() {
-    return performance.now();
-  };
-} else {
-  performanceNow = function performanceNow() {
-    return Date.now();
-  };
-}
-
-module.exports = performanceNow;
-
-/***/ }),
-/* 157 */,
-/* 158 */,
-/* 159 */,
-/* 160 */,
-/* 161 */,
-/* 162 */,
-/* 163 */,
-/* 164 */,
-/* 165 */,
-/* 166 */,
-/* 167 */,
-/* 168 */,
-/* 169 */,
-/* 170 */,
-/* 171 */,
-/* 172 */,
-/* 173 */,
-/* 174 */,
-/* 175 */,
-/* 176 */,
-/* 177 */,
-/* 178 */,
-/* 179 */,
-/* 180 */,
-/* 181 */,
-/* 182 */,
-/* 183 */,
-/* 184 */,
-/* 185 */,
-/* 186 */,
-/* 187 */,
-/* 188 */,
-/* 189 */,
-/* 190 */,
-/* 191 */,
-/* 192 */,
-/* 193 */,
-/* 194 */,
-/* 195 */,
-/* 196 */,
-/* 197 */,
-/* 198 */,
-/* 199 */
+/* 122 */,
+/* 123 */,
+/* 124 */,
+/* 125 */,
+/* 126 */,
+/* 127 */,
+/* 128 */,
+/* 129 */,
+/* 130 */,
+/* 131 */,
+/* 132 */,
+/* 133 */,
+/* 134 */,
+/* 135 */,
+/* 136 */,
+/* 137 */,
+/* 138 */,
+/* 139 */,
+/* 140 */,
+/* 141 */,
+/* 142 */,
+/* 143 */,
+/* 144 */,
+/* 145 */,
+/* 146 */,
+/* 147 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8736,7 +8403,7 @@ exports.Castle = Castle;
 
 
 /***/ }),
-/* 200 */
+/* 148 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8986,16 +8653,16 @@ exports.Direction = Direction;
 
 
 /***/ }),
-/* 201 */
+/* 149 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var shortid = __webpack_require__(589);
-var Color_1 = __webpack_require__(29);
-var Piece_1 = __webpack_require__(50);
-var Square_1 = __webpack_require__(51);
+var shortid = __webpack_require__(528);
+var Color_1 = __webpack_require__(22);
+var Piece_1 = __webpack_require__(36);
+var Square_1 = __webpack_require__(37);
 /**
  * Move in position
  */
@@ -9188,21 +8855,21 @@ exports.Move = Move;
 
 
 /***/ }),
-/* 202 */
+/* 150 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var Types_1 = __webpack_require__(39);
-var InArray_1 = __webpack_require__(115);
-var StrRepeat_1 = __webpack_require__(209);
-var Color_1 = __webpack_require__(29);
-var Castle_1 = __webpack_require__(199);
-var Direction_1 = __webpack_require__(200);
-var Piece_1 = __webpack_require__(50);
-var Square_1 = __webpack_require__(51);
-var SimpleMove_1 = __webpack_require__(114);
+var Types_1 = __webpack_require__(26);
+var InArray_1 = __webpack_require__(83);
+var StrRepeat_1 = __webpack_require__(157);
+var Color_1 = __webpack_require__(22);
+var Castle_1 = __webpack_require__(147);
+var Direction_1 = __webpack_require__(148);
+var Piece_1 = __webpack_require__(36);
+var Square_1 = __webpack_require__(37);
+var SimpleMove_1 = __webpack_require__(82);
 /** Short aliases */
 var ns = Square_1.Square.NullSquare;
 var noPiece = Piece_1.Piece.NoPiece;
@@ -11135,7 +10802,7 @@ exports.ChessPositionStd = new Position(exports.FenStandartStart);
 
 
 /***/ }),
-/* 203 */
+/* 151 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11177,7 +10844,7 @@ exports.EventArgs1 = EventArgs1;
 
 
 /***/ }),
-/* 204 */
+/* 152 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11230,7 +10897,7 @@ exports.EventHandler1 = EventHandler1;
 
 
 /***/ }),
-/* 205 */
+/* 153 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11254,20 +10921,20 @@ exports.grep = function (elems, callback, invert) {
 
 
 /***/ }),
-/* 206 */
+/* 154 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var Types_1 = __webpack_require__(39);
+var Types_1 = __webpack_require__(26);
 exports.indexOf = function (searchElement, arr, fromIndex) {
     return ((!Types_1.isArray(arr)) || (arr == null)) ? -1 : arr.indexOf(searchElement, fromIndex);
 };
 
 
 /***/ }),
-/* 207 */
+/* 155 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11283,13 +10950,13 @@ exports.average = function (arr) {
 
 
 /***/ }),
-/* 208 */
+/* 156 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var Pad_1 = __webpack_require__(117);
+var Pad_1 = __webpack_require__(84);
 exports.justify = function (value, prefix, leftJustify, minWidth, zeroPad) {
     var diff = minWidth - value.length;
     if (diff > 0) {
@@ -11305,7 +10972,7 @@ exports.justify = function (value, prefix, leftJustify, minWidth, zeroPad) {
 
 
 /***/ }),
-/* 209 */
+/* 157 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11321,7 +10988,177 @@ exports.strRepeat = function (str, n) {
 
 
 /***/ }),
-/* 210 */
+/* 158 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var EventArgs = (function () {
+    /**
+     * constructor
+     */
+    function EventArgs(Sender) {
+        this.Sender = Sender;
+    }
+    return EventArgs;
+}());
+exports.EventArgs = EventArgs;
+var EventArgs1 = (function (_super) {
+    __extends(EventArgs1, _super);
+    /**
+     * constructor
+     */
+    function EventArgs1(Sender, EventData) {
+        var _this = _super.call(this, Sender) || this;
+        _this.EventData = EventData;
+        return _this;
+    }
+    return EventArgs1;
+}(EventArgs));
+exports.EventArgs1 = EventArgs1;
+
+
+/***/ }),
+/* 159 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var EventHandler = (function () {
+    /**
+     * constructor
+     */
+    function EventHandler(Callback, Context) {
+        this.Callback = Callback;
+        this.Context = Context;
+    }
+    /**
+     * Calls the method for handling events in the context of the called object.
+     */
+    EventHandler.prototype.invoke = function (args) {
+        this.Callback.call(this.Context, args);
+    };
+    return EventHandler;
+}());
+exports.EventHandler = EventHandler;
+var EventHandler1 = (function (_super) {
+    __extends(EventHandler1, _super);
+    /**
+     * constructor
+     */
+    function EventHandler1(Callback, Context) {
+        return _super.call(this, Callback, Context) || this;
+    }
+    /**
+     * Calls the method for handling events in the context of the called object.
+     */
+    EventHandler1.prototype.invoke = function (args) {
+        _super.prototype.invoke.call(this, args);
+    };
+    return EventHandler1;
+}(EventHandler));
+exports.EventHandler1 = EventHandler1;
+
+
+/***/ }),
+/* 160 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.grep = function (elems, callback, invert) {
+    var callbackInverse, matches = [];
+    var i = 0;
+    var length = elems.length;
+    var callbackExpect = !invert;
+    // Go through the array, only saving the items
+    // that pass the validator function
+    for (; i < length; i++) {
+        callbackInverse = !callback(elems[i], i);
+        if (callbackInverse !== callbackExpect) {
+            matches.push(elems[i]);
+        }
+    }
+    return matches;
+};
+
+
+/***/ }),
+/* 161 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var Types_1 = __webpack_require__(38);
+exports.indexOf = function (searchElement, arr, fromIndex) {
+    return ((!Types_1.isArray(arr)) || (arr == null)) ? -1 : arr.indexOf(searchElement, fromIndex);
+};
+
+
+/***/ }),
+/* 162 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.average = function (arr) {
+    var sum = 0;
+    for (var i = 0; i < arr.length; i++) {
+        sum += arr[i];
+    }
+    return sum / arr.length;
+};
+
+
+/***/ }),
+/* 163 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var Pad_1 = __webpack_require__(87);
+exports.justify = function (value, prefix, leftJustify, minWidth, zeroPad) {
+    var diff = minWidth - value.length;
+    if (diff > 0) {
+        if (leftJustify || !zeroPad) {
+            value = Pad_1.pad(value, minWidth, ' ', leftJustify);
+        }
+        else {
+            value = value.slice(0, prefix.length) + Pad_1.pad('', diff, '0', true) + value.slice(prefix.length);
+        }
+    }
+    return value;
+};
+
+
+/***/ }),
+/* 164 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11354,13 +11191,13 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(3);
-var prop_types_1 = __webpack_require__(24);
-var classNames = __webpack_require__(9);
-var warning = __webpack_require__(88);
-var StyleConfig_1 = __webpack_require__(78);
-var FormControlStatic_1 = __webpack_require__(467);
-var FormControlFeedback_1 = __webpack_require__(466);
+var React = __webpack_require__(1);
+var prop_types_1 = __webpack_require__(18);
+var classNames = __webpack_require__(6);
+var warning = __webpack_require__(68);
+var StyleConfig_1 = __webpack_require__(58);
+var FormControlStatic_1 = __webpack_require__(405);
+var FormControlFeedback_1 = __webpack_require__(404);
 var FormControl = (function (_super) {
     __extends(FormControl, _super);
     function FormControl(props, context) {
@@ -11402,7 +11239,7 @@ exports.FormControl = FormControl;
 
 
 /***/ }),
-/* 211 */
+/* 165 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11435,9 +11272,9 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(3);
-var classNames = __webpack_require__(9);
-var StyleConfig_1 = __webpack_require__(78);
+var React = __webpack_require__(1);
+var classNames = __webpack_require__(6);
+var StyleConfig_1 = __webpack_require__(58);
 var InputGroup = (function (_super) {
     __extends(InputGroup, _super);
     function InputGroup(props) {
@@ -11459,7 +11296,7 @@ exports.InputGroup = InputGroup;
 
 
 /***/ }),
-/* 212 */
+/* 166 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11492,9 +11329,9 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(3);
-var classNames = __webpack_require__(9);
-var Icon_1 = __webpack_require__(119);
+var React = __webpack_require__(1);
+var classNames = __webpack_require__(6);
+var Icon_1 = __webpack_require__(89);
 var InputGroupAddon = (function (_super) {
     __extends(InputGroupAddon, _super);
     function InputGroupAddon(props) {
@@ -11526,7 +11363,7 @@ exports.InputGroupAddon = InputGroupAddon;
 
 
 /***/ }),
-/* 213 */
+/* 167 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11559,14 +11396,14 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(3);
-var classNames = __webpack_require__(9);
-var warning = __webpack_require__(88);
-var addEventListener_1 = __webpack_require__(481);
-var Steps_1 = __webpack_require__(478);
-var Marks_1 = __webpack_require__(475);
-var Handle_1 = __webpack_require__(474);
-var EventUtils_1 = __webpack_require__(118);
+var React = __webpack_require__(1);
+var classNames = __webpack_require__(6);
+var warning = __webpack_require__(68);
+var addEventListener_1 = __webpack_require__(419);
+var Steps_1 = __webpack_require__(416);
+var Marks_1 = __webpack_require__(413);
+var Handle_1 = __webpack_require__(412);
+var EventUtils_1 = __webpack_require__(88);
 function noop() { }
 var SliderBase = (function (_super) {
     __extends(SliderBase, _super);
@@ -11751,13 +11588,13 @@ exports.SliderBase = SliderBase;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 214 */
+/* 168 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(3);
+var React = __webpack_require__(1);
 exports.Track = function (_a) {
     var className = _a.className, included = _a.included, vertical = _a.vertical, offset = _a.offset, length = _a.length;
     var style = {
@@ -11776,7 +11613,35 @@ exports.Track = function (_a) {
 
 
 /***/ }),
-/* 215 */
+/* 169 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/**
+ * Copyright 2013-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ */
+
+
+
+// React 15.5 references this module, and assumes PropTypes are still callable in production.
+// Therefore we re-export development-only version with all the PropTypes checks here.
+// However if one is migrating to the `prop-types` npm library, they will go through the
+// `index.js` entry point, and it will branch depending on the environment.
+var factory = __webpack_require__(170);
+module.exports = function(isValidElement) {
+  // It is still allowed in 15.5.
+  var throwOnDirectAccess = false;
+  return factory(isValidElement, throwOnDirectAccess);
+};
+
+
+/***/ }),
+/* 170 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11791,12 +11656,12 @@ exports.Track = function (_a) {
 
 
 
-var emptyFunction = __webpack_require__(12);
-var invariant = __webpack_require__(1);
-var warning = __webpack_require__(2);
+var emptyFunction = __webpack_require__(11);
+var invariant = __webpack_require__(2);
+var warning = __webpack_require__(3);
 
-var ReactPropTypesSecret = __webpack_require__(121);
-var checkPropTypes = __webpack_require__(483);
+var ReactPropTypesSecret = __webpack_require__(90);
+var checkPropTypes = __webpack_require__(421);
 
 module.exports = function(isValidElement, throwOnDirectAccess) {
   /* global Symbol */
@@ -12296,14 +12161,14 @@ module.exports = function(isValidElement, throwOnDirectAccess) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 216 */,
-/* 217 */,
-/* 218 */,
-/* 219 */,
-/* 220 */,
-/* 221 */,
-/* 222 */,
-/* 223 */
+/* 171 */,
+/* 172 */,
+/* 173 */,
+/* 174 */,
+/* 175 */,
+/* 176 */,
+/* 177 */,
+/* 178 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12462,7 +12327,7 @@ var CSSProperty = {
 module.exports = CSSProperty;
 
 /***/ }),
-/* 224 */
+/* 179 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12479,13 +12344,13 @@ module.exports = CSSProperty;
 
 
 
-var _prodInvariant = __webpack_require__(7);
+var _prodInvariant = __webpack_require__(4);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var PooledClass = __webpack_require__(30);
+var PooledClass = __webpack_require__(23);
 
-var invariant = __webpack_require__(1);
+var invariant = __webpack_require__(2);
 
 /**
  * A specialized pseudo-event module to help keep track of components waiting to
@@ -12587,7 +12452,7 @@ module.exports = PooledClass.addPoolingTo(CallbackQueue);
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 225 */
+/* 180 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12603,12 +12468,12 @@ module.exports = PooledClass.addPoolingTo(CallbackQueue);
 
 
 
-var DOMProperty = __webpack_require__(25);
-var ReactDOMComponentTree = __webpack_require__(11);
-var ReactInstrumentation = __webpack_require__(16);
+var DOMProperty = __webpack_require__(19);
+var ReactDOMComponentTree = __webpack_require__(7);
+var ReactInstrumentation = __webpack_require__(12);
 
-var quoteAttributeValueForBrowser = __webpack_require__(574);
-var warning = __webpack_require__(2);
+var quoteAttributeValueForBrowser = __webpack_require__(512);
+var warning = __webpack_require__(3);
 
 var VALID_ATTRIBUTE_NAME_REGEX = new RegExp('^[' + DOMProperty.ATTRIBUTE_NAME_START_CHAR + '][' + DOMProperty.ATTRIBUTE_NAME_CHAR + ']*$');
 var illegalAttributeNameCache = {};
@@ -12828,7 +12693,7 @@ module.exports = DOMPropertyOperations;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 226 */
+/* 181 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12851,7 +12716,7 @@ var ReactDOMComponentFlags = {
 module.exports = ReactDOMComponentFlags;
 
 /***/ }),
-/* 227 */
+/* 182 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12867,13 +12732,13 @@ module.exports = ReactDOMComponentFlags;
 
 
 
-var _assign = __webpack_require__(4);
+var _assign = __webpack_require__(5);
 
-var LinkedValueUtils = __webpack_require__(129);
-var ReactDOMComponentTree = __webpack_require__(11);
-var ReactUpdates = __webpack_require__(19);
+var LinkedValueUtils = __webpack_require__(98);
+var ReactDOMComponentTree = __webpack_require__(7);
+var ReactUpdates = __webpack_require__(13);
 
-var warning = __webpack_require__(2);
+var warning = __webpack_require__(3);
 
 var didWarnValueLink = false;
 var didWarnValueDefaultValue = false;
@@ -13057,7 +12922,7 @@ module.exports = ReactDOMSelect;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 228 */
+/* 183 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13092,7 +12957,7 @@ ReactEmptyComponent.injection = ReactEmptyComponentInjection;
 module.exports = ReactEmptyComponent;
 
 /***/ }),
-/* 229 */
+/* 184 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13119,7 +12984,7 @@ var ReactFeatureFlags = {
 module.exports = ReactFeatureFlags;
 
 /***/ }),
-/* 230 */
+/* 185 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13135,9 +13000,9 @@ module.exports = ReactFeatureFlags;
 
 
 
-var _prodInvariant = __webpack_require__(7);
+var _prodInvariant = __webpack_require__(4);
 
-var invariant = __webpack_require__(1);
+var invariant = __webpack_require__(2);
 
 var genericComponentClass = null;
 var textComponentClass = null;
@@ -13193,7 +13058,7 @@ module.exports = ReactHostComponent;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 231 */
+/* 186 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13209,11 +13074,11 @@ module.exports = ReactHostComponent;
 
 
 
-var ReactDOMSelection = __webpack_require__(529);
+var ReactDOMSelection = __webpack_require__(467);
 
-var containsNode = __webpack_require__(151);
-var focusNode = __webpack_require__(60);
-var getActiveElement = __webpack_require__(61);
+var containsNode = __webpack_require__(235);
+var focusNode = __webpack_require__(120);
+var getActiveElement = __webpack_require__(121);
 
 function isInDocument(node) {
   return containsNode(document.documentElement, node);
@@ -13321,7 +13186,7 @@ var ReactInputSelection = {
 module.exports = ReactInputSelection;
 
 /***/ }),
-/* 232 */
+/* 187 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13337,30 +13202,30 @@ module.exports = ReactInputSelection;
 
 
 
-var _prodInvariant = __webpack_require__(7);
+var _prodInvariant = __webpack_require__(4);
 
-var DOMLazyTree = __webpack_require__(40);
-var DOMProperty = __webpack_require__(25);
-var React = __webpack_require__(17);
-var ReactBrowserEventEmitter = __webpack_require__(81);
-var ReactCurrentOwner = __webpack_require__(13);
-var ReactDOMComponentTree = __webpack_require__(11);
-var ReactDOMContainerInfo = __webpack_require__(521);
-var ReactDOMFeatureFlags = __webpack_require__(523);
-var ReactFeatureFlags = __webpack_require__(229);
-var ReactInstanceMap = __webpack_require__(55);
-var ReactInstrumentation = __webpack_require__(16);
-var ReactMarkupChecksum = __webpack_require__(543);
-var ReactReconciler = __webpack_require__(41);
-var ReactUpdateQueue = __webpack_require__(132);
-var ReactUpdates = __webpack_require__(19);
+var DOMLazyTree = __webpack_require__(28);
+var DOMProperty = __webpack_require__(19);
+var React = __webpack_require__(30);
+var ReactBrowserEventEmitter = __webpack_require__(61);
+var ReactCurrentOwner = __webpack_require__(14);
+var ReactDOMComponentTree = __webpack_require__(7);
+var ReactDOMContainerInfo = __webpack_require__(459);
+var ReactDOMFeatureFlags = __webpack_require__(461);
+var ReactFeatureFlags = __webpack_require__(184);
+var ReactInstanceMap = __webpack_require__(42);
+var ReactInstrumentation = __webpack_require__(12);
+var ReactMarkupChecksum = __webpack_require__(481);
+var ReactReconciler = __webpack_require__(29);
+var ReactUpdateQueue = __webpack_require__(101);
+var ReactUpdates = __webpack_require__(13);
 
-var emptyObject = __webpack_require__(33);
-var instantiateReactComponent = __webpack_require__(241);
-var invariant = __webpack_require__(1);
-var setInnerHTML = __webpack_require__(85);
-var shouldUpdateReactComponent = __webpack_require__(138);
-var warning = __webpack_require__(2);
+var emptyObject = __webpack_require__(46);
+var instantiateReactComponent = __webpack_require__(196);
+var invariant = __webpack_require__(2);
+var setInnerHTML = __webpack_require__(65);
+var shouldUpdateReactComponent = __webpack_require__(107);
+var warning = __webpack_require__(3);
 
 var ATTR_NAME = DOMProperty.ID_ATTRIBUTE_NAME;
 var ROOT_ATTR_NAME = DOMProperty.ROOT_ATTRIBUTE_NAME;
@@ -13865,7 +13730,7 @@ module.exports = ReactMount;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 233 */
+/* 188 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13882,11 +13747,11 @@ module.exports = ReactMount;
 
 
 
-var _prodInvariant = __webpack_require__(7);
+var _prodInvariant = __webpack_require__(4);
 
-var React = __webpack_require__(17);
+var React = __webpack_require__(30);
 
-var invariant = __webpack_require__(1);
+var invariant = __webpack_require__(2);
 
 var ReactNodeTypes = {
   HOST: 0,
@@ -13911,7 +13776,7 @@ module.exports = ReactNodeTypes;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 234 */
+/* 189 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13933,7 +13798,7 @@ var ReactPropTypesSecret = 'SECRET_DO_NOT_PASS_THIS_OR_YOU_WILL_BE_FIRED';
 module.exports = ReactPropTypesSecret;
 
 /***/ }),
-/* 235 */
+/* 190 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13963,7 +13828,7 @@ var ViewportMetrics = {
 module.exports = ViewportMetrics;
 
 /***/ }),
-/* 236 */
+/* 191 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13980,9 +13845,9 @@ module.exports = ViewportMetrics;
 
 
 
-var _prodInvariant = __webpack_require__(7);
+var _prodInvariant = __webpack_require__(4);
 
-var invariant = __webpack_require__(1);
+var invariant = __webpack_require__(2);
 
 /**
  * Accumulates items that must not be null or undefined into the first one. This
@@ -14027,7 +13892,7 @@ module.exports = accumulateInto;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 237 */
+/* 192 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14063,7 +13928,7 @@ function forEachAccumulated(arr, cb, scope) {
 module.exports = forEachAccumulated;
 
 /***/ }),
-/* 238 */
+/* 193 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14079,7 +13944,7 @@ module.exports = forEachAccumulated;
 
 
 
-var ReactNodeTypes = __webpack_require__(233);
+var ReactNodeTypes = __webpack_require__(188);
 
 function getHostComponentFromComposite(inst) {
   var type;
@@ -14098,7 +13963,7 @@ function getHostComponentFromComposite(inst) {
 module.exports = getHostComponentFromComposite;
 
 /***/ }),
-/* 239 */
+/* 194 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14114,7 +13979,7 @@ module.exports = getHostComponentFromComposite;
 
 
 
-var ExecutionEnvironment = __webpack_require__(5);
+var ExecutionEnvironment = __webpack_require__(8);
 
 var contentKey = null;
 
@@ -14136,7 +14001,7 @@ function getTextContentAccessor() {
 module.exports = getTextContentAccessor;
 
 /***/ }),
-/* 240 */
+/* 195 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14152,7 +14017,7 @@ module.exports = getTextContentAccessor;
 
 
 
-var ReactDOMComponentTree = __webpack_require__(11);
+var ReactDOMComponentTree = __webpack_require__(7);
 
 function isCheckable(elem) {
   var type = elem.type;
@@ -14264,7 +14129,7 @@ var inputValueTracking = {
 module.exports = inputValueTracking;
 
 /***/ }),
-/* 241 */
+/* 196 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14280,16 +14145,16 @@ module.exports = inputValueTracking;
 
 
 
-var _prodInvariant = __webpack_require__(7),
-    _assign = __webpack_require__(4);
+var _prodInvariant = __webpack_require__(4),
+    _assign = __webpack_require__(5);
 
-var ReactCompositeComponent = __webpack_require__(518);
-var ReactEmptyComponent = __webpack_require__(228);
-var ReactHostComponent = __webpack_require__(230);
+var ReactCompositeComponent = __webpack_require__(456);
+var ReactEmptyComponent = __webpack_require__(183);
+var ReactHostComponent = __webpack_require__(185);
 
-var getNextDebugID = __webpack_require__(250);
-var invariant = __webpack_require__(1);
-var warning = __webpack_require__(2);
+var getNextDebugID = __webpack_require__(524);
+var invariant = __webpack_require__(2);
+var warning = __webpack_require__(3);
 
 // To avoid a cyclic dependency, we create the final class in this module
 var ReactCompositeComponentWrapper = function (element) {
@@ -14399,7 +14264,7 @@ module.exports = instantiateReactComponent;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 242 */
+/* 197 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14455,7 +14320,7 @@ function isTextInputElement(elem) {
 module.exports = isTextInputElement;
 
 /***/ }),
-/* 243 */
+/* 198 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14471,9 +14336,9 @@ module.exports = isTextInputElement;
 
 
 
-var ExecutionEnvironment = __webpack_require__(5);
-var escapeTextContentForBrowser = __webpack_require__(84);
-var setInnerHTML = __webpack_require__(85);
+var ExecutionEnvironment = __webpack_require__(8);
+var escapeTextContentForBrowser = __webpack_require__(64);
+var setInnerHTML = __webpack_require__(65);
 
 /**
  * Set the textContent property of a node, ensuring that whitespace is preserved
@@ -14512,7 +14377,7 @@ if (ExecutionEnvironment.canUseDOM) {
 module.exports = setTextContent;
 
 /***/ }),
-/* 244 */
+/* 199 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14528,15 +14393,15 @@ module.exports = setTextContent;
 
 
 
-var _prodInvariant = __webpack_require__(7);
+var _prodInvariant = __webpack_require__(4);
 
-var ReactCurrentOwner = __webpack_require__(13);
-var REACT_ELEMENT_TYPE = __webpack_require__(537);
+var ReactCurrentOwner = __webpack_require__(14);
+var REACT_ELEMENT_TYPE = __webpack_require__(475);
 
-var getIteratorFn = __webpack_require__(571);
-var invariant = __webpack_require__(1);
-var KeyEscapeUtils = __webpack_require__(128);
-var warning = __webpack_require__(2);
+var getIteratorFn = __webpack_require__(509);
+var invariant = __webpack_require__(2);
+var KeyEscapeUtils = __webpack_require__(97);
+var warning = __webpack_require__(3);
 
 var SEPARATOR = '.';
 var SUBSEPARATOR = ':';
@@ -14694,7 +14559,7 @@ module.exports = traverseAllChildren;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 245 */
+/* 200 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14710,15 +14575,15 @@ module.exports = traverseAllChildren;
 
 
 
-var _prodInvariant = __webpack_require__(42),
-    _assign = __webpack_require__(4);
+var _prodInvariant = __webpack_require__(31),
+    _assign = __webpack_require__(5);
 
-var ReactNoopUpdateQueue = __webpack_require__(248);
+var ReactNoopUpdateQueue = __webpack_require__(203);
 
-var canDefineProperty = __webpack_require__(86);
-var emptyObject = __webpack_require__(33);
-var invariant = __webpack_require__(1);
-var lowPriorityWarning = __webpack_require__(140);
+var canDefineProperty = __webpack_require__(66);
+var emptyObject = __webpack_require__(46);
+var invariant = __webpack_require__(2);
+var lowPriorityWarning = __webpack_require__(109);
 
 /**
  * Base class helpers for the updating state of a component.
@@ -14843,7 +14708,7 @@ module.exports = {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 246 */
+/* 201 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14868,7 +14733,7 @@ var REACT_ELEMENT_TYPE = typeof Symbol === 'function' && Symbol['for'] && Symbol
 module.exports = REACT_ELEMENT_TYPE;
 
 /***/ }),
-/* 247 */
+/* 202 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14891,16 +14756,16 @@ module.exports = REACT_ELEMENT_TYPE;
 
 
 
-var ReactCurrentOwner = __webpack_require__(13);
-var ReactComponentTreeHook = __webpack_require__(8);
-var ReactElement = __webpack_require__(31);
+var ReactCurrentOwner = __webpack_require__(14);
+var ReactComponentTreeHook = __webpack_require__(10);
+var ReactElement = __webpack_require__(24);
 
-var checkReactTypeSpec = __webpack_require__(584);
+var checkReactTypeSpec = __webpack_require__(522);
 
-var canDefineProperty = __webpack_require__(86);
-var getIteratorFn = __webpack_require__(249);
-var warning = __webpack_require__(2);
-var lowPriorityWarning = __webpack_require__(140);
+var canDefineProperty = __webpack_require__(66);
+var getIteratorFn = __webpack_require__(204);
+var warning = __webpack_require__(3);
+var lowPriorityWarning = __webpack_require__(109);
 
 function getDeclarationErrorAddendum() {
   if (ReactCurrentOwner.current) {
@@ -15129,7 +14994,7 @@ module.exports = ReactElementValidator;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 248 */
+/* 203 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15145,7 +15010,7 @@ module.exports = ReactElementValidator;
 
 
 
-var warning = __webpack_require__(2);
+var warning = __webpack_require__(3);
 
 function warnNoop(publicInstance, callerName) {
   if (process.env.NODE_ENV !== 'production') {
@@ -15230,7 +15095,7 @@ module.exports = ReactNoopUpdateQueue;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 249 */
+/* 204 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15276,39 +15141,13 @@ function getIteratorFn(maybeIterable) {
 module.exports = getIteratorFn;
 
 /***/ }),
-/* 250 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * Copyright 2013-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- * 
- */
-
-
-
-var nextDebugID = 1;
-
-function getNextDebugID() {
-  return nextDebugID++;
-}
-
-module.exports = getNextDebugID;
-
-/***/ }),
-/* 251 */
+/* 205 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var randomByte = __webpack_require__(594);
+var randomByte = __webpack_require__(533);
 
 function encode(lookup, number) {
     var loopCounter = 0;
@@ -15328,18 +15167,20 @@ module.exports = encode;
 
 
 /***/ }),
-/* 252 */,
-/* 253 */,
-/* 254 */
+/* 206 */,
+/* 207 */,
+/* 208 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var onix_core_1 = __webpack_require__(21);
+var onix_core_1 = __webpack_require__(27);
+var onix_chess_1 = __webpack_require__(17);
 var intlInitialized = false;
 function registerStrings() {
     if (!intlInitialized) {
+        onix_chess_1.registerStrings();
         onix_core_1.Intl.registerStrings('chess-ctrls', {
             'ru-ru': {
                 set_board: "Установить позицию",
@@ -15367,14 +15208,14 @@ exports.registerStrings = registerStrings;
 
 
 /***/ }),
-/* 255 */,
-/* 256 */,
-/* 257 */,
-/* 258 */,
-/* 259 */,
-/* 260 */,
-/* 261 */,
-/* 262 */
+/* 209 */,
+/* 210 */,
+/* 211 */,
+/* 212 */,
+/* 213 */,
+/* 214 */,
+/* 215 */,
+/* 216 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15390,13 +15231,13 @@ exports.registerStrings = registerStrings;
 
 
 
-var _assign = __webpack_require__(4);
+var _assign = __webpack_require__(5);
 
-var emptyObject = __webpack_require__(33);
-var _invariant = __webpack_require__(1);
+var emptyObject = __webpack_require__(46);
+var _invariant = __webpack_require__(2);
 
 if (process.env.NODE_ENV !== 'production') {
-  var warning = __webpack_require__(2);
+  var warning = __webpack_require__(3);
 }
 
 var MIXINS_KEY = 'mixins';
@@ -16254,23 +16095,23 @@ module.exports = factory;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 263 */,
-/* 264 */,
-/* 265 */,
-/* 266 */,
-/* 267 */,
-/* 268 */,
-/* 269 */,
-/* 270 */,
-/* 271 */,
-/* 272 */,
-/* 273 */,
-/* 274 */,
-/* 275 */,
-/* 276 */,
-/* 277 */,
-/* 278 */,
-/* 279 */
+/* 217 */,
+/* 218 */,
+/* 219 */,
+/* 220 */,
+/* 221 */,
+/* 222 */,
+/* 223 */,
+/* 224 */,
+/* 225 */,
+/* 226 */,
+/* 227 */,
+/* 228 */,
+/* 229 */,
+/* 230 */,
+/* 231 */,
+/* 232 */,
+/* 233 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16307,7 +16148,97 @@ function camelize(string) {
 module.exports = camelize;
 
 /***/ }),
-/* 280 */
+/* 234 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/**
+ * Copyright (c) 2013-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @typechecks
+ */
+
+
+
+var camelize = __webpack_require__(233);
+
+var msPattern = /^-ms-/;
+
+/**
+ * Camelcases a hyphenated CSS property name, for example:
+ *
+ *   > camelizeStyleName('background-color')
+ *   < "backgroundColor"
+ *   > camelizeStyleName('-moz-transition')
+ *   < "MozTransition"
+ *   > camelizeStyleName('-ms-transition')
+ *   < "msTransition"
+ *
+ * As Andi Smith suggests
+ * (http://www.andismith.com/blog/2012/02/modernizr-prefixed/), an `-ms` prefix
+ * is converted to lowercase `ms`.
+ *
+ * @param {string} string
+ * @return {string}
+ */
+function camelizeStyleName(string) {
+  return camelize(string.replace(msPattern, 'ms-'));
+}
+
+module.exports = camelizeStyleName;
+
+/***/ }),
+/* 235 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/**
+ * Copyright (c) 2013-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * 
+ */
+
+var isTextNode = __webpack_require__(243);
+
+/*eslint-disable no-bitwise */
+
+/**
+ * Checks if a given DOM node contains or is another DOM node.
+ */
+function containsNode(outerNode, innerNode) {
+  if (!outerNode || !innerNode) {
+    return false;
+  } else if (outerNode === innerNode) {
+    return true;
+  } else if (isTextNode(outerNode)) {
+    return false;
+  } else if (isTextNode(innerNode)) {
+    return containsNode(outerNode, innerNode.parentNode);
+  } else if ('contains' in outerNode) {
+    return outerNode.contains(innerNode);
+  } else if (outerNode.compareDocumentPosition) {
+    return !!(outerNode.compareDocumentPosition(innerNode) & 16);
+  } else {
+    return false;
+  }
+}
+
+module.exports = containsNode;
+
+/***/ }),
+/* 236 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16324,7 +16255,7 @@ module.exports = camelize;
  * @typechecks
  */
 
-var invariant = __webpack_require__(1);
+var invariant = __webpack_require__(2);
 
 /**
  * Convert array-like objects to arrays.
@@ -16440,7 +16371,97 @@ module.exports = createArrayFromMixed;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 281 */
+/* 237 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(process) {
+
+/**
+ * Copyright (c) 2013-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @typechecks
+ */
+
+/*eslint-disable fb-www/unsafe-html*/
+
+var ExecutionEnvironment = __webpack_require__(8);
+
+var createArrayFromMixed = __webpack_require__(236);
+var getMarkupWrap = __webpack_require__(238);
+var invariant = __webpack_require__(2);
+
+/**
+ * Dummy container used to render all markup.
+ */
+var dummyNode = ExecutionEnvironment.canUseDOM ? document.createElement('div') : null;
+
+/**
+ * Pattern used by `getNodeName`.
+ */
+var nodeNamePattern = /^\s*<(\w+)/;
+
+/**
+ * Extracts the `nodeName` of the first element in a string of markup.
+ *
+ * @param {string} markup String of markup.
+ * @return {?string} Node name of the supplied markup.
+ */
+function getNodeName(markup) {
+  var nodeNameMatch = markup.match(nodeNamePattern);
+  return nodeNameMatch && nodeNameMatch[1].toLowerCase();
+}
+
+/**
+ * Creates an array containing the nodes rendered from the supplied markup. The
+ * optionally supplied `handleScript` function will be invoked once for each
+ * <script> element that is rendered. If no `handleScript` function is supplied,
+ * an exception is thrown if any <script> elements are rendered.
+ *
+ * @param {string} markup A string of valid HTML markup.
+ * @param {?function} handleScript Invoked once for each rendered <script>.
+ * @return {array<DOMElement|DOMTextNode>} An array of rendered nodes.
+ */
+function createNodesFromMarkup(markup, handleScript) {
+  var node = dummyNode;
+  !!!dummyNode ? process.env.NODE_ENV !== 'production' ? invariant(false, 'createNodesFromMarkup dummy not initialized') : invariant(false) : void 0;
+  var nodeName = getNodeName(markup);
+
+  var wrap = nodeName && getMarkupWrap(nodeName);
+  if (wrap) {
+    node.innerHTML = wrap[1] + markup + wrap[2];
+
+    var wrapDepth = wrap[0];
+    while (wrapDepth--) {
+      node = node.lastChild;
+    }
+  } else {
+    node.innerHTML = markup;
+  }
+
+  var scripts = node.getElementsByTagName('script');
+  if (scripts.length) {
+    !handleScript ? process.env.NODE_ENV !== 'production' ? invariant(false, 'createNodesFromMarkup(...): Unexpected <script> element rendered.') : invariant(false) : void 0;
+    createArrayFromMixed(scripts).forEach(handleScript);
+  }
+
+  var nodes = Array.from(node.childNodes);
+  while (node.lastChild) {
+    node.removeChild(node.lastChild);
+  }
+  return nodes;
+}
+
+module.exports = createNodesFromMarkup;
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 238 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16458,9 +16479,9 @@ module.exports = createArrayFromMixed;
 
 /*eslint-disable fb-www/unsafe-html */
 
-var ExecutionEnvironment = __webpack_require__(5);
+var ExecutionEnvironment = __webpack_require__(8);
 
-var invariant = __webpack_require__(1);
+var invariant = __webpack_require__(2);
 
 /**
  * Dummy container used to detect which wraps are necessary.
@@ -16541,7 +16562,51 @@ module.exports = getMarkupWrap;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 282 */
+/* 239 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/**
+ * Copyright (c) 2013-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @typechecks
+ */
+
+
+
+/**
+ * Gets the scroll position of the supplied element or window.
+ *
+ * The return values are unbounded, unlike `getScrollPosition`. This means they
+ * may be negative or exceed the element boundaries (which is possible using
+ * inertial scrolling).
+ *
+ * @param {DOMWindow|DOMElement} scrollable
+ * @return {object} Map with `x` and `y` keys.
+ */
+
+function getUnboundedScrollPosition(scrollable) {
+  if (scrollable.Window && scrollable instanceof scrollable.Window) {
+    return {
+      x: scrollable.pageXOffset || scrollable.document.documentElement.scrollLeft,
+      y: scrollable.pageYOffset || scrollable.document.documentElement.scrollTop
+    };
+  }
+  return {
+    x: scrollable.scrollLeft,
+    y: scrollable.scrollTop
+  };
+}
+
+module.exports = getUnboundedScrollPosition;
+
+/***/ }),
+/* 240 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16579,7 +16644,51 @@ function hyphenate(string) {
 module.exports = hyphenate;
 
 /***/ }),
-/* 283 */
+/* 241 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/**
+ * Copyright (c) 2013-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @typechecks
+ */
+
+
+
+var hyphenate = __webpack_require__(240);
+
+var msPattern = /^ms-/;
+
+/**
+ * Hyphenates a camelcased CSS property name, for example:
+ *
+ *   > hyphenateStyleName('backgroundColor')
+ *   < "background-color"
+ *   > hyphenateStyleName('MozTransition')
+ *   < "-moz-transition"
+ *   > hyphenateStyleName('msTransition')
+ *   < "-ms-transition"
+ *
+ * As Modernizr suggests (http://modernizr.com/docs/#prefixed), an `ms` prefix
+ * is converted to `-ms-`.
+ *
+ * @param {string} string
+ * @return {string}
+ */
+function hyphenateStyleName(string) {
+  return hyphenate(string).replace(msPattern, '-ms-');
+}
+
+module.exports = hyphenateStyleName;
+
+/***/ }),
+/* 242 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16609,7 +16718,7 @@ function isNode(object) {
 module.exports = isNode;
 
 /***/ }),
-/* 284 */
+/* 243 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16626,7 +16735,7 @@ module.exports = isNode;
  * @typechecks
  */
 
-var isNode = __webpack_require__(283);
+var isNode = __webpack_require__(242);
 
 /**
  * @param {*} object The object to check.
@@ -16639,7 +16748,42 @@ function isTextNode(object) {
 module.exports = isTextNode;
 
 /***/ }),
-/* 285 */
+/* 244 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/**
+ * Copyright (c) 2013-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * 
+ * @typechecks static-only
+ */
+
+
+
+/**
+ * Memoizes the return value of a function that accepts one string argument.
+ */
+
+function memoizeStringOnly(callback) {
+  var cache = {};
+  return function (string) {
+    if (!cache.hasOwnProperty(string)) {
+      cache[string] = callback.call(this, string);
+    }
+    return cache[string];
+  };
+}
+
+module.exports = memoizeStringOnly;
+
+/***/ }),
+/* 245 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16656,7 +16800,7 @@ module.exports = isTextNode;
 
 
 
-var ExecutionEnvironment = __webpack_require__(5);
+var ExecutionEnvironment = __webpack_require__(8);
 
 var performance;
 
@@ -16667,6 +16811,84 @@ if (ExecutionEnvironment.canUseDOM) {
 module.exports = performance || {};
 
 /***/ }),
+/* 246 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/**
+ * Copyright (c) 2013-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @typechecks
+ */
+
+var performance = __webpack_require__(245);
+
+var performanceNow;
+
+/**
+ * Detect if we can use `window.performance.now()` and gracefully fallback to
+ * `Date.now()` if it doesn't exist. We need to support Firefox < 15 for now
+ * because of Facebook's testing infrastructure.
+ */
+if (performance.now) {
+  performanceNow = function performanceNow() {
+    return performance.now();
+  };
+} else {
+  performanceNow = function performanceNow() {
+    return Date.now();
+  };
+}
+
+module.exports = performanceNow;
+
+/***/ }),
+/* 247 */,
+/* 248 */,
+/* 249 */,
+/* 250 */,
+/* 251 */,
+/* 252 */,
+/* 253 */,
+/* 254 */,
+/* 255 */,
+/* 256 */,
+/* 257 */,
+/* 258 */,
+/* 259 */,
+/* 260 */,
+/* 261 */,
+/* 262 */,
+/* 263 */,
+/* 264 */,
+/* 265 */,
+/* 266 */,
+/* 267 */,
+/* 268 */,
+/* 269 */,
+/* 270 */,
+/* 271 */,
+/* 272 */,
+/* 273 */,
+/* 274 */,
+/* 275 */,
+/* 276 */,
+/* 277 */,
+/* 278 */,
+/* 279 */,
+/* 280 */,
+/* 281 */,
+/* 282 */,
+/* 283 */,
+/* 284 */,
+/* 285 */,
 /* 286 */,
 /* 287 */,
 /* 288 */,
@@ -16731,106 +16953,73 @@ module.exports = performance || {};
 /* 347 */,
 /* 348 */,
 /* 349 */,
-/* 350 */,
-/* 351 */,
-/* 352 */,
-/* 353 */,
-/* 354 */,
-/* 355 */,
-/* 356 */,
-/* 357 */,
-/* 358 */,
-/* 359 */,
-/* 360 */,
-/* 361 */,
-/* 362 */,
-/* 363 */,
-/* 364 */,
-/* 365 */,
-/* 366 */,
-/* 367 */,
-/* 368 */,
-/* 369 */,
-/* 370 */,
-/* 371 */,
-/* 372 */,
-/* 373 */,
-/* 374 */,
-/* 375 */,
-/* 376 */,
-/* 377 */,
-/* 378 */,
-/* 379 */,
-/* 380 */,
-/* 381 */,
-/* 382 */,
-/* 383 */,
-/* 384 */,
-/* 385 */,
-/* 386 */,
-/* 387 */,
-/* 388 */,
-/* 389 */,
-/* 390 */,
-/* 391 */,
-/* 392 */,
-/* 393 */,
-/* 394 */,
-/* 395 */,
-/* 396 */,
-/* 397 */,
-/* 398 */,
-/* 399 */,
-/* 400 */,
-/* 401 */,
-/* 402 */,
-/* 403 */,
-/* 404 */,
-/* 405 */,
-/* 406 */,
-/* 407 */,
-/* 408 */,
-/* 409 */,
-/* 410 */,
-/* 411 */,
-/* 412 */,
-/* 413 */,
-/* 414 */,
-/* 415 */,
-/* 416 */,
-/* 417 */,
-/* 418 */,
-/* 419 */,
-/* 420 */,
-/* 421 */,
-/* 422 */,
-/* 423 */,
-/* 424 */,
-/* 425 */,
-/* 426 */,
-/* 427 */,
-/* 428 */,
-/* 429 */,
-/* 430 */,
-/* 431 */,
-/* 432 */,
-/* 433 */,
-/* 434 */,
-/* 435 */,
-/* 436 */
+/* 350 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var InArray_1 = __webpack_require__(115);
-var IntVal_1 = __webpack_require__(77);
-var Color_1 = __webpack_require__(29);
-var Piece_1 = __webpack_require__(50);
-var Square_1 = __webpack_require__(51);
-var Position_1 = __webpack_require__(202);
-var Move_1 = __webpack_require__(201);
-var SimpleMove_1 = __webpack_require__(114);
+var onix_core_1 = __webpack_require__(372);
+var intlInitialized = false;
+function registerStrings() {
+    if (!intlInitialized) {
+        onix_core_1.Intl.registerStrings('chess', {
+            'ru-ru': {
+                fen: "FEN",
+                pieces: "Фигуры",
+                squares: "Доска",
+                who_move: "Очередь хода",
+                white: "Белые",
+                black: "Черные",
+                white_move: "Ход белых",
+                black_move: "Ход черных",
+                move_no: "№ хода",
+                ep_target: "e.p.",
+                castle: "Рокировка",
+                firstMove: "Первый ход",
+                prevMove: "Предыдущий ход",
+                nextMove: "Следующий ход",
+                lastMove: "Последний ход",
+            },
+            'en-us': {
+                fen: "FEN",
+                pieces: "Pieces",
+                squares: "Board",
+                who_move: "Who move",
+                white: "White",
+                black: "Black",
+                white_move: "White move",
+                black_move: "Black move",
+                move_no: "Move no",
+                ep_target: "e.p.",
+                castle: "Castle",
+                firstMove: "First move",
+                prevMove: " Prev move",
+                nextMove: "Next move",
+                lastMove: "Last move",
+            }
+        });
+        intlInitialized = true;
+    }
+}
+exports.registerStrings = registerStrings;
+
+
+/***/ }),
+/* 351 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var InArray_1 = __webpack_require__(83);
+var IntVal_1 = __webpack_require__(57);
+var Color_1 = __webpack_require__(22);
+var Piece_1 = __webpack_require__(36);
+var Square_1 = __webpack_require__(37);
+var Position_1 = __webpack_require__(150);
+var Move_1 = __webpack_require__(149);
+var SimpleMove_1 = __webpack_require__(82);
 var ChessRatingType;
 (function (ChessRatingType) {
     ChessRatingType[ChessRatingType["None"] = 0] = "None";
@@ -17301,7 +17490,7 @@ exports.Chess = Chess;
 
 
 /***/ }),
-/* 437 */
+/* 352 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17323,7 +17512,13 @@ var register = function (category, strings) {
     }
     else {
         for (var lang in strings) {
-            categories[category][lang] = strings[lang];
+            if (!categories[category][lang]) {
+                categories[category][lang] = {};
+            }
+            var langCat = strings[lang];
+            for (var key in langCat) {
+                categories[category][lang][key] = langCat[key];
+            }
         }
     }
 };
@@ -17355,7 +17550,7 @@ Intl.setLocale(window.navigator.language);
 
 
 /***/ }),
-/* 438 */
+/* 353 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17482,7 +17677,7 @@ if (process.env.NODE_ENV === 'production') {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 439 */
+/* 354 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17498,8 +17693,8 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var EventArgs_1 = __webpack_require__(203);
-var EventHandler_1 = __webpack_require__(204);
+var EventArgs_1 = __webpack_require__(151);
+var EventHandler_1 = __webpack_require__(152);
 var Event = (function () {
     /**
      * constructor
@@ -17645,25 +17840,25 @@ exports.Event1 = Event1;
 
 
 /***/ }),
-/* 440 */
+/* 355 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var EventArgs_1 = __webpack_require__(203);
+var EventArgs_1 = __webpack_require__(151);
 exports.EventArgs = EventArgs_1.EventArgs;
 exports.EventArgs1 = EventArgs_1.EventArgs1;
-var EventHandler_1 = __webpack_require__(204);
+var EventHandler_1 = __webpack_require__(152);
 exports.EventHandler = EventHandler_1.EventHandler;
 exports.EventHandler1 = EventHandler_1.EventHandler1;
-var Event_1 = __webpack_require__(439);
+var Event_1 = __webpack_require__(354);
 exports.Event = Event_1.Event;
 exports.Event1 = Event_1.Event1;
 
 
 /***/ }),
-/* 441 */
+/* 356 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17677,33 +17872,33 @@ exports.pushif = function (a, cond, val) {
 
 
 /***/ }),
-/* 442 */
+/* 357 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var InArray_1 = __webpack_require__(115);
+var InArray_1 = __webpack_require__(83);
 exports.inArray = InArray_1.inArray;
-var IndexOf_1 = __webpack_require__(206);
+var IndexOf_1 = __webpack_require__(154);
 exports.indexOf = IndexOf_1.indexOf;
-var Grep_1 = __webpack_require__(205);
+var Grep_1 = __webpack_require__(153);
 exports.grep = Grep_1.grep;
-var Pushif_1 = __webpack_require__(441);
+var Pushif_1 = __webpack_require__(356);
 exports.pushif = Pushif_1.pushif;
 
 
 /***/ }),
-/* 443 */
+/* 358 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var Types_1 = __webpack_require__(39);
-var IndexOf_1 = __webpack_require__(206);
-var Grep_1 = __webpack_require__(205);
-var Timezones_1 = __webpack_require__(444);
+var Types_1 = __webpack_require__(26);
+var IndexOf_1 = __webpack_require__(154);
+var Grep_1 = __webpack_require__(153);
+var Timezones_1 = __webpack_require__(359);
 var months = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
 var days = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
 function ruleToDate(year, rule) {
@@ -17839,7 +18034,7 @@ exports.Timezone = Timezone;
 
 
 /***/ }),
-/* 444 */
+/* 359 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -23603,15 +23798,15 @@ exports.windows_zones = [
 
 
 /***/ }),
-/* 445 */
+/* 360 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var Types_1 = __webpack_require__(39);
-var IntVal_1 = __webpack_require__(77);
-var Timezone_1 = __webpack_require__(443);
+var Types_1 = __webpack_require__(26);
+var IntVal_1 = __webpack_require__(57);
+var Timezone_1 = __webpack_require__(358);
 var valueToTwoDigits = function (value) {
     return ((value < 10) ? '0' : '') + value;
 };
@@ -23654,7 +23849,7 @@ exports.parseDate = function (value) {
 
 
 /***/ }),
-/* 446 */
+/* 361 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -23672,7 +23867,7 @@ exports.ensureValueInRange = function (val, min, max) {
 
 
 /***/ }),
-/* 447 */
+/* 362 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -23684,13 +23879,13 @@ exports.isValueOutOfRange = function (value, min, max) {
 
 
 /***/ }),
-/* 448 */
+/* 363 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var Average_1 = __webpack_require__(207);
+var Average_1 = __webpack_require__(155);
 exports.stdDeviation = function (arr) {
     var avg = Average_1.average(arr), sum = 0;
     for (var i = 0; i < arr.length; i++) {
@@ -23701,7 +23896,26 @@ exports.stdDeviation = function (arr) {
 
 
 /***/ }),
-/* 449 */
+/* 364 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var IntVal_1 = __webpack_require__(57);
+exports.intVal = IntVal_1.intVal;
+var IsValueOutOfRange_1 = __webpack_require__(362);
+exports.isValueOutOfRange = IsValueOutOfRange_1.isValueOutOfRange;
+var EnsureValueInRange_1 = __webpack_require__(361);
+exports.ensureValueInRange = EnsureValueInRange_1.ensureValueInRange;
+var Average_1 = __webpack_require__(155);
+exports.average = Average_1.average;
+var StdDeviation_1 = __webpack_require__(363);
+exports.stdDeviation = StdDeviation_1.stdDeviation;
+
+
+/***/ }),
+/* 365 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -23713,7 +23927,7 @@ exports.capitalize = function (str) {
 
 
 /***/ }),
-/* 450 */
+/* 366 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -23741,15 +23955,15 @@ exports.pluralize = function (num, strOne, strTwo, strFive) {
 
 
 /***/ }),
-/* 451 */
+/* 367 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var Pad_1 = __webpack_require__(117);
-var Justify_1 = __webpack_require__(208);
-var IntVal_1 = __webpack_require__(77);
+var Pad_1 = __webpack_require__(84);
+var Justify_1 = __webpack_require__(156);
+var IntVal_1 = __webpack_require__(57);
 // formatBaseX()
 var formatBaseX = function (value, base, prefixBaseX, leftJustify, minWidth, precision, zeroPad) {
     // Note: casts negative numbers to positive ones
@@ -23869,7 +24083,7 @@ exports.sprintf = function (format) {
 
 
 /***/ }),
-/* 452 */
+/* 368 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -23881,36 +24095,36 @@ exports.trim = function (value) {
 
 
 /***/ }),
-/* 453 */
+/* 369 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var StrRepeat_1 = __webpack_require__(209);
+var StrRepeat_1 = __webpack_require__(157);
 exports.strRepeat = StrRepeat_1.strRepeat;
-var Trim_1 = __webpack_require__(452);
+var Trim_1 = __webpack_require__(368);
 exports.trim = Trim_1.trim;
-var Pad_1 = __webpack_require__(117);
+var Pad_1 = __webpack_require__(84);
 exports.pad = Pad_1.pad;
-var Justify_1 = __webpack_require__(208);
+var Justify_1 = __webpack_require__(156);
 exports.justify = Justify_1.justify;
-var Capitalize_1 = __webpack_require__(449);
+var Capitalize_1 = __webpack_require__(365);
 exports.capitalize = Capitalize_1.capitalize;
-var Pluralize_1 = __webpack_require__(450);
+var Pluralize_1 = __webpack_require__(366);
 exports.pluralize = Pluralize_1.pluralize;
-var Sprintf_1 = __webpack_require__(451);
+var Sprintf_1 = __webpack_require__(367);
 exports.sprintf = Sprintf_1.sprintf;
 
 
 /***/ }),
-/* 454 */
+/* 370 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var Types_1 = __webpack_require__(39);
+var Types_1 = __webpack_require__(26);
 exports.createChainedFunction = function () {
     var funcs = [];
     for (var _i = 0; _i < arguments.length; _i++) {
@@ -23938,42 +24152,6750 @@ exports.createChainedFunction = function () {
 
 
 /***/ }),
-/* 455 */
+/* 371 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var CreateChainedFunction_1 = __webpack_require__(454);
+var CreateChainedFunction_1 = __webpack_require__(370);
 exports.createChainedFunction = CreateChainedFunction_1.createChainedFunction;
 
 
 /***/ }),
-/* 456 */
+/* 372 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
+Object.defineProperty(exports, "__esModule", { value: true });
+__export(__webpack_require__(26));
+__export(__webpack_require__(357));
+__export(__webpack_require__(369));
+__export(__webpack_require__(364));
+__export(__webpack_require__(360));
+__export(__webpack_require__(371));
+__export(__webpack_require__(355));
+var Logger_1 = __webpack_require__(353);
+exports.Logger = Logger_1.Logger;
+var Intl_1 = __webpack_require__(352);
+exports.Intl = Intl_1.Intl;
+
+
+/***/ }),
+/* 373 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var onix_core_1 = __webpack_require__(21);
+var defaultLocale = 'ru-ru';
+var currentLocale = defaultLocale;
+var categories = {};
+var locale = function (value) {
+    if (value == "en" || value == "en-us" || value == "en-uk") {
+        currentLocale = 'en-us';
+    }
+    currentLocale = 'ru-ru';
+    return currentLocale;
+};
+var register = function (category, strings) {
+    if (!categories[category]) {
+        categories[category] = strings;
+    }
+    else {
+        for (var lang in strings) {
+            categories[category][lang] = strings[lang];
+        }
+    }
+};
+var t = function (category, key) {
+    var result = categories[category][currentLocale][key];
+    if (!result) {
+        result = categories[category][defaultLocale][key];
+    }
+    return result;
+};
+var ts = function (category, key) {
+    var result = categories[category][currentLocale][key];
+    if (!result) {
+        result = categories[category][defaultLocale][key];
+    }
+    return result;
+};
+var Intl = (function () {
+    function Intl() {
+    }
+    Intl.setLocale = locale;
+    Intl.t = t;
+    Intl.ts = ts;
+    Intl.registerStrings = register;
+    return Intl;
+}());
+exports.Intl = Intl;
+Intl.setLocale(window.navigator.language);
+
+
+/***/ }),
+/* 374 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(process) {
+Object.defineProperty(exports, "__esModule", { value: true });
+var wnd = window;
+var FALSE = false;
+// some convenient shortcuts.
+var aps = Array.prototype.slice;
+var con = wnd.console;
+var callback_func = null;
+var callback_force = FALSE;
+// Set default level
+var log_level = 9;
+// logging methods, in "priority order". Not all console implementations
+// will utilize these, but they will be used in the callback passed to
+// setCallback.
+var log_methods = ["error", "warn", "info", "debug", "log"];
+// pass these methods through to the console if they exist, otherwise just
+// fail gracefully. These methods are provided for convenience.
+var pass_methods = "assert clear count dir dirxml exception group groupCollapsed groupEnd profile profileEnd table time timeEnd trace".split(" ");
+// logs are stored here so that they can be recalled as necessary.
+var logs = [];
+// determine if the level is visible given the current log_level.
+function is_level(level) {
+    return log_level > 0
+        ? log_level > level
+        : log_methods.length + log_level <= level;
+}
+// execute the callback function if set.
+function exec_callback(args) {
+    if (callback_func && (callback_force || !con || !con.log)) {
+        callback_func.apply(wnd, args);
+    }
+}
+var LoggerClass = (function () {
+    function LoggerClass() {
+        var idx = pass_methods.length;
+        while (--idx >= 0) {
+            this.callPassThroughMethod(pass_methods[idx]);
+        }
+        idx = log_methods.length;
+        while (--idx >= 0) {
+            this.setLevelFunctions(idx, log_methods[idx]);
+        }
+    }
+    LoggerClass.prototype.error = function (message) {
+        var args = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            args[_i - 1] = arguments[_i];
+        }
+    };
+    LoggerClass.prototype.warn = function (message) {
+        var args = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            args[_i - 1] = arguments[_i];
+        }
+    };
+    LoggerClass.prototype.info = function (message) {
+        var args = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            args[_i - 1] = arguments[_i];
+        }
+    };
+    LoggerClass.prototype.debug = function (message) {
+        var args = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            args[_i - 1] = arguments[_i];
+        }
+    };
+    LoggerClass.prototype.log = function (message) {
+        var args = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            args[_i - 1] = arguments[_i];
+        }
+    };
+    LoggerClass.prototype.callPassThroughMethod = function (method) {
+        // generate pass-through methods. These methods will be called, if they
+        // exist, as long as the logging level is non-zero.
+        this[method] = function () {
+            if (log_level !== 0 && con && con[method]) {
+                con[method].apply(con, arguments);
+            }
+        };
+    };
+    LoggerClass.prototype.setLevelFunctions = function (idx, level) {
+        this[level] = function () {
+            var args = aps.call(arguments);
+            var log_arr = [level].concat(args);
+            logs.push(log_arr);
+            exec_callback(log_arr);
+            if (!con || !is_level(idx)) {
+                return;
+            }
+            var arg_norm = (args.length === 1) ? args[0] : args;
+            con.firebug ? con[level].apply(wnd, arg_norm)
+                : con[level] ? con[level](arg_norm)
+                    : con.log(arg_norm);
+        };
+    };
+    LoggerClass.prototype.setCallback = function () {
+        var args = aps.call(arguments), max = logs.length, i = max;
+        callback_func = args.shift() || null;
+        callback_force = typeof args[0] === "boolean" ? args.shift() : FALSE;
+        i -= typeof args[0] === "number" ? args.shift() : max;
+        while (i < max) {
+            exec_callback(logs[i++]);
+        }
+    };
+    ;
+    // priority levels:
+    // log (1) < debug (2) < info (3) < warn (4) < error (5)
+    LoggerClass.prototype.setLevel = function (level) {
+        log_level = level;
+    };
+    return LoggerClass;
+}());
+exports.LoggerClass = LoggerClass;
+exports.Logger = new LoggerClass();
+if (process.env.NODE_ENV === 'production') {
+    exports.Logger.setLevel(1);
+}
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 375 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var EventArgs_1 = __webpack_require__(158);
+var EventHandler_1 = __webpack_require__(159);
+var Event = (function () {
+    /**
+     * constructor
+     */
+    function Event() {
+        this._type = "Event";
+        this.OnHandlerAttached = null;
+        this.OnHandlerAttachedContext = null;
+        this.OnHandlerDettached = null;
+        this.OnHandlerDettachedContext = null;
+        this.handlers = [];
+    }
+    /**
+     * Determines whether the specified handler is bound to the event.
+     */
+    Event.prototype.hasBinding = function (handler) {
+        return this.handlers.indexOf(handler) > -1;
+    };
+    /**
+     * Determines whether the Event has active bindings.
+     */
+    Event.prototype.hasBindings = function () {
+        return this.handlers.length > 0;
+    };
+    /**
+     * Associates the handler with the Event object.
+     * @param handler Event handler.
+     */
+    Event.prototype.bind = function (handler) {
+        if (!this.hasBinding(handler)) {
+            this.handlers.push(handler);
+            if (this.OnHandlerAttached !== null) {
+                this.OnHandlerAttached.call(this.OnHandlerAttachedContext);
+            }
+        }
+    };
+    /**
+     * Associates the event handler with the Event object to execute no more than the specified number of times.
+     * After the specified number of times, the action is disconnected from the handler.
+     * @param handler Event handler.
+     * @param triggerCount Number of calls before the handler is disconnected.
+     */
+    Event.prototype.bindFor = function (handler, triggerCount) {
+        var that = this;
+        var triggers = 0;
+        var wire = new EventHandler_1.EventHandler(function (args) {
+            if (++triggers >= triggerCount) {
+                that.unbind(wire);
+            }
+            handler.invoke(args);
+        }, handler.Context);
+        this.handlers.push(wire);
+    };
+    /**
+     * Disconnects the specified handler from the Event.
+     * @param handler Event handler.
+     */
+    Event.prototype.unbind = function (handler) {
+        for (var i = 0; i < this.handlers.length; i++) {
+            if (this.handlers[i] === handler) {
+                this.handlers.splice(i, 1);
+                return;
+            }
+        }
+    };
+    /**
+     * Executes all linked handlers.
+     */
+    Event.prototype.trigger = function (args) {
+        var handlers;
+        if (this.hasBindings()) {
+            handlers = this.handlers.slice(0);
+            for (var i = 0; i < handlers.length; i++) {
+                handlers[i].Invoke(args);
+            }
+        }
+    };
+    /**
+     * Make arguments and execute
+     * @param sender Event sender
+     * @param data Event data
+     */
+    Event.prototype.fire = function (sender, data) {
+        this.trigger(new EventArgs_1.EventArgs(sender));
+    };
+    /**
+     * Deletes an event and deletes the binding of all related handlers.
+     */
+    Event.prototype.dispose = function () {
+        this.handlers = [];
+    };
+    return Event;
+}());
+exports.Event = Event;
+var Event1 = (function (_super) {
+    __extends(Event1, _super);
+    function Event1() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this._type = "Event1";
+        /**
+         * Event handlers
+         */
+        _this.Handlers = [];
+        return _this;
+    }
+    /**
+     * Associates the handler with the Event object.
+     * @param handler Event handler.
+     */
+    Event1.prototype.bind = function (handler) {
+        _super.prototype.bind.call(this, handler);
+    };
+    /**
+     * Disconnects the specified handler from the Event.
+     * @param handler Event handler.
+     */
+    Event1.prototype.unbind = function (handler) {
+        _super.prototype.unbind.call(this, handler);
+    };
+    /**
+     * Determines whether the specified handler is bound to the event.
+     */
+    Event1.prototype.hasBinding = function (handler) {
+        return _super.prototype.hasBinding.call(this, handler);
+    };
+    /**
+     * Executes all linked handlers.
+     */
+    Event1.prototype.trigger = function (args) {
+        _super.prototype.trigger.call(this, args);
+    };
+    /**
+     * Make arguments and execute
+     * @param sender Event sender
+     * @param data Event data
+     */
+    Event1.prototype.fire = function (sender, data) {
+        this.trigger(new EventArgs_1.EventArgs1(sender, data));
+    };
+    return Event1;
+}(Event));
+exports.Event1 = Event1;
+
+
+/***/ }),
+/* 376 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var EventArgs_1 = __webpack_require__(158);
+exports.EventArgs = EventArgs_1.EventArgs;
+exports.EventArgs1 = EventArgs_1.EventArgs1;
+var EventHandler_1 = __webpack_require__(159);
+exports.EventHandler = EventHandler_1.EventHandler;
+exports.EventHandler1 = EventHandler_1.EventHandler1;
+var Event_1 = __webpack_require__(375);
+exports.Event = Event_1.Event;
+exports.Event1 = Event_1.Event1;
+
+
+/***/ }),
+/* 377 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.inArray = function (needle, haystack, strict) {
+    var found = false;
+    var key;
+    var strct = !!strict;
+    for (key in haystack) {
+        if ((strct && haystack[key] === needle) || (!strct && haystack[key] == needle)) {
+            found = true;
+            break;
+        }
+    }
+    return found;
+};
+
+
+/***/ }),
+/* 378 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.pushif = function (a, cond, val) {
+    if (cond) {
+        a.push(val);
+    }
+};
+
+
+/***/ }),
+/* 379 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var InArray_1 = __webpack_require__(377);
+exports.inArray = InArray_1.inArray;
+var IndexOf_1 = __webpack_require__(161);
+exports.indexOf = IndexOf_1.indexOf;
+var Grep_1 = __webpack_require__(160);
+exports.grep = Grep_1.grep;
+var Pushif_1 = __webpack_require__(378);
+exports.pushif = Pushif_1.pushif;
+
+
+/***/ }),
+/* 380 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var Types_1 = __webpack_require__(38);
+var IndexOf_1 = __webpack_require__(161);
+var Grep_1 = __webpack_require__(160);
+var Timezones_1 = __webpack_require__(381);
+var months = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
+var days = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+function ruleToDate(year, rule) {
+    var date;
+    var targetDay;
+    var ourDay;
+    var month = rule[3];
+    var on = rule[4];
+    var time = rule[5];
+    var cache = rule[8];
+    if (!cache) {
+        rule[8] = cache = {};
+    }
+    if (cache[year]) {
+        return cache[year];
+    }
+    if (!isNaN(on)) {
+        date = new Date(Date.UTC(year, months[month], on, time[0], time[1], time[2], 0));
+    }
+    else if (on.indexOf("last") === 0) {
+        date = new Date(Date.UTC(year, months[month] + 1, 1, time[0] - 24, time[1], time[2], 0));
+        targetDay = days[on.substr(4, 3)];
+        ourDay = date.getUTCDay();
+        date.setUTCDate(date.getUTCDate() + targetDay - ourDay - (targetDay > ourDay ? 7 : 0));
+    }
+    else if (on.indexOf(">=") >= 0) {
+        date = new Date(Date.UTC(year, months[month], on.substr(5), time[0], time[1], time[2], 0));
+        targetDay = days[on.substr(0, 3)];
+        ourDay = date.getUTCDay();
+        date.setUTCDate(date.getUTCDate() + targetDay - ourDay + (targetDay < ourDay ? 7 : 0));
+    }
+    return cache[year] = date;
+}
+function findRule(utcTime, rules, zone) {
+    rules = rules[zone];
+    if (!rules) {
+        var time = zone.split(":");
+        var offset = 0;
+        if (time.length > 1) {
+            offset = time[0] * 60 + Number(time[1]);
+        }
+        return [-1000000, 'max', '-', 'Jan', 1, [0, 0, 0], offset, '-'];
+    }
+    var year = new Date(utcTime).getUTCFullYear();
+    rules = Grep_1.grep(rules, function (rule) {
+        var from = rule[0];
+        var to = rule[1];
+        return from <= year && (to >= year || (from == year && to == "only") || to == "max");
+    });
+    rules.push(utcTime);
+    rules.sort(function (a, b) {
+        if (typeof a != "number") {
+            a = Number(ruleToDate(year, a));
+        }
+        if (typeof b != "number") {
+            b = Number(ruleToDate(year, b));
+        }
+        return a - b;
+    });
+    var rule = rules[IndexOf_1.indexOf(utcTime, rules) - 1] || rules[rules.length - 1];
+    return isNaN(rule) ? rule : null;
+}
+function findZone(utcTime, zones, timezone) {
+    var zoneRules = zones[timezone];
+    if (typeof zoneRules === "string") {
+        zoneRules = zones[zoneRules];
+    }
+    if (!zoneRules) {
+        throw new Error('Timezone "' + timezone + '" is either incorrect, or kendo.timezones.min.js is not included.');
+    }
+    for (var idx = zoneRules.length - 1; idx >= 0; idx--) {
+        var until = zoneRules[idx][3];
+        if (until && utcTime > until) {
+            break;
+        }
+    }
+    var zone = zoneRules[idx + 1];
+    if (!zone) {
+        throw new Error('Timezone "' + timezone + '" not found on ' + utcTime + ".");
+    }
+    return zone;
+}
+function zoneAndRule(utcTime, zones, rules, timezone) {
+    if (!Types_1.isNumber(utcTime)) {
+        utcTime = Date.UTC(utcTime.getFullYear(), utcTime.getMonth(), utcTime.getDate(), utcTime.getHours(), utcTime.getMinutes(), utcTime.getSeconds(), utcTime.getMilliseconds());
+    }
+    var zone = findZone(utcTime, zones, timezone);
+    return {
+        zone: zone,
+        rule: findRule(utcTime, rules, zone[1])
+    };
+}
+var Timezone = (function () {
+    function Timezone() {
+        this.zones = {};
+        this.rules = {};
+        this.zones = Timezones_1.zones;
+        this.rules = Timezones_1.rules;
+    }
+    Timezone.prototype.offset = function (utcTime, timezone) {
+        if (timezone == "Etc/UTC" || timezone == "Etc/GMT") {
+            return 0;
+        }
+        var info = zoneAndRule(utcTime, this.zones, this.rules, timezone);
+        var zone = info.zone;
+        var rule = info.rule;
+        return parseFloat(rule ? zone[0] - rule[6] : zone[0]);
+    };
+    Timezone.prototype.convert = function (date, fromOffset, toOffset) {
+        if (Types_1.isString(fromOffset)) {
+            fromOffset = this.offset(date, fromOffset);
+        }
+        if (Types_1.isString(toOffset)) {
+            toOffset = this.offset(date, toOffset);
+        }
+        var fromLocalOffset = date.getTimezoneOffset();
+        date = new Date(date.getTime() + (fromOffset - toOffset) * 60000);
+        var toLocalOffset = date.getTimezoneOffset();
+        return new Date(date.getTime() + (toLocalOffset - fromLocalOffset) * 60000);
+    };
+    Timezone.prototype.apply = function (date, timezone) {
+        return this.convert(date, date.getTimezoneOffset(), timezone);
+    };
+    Timezone.prototype.remove = function (date, timezone) {
+        return this.convert(date, timezone, date.getTimezoneOffset());
+    };
+    Timezone.prototype.toLocalDate = function (time) {
+        return this.apply(new Date(time), "Etc/UTC");
+    };
+    return Timezone;
+}());
+exports.Timezone = Timezone;
+
+
+/***/ }),
+/* 381 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.zones = {
+    "Africa/Algiers": [
+        ["-12.2", "-", "LMT", "-2486678340000"],
+        ["-9.35", "-", "PMT", "-1855958400000"],
+        ["0", "Algeria", "WE%sT", "-942012000000"],
+        ["-60", "Algeria", "CE%sT", "-733276800000"],
+        ["0", "-", "WET", "-439430400000"],
+        ["-60", "-", "CET", "-212025600000"],
+        ["0", "Algeria", "WE%sT", "246240000000"],
+        ["-60", "Algeria", "CE%sT", "309744000000"],
+        ["0", "Algeria", "WE%sT", "357523200000"],
+        ["-60", "-", "CET"]
+    ],
+    "Atlantic/Cape_Verde": [
+        ["94.06666666666668", "-", "LMT", "-1956700800000"],
+        ["120", "-", "CVT", "-862617600000"],
+        ["120", "1:00", "CVST", "-764121600000"],
+        ["120", "-", "CVT", "186112800000"],
+        ["60", "-", "CVT"]
+    ],
+    "Africa/Ndjamena": [
+        ["-60.2", "-", "LMT", "-1798848000000"],
+        ["-60", "-", "WAT", "308707200000"],
+        ["-60", "1:00", "WAST", "321321600000"],
+        ["-60", "-", "WAT"]
+    ],
+    "Indian/Comoro": [
+        ["-173.06666666666666", "-", "LMT", "-1846281600000"],
+        ["-180", "-", "EAT"]
+    ],
+    "Africa/Abidjan": [
+        ["16.133333333333333", "-", "LMT", "-1798848000000"],
+        ["0", "-", "GMT"]
+    ],
+    "Africa/Bamako": "Africa/Abidjan",
+    "Africa/Banjul": "Africa/Abidjan",
+    "Africa/Conakry": "Africa/Abidjan",
+    "Africa/Dakar": "Africa/Abidjan",
+    "Africa/Freetown": "Africa/Abidjan",
+    "Africa/Lome": "Africa/Abidjan",
+    "Africa/Nouakchott": "Africa/Abidjan",
+    "Africa/Ouagadougou": "Africa/Abidjan",
+    "Africa/Sao_Tome": "Africa/Abidjan",
+    "Atlantic/St_Helena": "Africa/Abidjan",
+    "Africa/Djibouti": [
+        ["-172.6", "-", "LMT", "-1846281600000"],
+        ["-180", "-", "EAT"]
+    ],
+    "Africa/Cairo": [
+        ["-125.15", "-", "LMT", "-2185401600000"],
+        ["-120", "Egypt", "EE%sT"]
+    ],
+    "Africa/Asmara": [
+        ["-155.53333333333333", "-", "LMT", "-3124224000000"],
+        ["-155.53333333333333", "-", "AMT", "-2493072000000"],
+        ["-155.33333333333334", "-", "ADMT", "-1062201600000"],
+        ["-180", "-", "EAT"]
+    ],
+    "Africa/Addis_Ababa": [
+        ["-154.8", "-", "LMT", "-3124224000000"],
+        ["-155.33333333333334", "-", "ADMT", "-1062201600000"],
+        ["-180", "-", "EAT"]
+    ],
+    "Africa/Accra": [
+        ["0.8666666666666666", "-", "LMT", "-1609545600000"],
+        ["0", "Ghana", "%s"]
+    ],
+    "Africa/Bissau": [
+        ["62.333333333333336", "-", "LMT", "-1830384000000"],
+        ["60", "-", "WAT", "189216000000"],
+        ["0", "-", "GMT"]
+    ],
+    "Africa/Nairobi": [
+        ["-147.26666666666665", "-", "LMT", "-1309737600000"],
+        ["-180", "-", "EAT", "-1230854400000"],
+        ["-150", "-", "BEAT", "-915235200000"],
+        ["-165", "-", "BEAUT", "-284083200000"],
+        ["-180", "-", "EAT"]
+    ],
+    "Africa/Monrovia": [
+        ["43.13333333333333", "-", "LMT", "-2745532800000"],
+        ["43.13333333333333", "-", "MMT", "-1604361600000"],
+        ["44.5", "-", "LRT", "73526400000"],
+        ["0", "-", "GMT"]
+    ],
+    "Africa/Tripoli": [
+        ["-52.733333333333334", "-", "LMT", "-1546387200000"],
+        ["-60", "Libya", "CE%sT", "-315705600000"],
+        ["-120", "-", "EET", "410140800000"],
+        ["-60", "Libya", "CE%sT", "641779200000"],
+        ["-120", "-", "EET", "844041600000"],
+        ["-60", "Libya", "CE%sT", "875923200000"],
+        ["-120", "-", "EET", "1352512800000"],
+        ["-60", "Libya", "CE%sT", "1382666400000"],
+        ["-120", "-", "EET"]
+    ],
+    "Indian/Antananarivo": [
+        ["-190.06666666666666", "-", "LMT", "-1846281600000"],
+        ["-180", "-", "EAT", "-499914000000"],
+        ["-180", "1:00", "EAST", "-492051600000"],
+        ["-180", "-", "EAT"]
+    ],
+    "Indian/Mauritius": [
+        ["-230", "-", "LMT", "-1956700800000"],
+        ["-240", "Mauritius", "MU%sT"]
+    ],
+    "Indian/Mayotte": [
+        ["-180.93333333333334", "-", "LMT", "-1846281600000"],
+        ["-180", "-", "EAT"]
+    ],
+    "Africa/Casablanca": [
+        ["30.333333333333332", "-", "LMT", "-1773014400000"],
+        ["0", "Morocco", "WE%sT", "448243200000"],
+        ["-60", "-", "CET", "536371200000"],
+        ["0", "Morocco", "WE%sT"]
+    ],
+    "Africa/El_Aaiun": [
+        ["52.8", "-", "LMT", "-1136073600000"],
+        ["60", "-", "WAT", "198288000000"],
+        ["0", "Morocco", "WE%sT"]
+    ],
+    "Africa/Maputo": [
+        ["-130.33333333333331", "-", "LMT", "-2109283200000"],
+        ["-120", "-", "CAT"]
+    ],
+    "Africa/Blantyre": "Africa/Maputo",
+    "Africa/Bujumbura": "Africa/Maputo",
+    "Africa/Gaborone": "Africa/Maputo",
+    "Africa/Harare": "Africa/Maputo",
+    "Africa/Kigali": "Africa/Maputo",
+    "Africa/Lubumbashi": "Africa/Maputo",
+    "Africa/Lusaka": "Africa/Maputo",
+    "Africa/Windhoek": [
+        ["-68.4", "-", "LMT", "-2458166400000"],
+        ["-90", "-", "SWAT", "-2109283200000"],
+        ["-120", "-", "SAST", "-860968800000"],
+        ["-120", "1:00", "SAST", "-845244000000"],
+        ["-120", "-", "SAST", "637977600000"],
+        ["-120", "-", "CAT", "765331200000"],
+        ["-60", "Namibia", "WA%sT"]
+    ],
+    "Africa/Lagos": [
+        ["-13.6", "-", "LMT", "-1588464000000"],
+        ["-60", "-", "WAT"]
+    ],
+    "Africa/Bangui": "Africa/Lagos",
+    "Africa/Brazzaville": "Africa/Lagos",
+    "Africa/Douala": "Africa/Lagos",
+    "Africa/Kinshasa": "Africa/Lagos",
+    "Africa/Libreville": "Africa/Lagos",
+    "Africa/Luanda": "Africa/Lagos",
+    "Africa/Malabo": "Africa/Lagos",
+    "Africa/Niamey": "Africa/Lagos",
+    "Africa/Porto-Novo": "Africa/Lagos",
+    "Indian/Reunion": [
+        ["-221.86666666666665", "-", "LMT", "-1848873600000"],
+        ["-240", "-", "RET"]
+    ],
+    "Indian/Mahe": [
+        ["-221.8", "-", "LMT", "-2006640000000"],
+        ["-240", "-", "SCT"]
+    ],
+    "Africa/Mogadishu": [
+        ["-181.46666666666667", "-", "LMT", "-2403561600000"],
+        ["-180", "-", "EAT", "-1199318400000"],
+        ["-150", "-", "BEAT", "-378777600000"],
+        ["-180", "-", "EAT"]
+    ],
+    "Africa/Johannesburg": [
+        ["-112", "-", "LMT", "-2458166400000"],
+        ["-90", "-", "SAST", "-2109283200000"],
+        ["-120", "SA", "SAST"]
+    ],
+    "Africa/Maseru": "Africa/Johannesburg",
+    "Africa/Mbabane": "Africa/Johannesburg",
+    "Africa/Khartoum": [
+        ["-130.13333333333333", "-", "LMT", "-1199318400000"],
+        ["-120", "Sudan", "CA%sT", "947937600000"],
+        ["-180", "-", "EAT"]
+    ],
+    "Africa/Juba": "Africa/Khartoum",
+    "Africa/Dar_es_Salaam": [
+        ["-157.13333333333335", "-", "LMT", "-1199318400000"],
+        ["-180", "-", "EAT", "-662774400000"],
+        ["-165", "-", "BEAUT", "-252547200000"],
+        ["-180", "-", "EAT"]
+    ],
+    "Africa/Tunis": [
+        ["-40.733333333333334", "-", "LMT", "-2797200000000"],
+        ["-9.35", "-", "PMT", "-1855958400000"],
+        ["-60", "Tunisia", "CE%sT"]
+    ],
+    "Africa/Kampala": [
+        ["-129.66666666666669", "-", "LMT", "-1309737600000"],
+        ["-180", "-", "EAT", "-1230854400000"],
+        ["-150", "-", "BEAT", "-662774400000"],
+        ["-165", "-", "BEAUT", "-378777600000"],
+        ["-180", "-", "EAT"]
+    ],
+    "Antarctica/Casey": [
+        ["0", "-", "zzz", "-86400000"],
+        ["-480", "-", "AWST", "1255831200000"],
+        ["-660", "-", "CAST", "1267754400000"],
+        ["-480", "-", "AWST", "1319767200000"],
+        ["-660", "-", "CAST", "1329843600000"],
+        ["-480", "-", "AWST"]
+    ],
+    "Antarctica/Davis": [
+        ["0", "-", "zzz", "-409190400000"],
+        ["-420", "-", "DAVT", "-163036800000"],
+        ["0", "-", "zzz", "-28857600000"],
+        ["-420", "-", "DAVT", "1255831200000"],
+        ["-300", "-", "DAVT", "1268251200000"],
+        ["-420", "-", "DAVT", "1319767200000"],
+        ["-300", "-", "DAVT", "1329854400000"],
+        ["-420", "-", "DAVT"]
+    ],
+    "Antarctica/Mawson": [
+        ["0", "-", "zzz", "-501206400000"],
+        ["-360", "-", "MAWT", "1255831200000"],
+        ["-300", "-", "MAWT"]
+    ],
+    "Indian/Kerguelen": [
+        ["0", "-", "zzz", "-599702400000"],
+        ["-300", "-", "TFT"]
+    ],
+    "Antarctica/DumontDUrville": [
+        ["0", "-", "zzz", "-694396800000"],
+        ["-600", "-", "PMT", "-566956800000"],
+        ["0", "-", "zzz", "-415497600000"],
+        ["-600", "-", "DDUT"]
+    ],
+    "Antarctica/Syowa": [
+        ["0", "-", "zzz", "-407808000000"],
+        ["-180", "-", "SYOT"]
+    ],
+    "Antarctica/Troll": [
+        ["0", "-", "zzz", "1108166400000"],
+        ["0", "Troll", "%s"]
+    ],
+    "Antarctica/Vostok": [
+        ["0", "-", "zzz", "-380073600000"],
+        ["-360", "-", "VOST"]
+    ],
+    "Antarctica/Rothera": [
+        ["0", "-", "zzz", "218246400000"],
+        ["180", "-", "ROTT"]
+    ],
+    "Antarctica/Palmer": [
+        ["0", "-", "zzz", "-126316800000"],
+        ["240", "ArgAQ", "AR%sT", "-7603200000"],
+        ["180", "ArgAQ", "AR%sT", "389059200000"],
+        ["240", "ChileAQ", "CL%sT"]
+    ],
+    "Asia/Kabul": [
+        ["-276.8", "-", "LMT", "-2493072000000"],
+        ["-240", "-", "AFT", "-757468800000"],
+        ["-270", "-", "AFT"]
+    ],
+    "Asia/Yerevan": [
+        ["-178", "-", "LMT", "-1441152000000"],
+        ["-180", "-", "YERT", "-405129600000"],
+        ["-240", "RussiaAsia", "YER%sT", "670384800000"],
+        ["-180", "1:00", "YERST", "685584000000"],
+        ["-180", "RussiaAsia", "AM%sT", "811908000000"],
+        ["-240", "-", "AMT", "883526400000"],
+        ["-240", "RussiaAsia", "AM%sT", "1332640800000"],
+        ["-240", "-", "AMT"]
+    ],
+    "Asia/Baku": [
+        ["-199.4", "-", "LMT", "-1441152000000"],
+        ["-180", "-", "BAKT", "-405129600000"],
+        ["-240", "RussiaAsia", "BAK%sT", "670384800000"],
+        ["-180", "1:00", "BAKST", "683510400000"],
+        ["-180", "RussiaAsia", "AZ%sT", "715388400000"],
+        ["-240", "-", "AZT", "851990400000"],
+        ["-240", "EUAsia", "AZ%sT", "883526400000"],
+        ["-240", "Azer", "AZ%sT"]
+    ],
+    "Asia/Bahrain": [
+        ["-202.33333333333334", "-", "LMT", "-1546387200000"],
+        ["-240", "-", "GST", "76204800000"],
+        ["-180", "-", "AST"]
+    ],
+    "Asia/Dhaka": [
+        ["-361.6666666666667", "-", "LMT", "-2493072000000"],
+        ["-353.3333333333333", "-", "HMT", "-891561600000"],
+        ["-390", "-", "BURT", "-872035200000"],
+        ["-330", "-", "IST", "-862617600000"],
+        ["-390", "-", "BURT", "-576115200000"],
+        ["-360", "-", "DACT", "38793600000"],
+        ["-360", "-", "BDT", "1262217600000"],
+        ["-360", "Dhaka", "BD%sT"]
+    ],
+    "Asia/Thimphu": [
+        ["-358.6", "-", "LMT", "-706320000000"],
+        ["-330", "-", "IST", "560044800000"],
+        ["-360", "-", "BTT"]
+    ],
+    "Indian/Chagos": [
+        ["-289.6666666666667", "-", "LMT", "-1956700800000"],
+        ["-300", "-", "IOT", "851990400000"],
+        ["-360", "-", "IOT"]
+    ],
+    "Asia/Brunei": [
+        ["-459.6666666666667", "-", "LMT", "-1383436800000"],
+        ["-450", "-", "BNT", "-1136160000000"],
+        ["-480", "-", "BNT"]
+    ],
+    "Asia/Rangoon": [
+        ["-384.6666666666667", "-", "LMT", "-2808604800000"],
+        ["-384.6666666666667", "-", "RMT", "-1546387200000"],
+        ["-390", "-", "BURT", "-873244800000"],
+        ["-540", "-", "JST", "-778377600000"],
+        ["-390", "-", "MMT"]
+    ],
+    "Asia/Phnom_Penh": [
+        ["-419.6666666666667", "-", "LMT", "-2005948800000"],
+        ["-426.3333333333333", "-", "SMT", "-1855958340000"],
+        ["-420", "-", "ICT", "-1819929600000"],
+        ["-480", "-", "ICT", "-1220400000000"],
+        ["-420", "-", "ICT"]
+    ],
+    "Asia/Shanghai": [
+        ["-485.7166666666667", "-", "LMT", "-2146003200000"],
+        ["-480", "Shang", "C%sT", "-631238400000"],
+        ["-480", "PRC", "C%sT"]
+    ],
+    "Asia/Urumqi": [
+        ["-350.3333333333333", "-", "LMT", "-1293926400000"],
+        ["-360", "-", "XJT"]
+    ],
+    "Asia/Hong_Kong": [
+        ["-456.7", "-", "LMT", "-2056665600000"],
+        ["-480", "HK", "HK%sT", "-884217600000"],
+        ["-540", "-", "JST", "-766713600000"],
+        ["-480", "HK", "HK%sT"]
+    ],
+    "Asia/Taipei": [
+        ["-486", "-", "LMT", "-2335219200000"],
+        ["-480", "-", "JWST", "-1017792000000"],
+        ["-540", "-", "JST", "-766191600000"],
+        ["-480", "Taiwan", "C%sT"]
+    ],
+    "Asia/Macau": [
+        ["-454.3333333333333", "-", "LMT", "-1830384000000"],
+        ["-480", "Macau", "MO%sT", "945648000000"],
+        ["-480", "PRC", "C%sT"]
+    ],
+    "Asia/Nicosia": [
+        ["-133.46666666666667", "-", "LMT", "-1518912000000"],
+        ["-120", "Cyprus", "EE%sT", "904608000000"],
+        ["-120", "EUAsia", "EE%sT"]
+    ],
+    "Europe/Nicosia": "Asia/Nicosia", "Asia/Tbilisi": [
+        ["-179.18333333333334", "-", "LMT", "-2808604800000"],
+        ["-179.18333333333334", "-", "TBMT", "-1441152000000"],
+        ["-180", "-", "TBIT", "-405129600000"],
+        ["-240", "RussiaAsia", "TBI%sT", "670384800000"],
+        ["-180", "1:00", "TBIST", "671155200000"],
+        ["-180", "RussiaAsia", "GE%sT", "725760000000"],
+        ["-180", "E-EurAsia", "GE%sT", "778377600000"],
+        ["-240", "E-EurAsia", "GE%sT", "844128000000"],
+        ["-240", "1:00", "GEST", "857174400000"],
+        ["-240", "E-EurAsia", "GE%sT", "1088294400000"],
+        ["-180", "RussiaAsia", "GE%sT", "1109642400000"],
+        ["-240", "-", "GET"]
+    ],
+    "Asia/Dili": [
+        ["-502.3333333333333", "-", "LMT", "-1830384000000"],
+        ["-480", "-", "TLT", "-879123600000"],
+        ["-540", "-", "JST", "-766022400000"],
+        ["-540", "-", "TLT", "199929600000"],
+        ["-480", "-", "WITA", "969148800000"],
+        ["-540", "-", "TLT"]
+    ],
+    "Asia/Kolkata": [
+        ["-353.4666666666667", "-", "LMT", "-2808604800000"],
+        ["-353.3333333333333", "-", "HMT", "-891561600000"],
+        ["-390", "-", "BURT", "-872035200000"],
+        ["-330", "-", "IST", "-862617600000"],
+        ["-330", "1:00", "IST", "-764121600000"],
+        ["-330", "-", "IST"]
+    ],
+    "Asia/Jakarta": [
+        ["-427.2", "-", "LMT", "-3231273600000"],
+        ["-427.2", "-", "BMT", "-1451693568000"],
+        ["-440", "-", "JAVT", "-1172880000000"],
+        ["-450", "-", "WIB", "-876614400000"],
+        ["-540", "-", "JST", "-766022400000"],
+        ["-450", "-", "WIB", "-683856000000"],
+        ["-480", "-", "WIB", "-620784000000"],
+        ["-450", "-", "WIB", "-157852800000"],
+        ["-420", "-", "WIB"]
+    ],
+    "Asia/Pontianak": [
+        ["-437.3333333333333", "-", "LMT", "-1946160000000"],
+        ["-437.3333333333333", "-", "PMT", "-1172880000000"],
+        ["-450", "-", "WIB", "-881193600000"],
+        ["-540", "-", "JST", "-766022400000"],
+        ["-450", "-", "WIB", "-683856000000"],
+        ["-480", "-", "WIB", "-620784000000"],
+        ["-450", "-", "WIB", "-157852800000"],
+        ["-480", "-", "WITA", "567993600000"],
+        ["-420", "-", "WIB"]
+    ],
+    "Asia/Makassar": [
+        ["-477.6", "-", "LMT", "-1546387200000"],
+        ["-477.6", "-", "MMT", "-1172880000000"],
+        ["-480", "-", "WITA", "-880243200000"],
+        ["-540", "-", "JST", "-766022400000"],
+        ["-480", "-", "WITA"]
+    ],
+    "Asia/Jayapura": [
+        ["-562.8", "-", "LMT", "-1172880000000"],
+        ["-540", "-", "WIT", "-799459200000"],
+        ["-570", "-", "ACST", "-157852800000"],
+        ["-540", "-", "WIT"]
+    ],
+    "Asia/Tehran": [
+        ["-205.73333333333335", "-", "LMT", "-1672617600000"],
+        ["-205.73333333333335", "-", "TMT", "-725932800000"],
+        ["-210", "-", "IRST", "247190400000"],
+        ["-240", "Iran", "IR%sT", "315446400000"],
+        ["-210", "Iran", "IR%sT"]
+    ],
+    "Asia/Baghdad": [
+        ["-177.66666666666666", "-", "LMT", "-2493072000000"],
+        ["-177.6", "-", "BMT", "-1609545600000"],
+        ["-180", "-", "AST", "389059200000"],
+        ["-180", "Iraq", "A%sT"]
+    ],
+    "Asia/Jerusalem": [
+        ["-140.9", "-", "LMT", "-2808604800000"],
+        ["-140.66666666666666", "-", "JMT", "-1609545600000"],
+        ["-120", "Zion", "I%sT"]
+    ],
+    "Asia/Tokyo": [
+        ["-558.9833333333333", "-", "LMT", "-2587712400000"],
+        ["-540", "-", "JST", "-2335219200000"],
+        ["-540", "-", "JCST", "-1017792000000"],
+        ["-540", "Japan", "J%sT"]
+    ],
+    "Asia/Amman": [
+        ["-143.73333333333335", "-", "LMT", "-1199318400000"],
+        ["-120", "Jordan", "EE%sT"]
+    ],
+    "Asia/Almaty": [
+        ["-307.8", "-", "LMT", "-1441152000000"],
+        ["-300", "-", "ALMT", "-1247529600000"],
+        ["-360", "RussiaAsia", "ALM%sT", "694137600000"],
+        ["-360", "-", "ALMT", "725760000000"],
+        ["-360", "RussiaAsia", "ALM%sT", "1110844800000"],
+        ["-360", "-", "ALMT"]
+    ],
+    "Asia/Qyzylorda": [
+        ["-261.8666666666667", "-", "LMT", "-1441152000000"],
+        ["-240", "-", "KIZT", "-1247529600000"],
+        ["-300", "-", "KIZT", "354931200000"],
+        ["-300", "1:00", "KIZST", "370742400000"],
+        ["-360", "-", "KIZT", "386467200000"],
+        ["-300", "RussiaAsia", "KIZ%sT", "694137600000"],
+        ["-300", "-", "KIZT", "692841600000"],
+        ["-300", "-", "QYZT", "695786400000"],
+        ["-360", "RussiaAsia", "QYZ%sT", "1110844800000"],
+        ["-360", "-", "QYZT"]
+    ],
+    "Asia/Aqtobe": [
+        ["-228.66666666666666", "-", "LMT", "-1441152000000"],
+        ["-240", "-", "AKTT", "-1247529600000"],
+        ["-300", "-", "AKTT", "354931200000"],
+        ["-300", "1:00", "AKTST", "370742400000"],
+        ["-360", "-", "AKTT", "386467200000"],
+        ["-300", "RussiaAsia", "AKT%sT", "694137600000"],
+        ["-300", "-", "AKTT", "692841600000"],
+        ["-300", "RussiaAsia", "AQT%sT", "1110844800000"],
+        ["-300", "-", "AQTT"]
+    ],
+    "Asia/Aqtau": [
+        ["-201.06666666666666", "-", "LMT", "-1441152000000"],
+        ["-240", "-", "FORT", "-1247529600000"],
+        ["-300", "-", "FORT", "-189475200000"],
+        ["-300", "-", "SHET", "370742400000"],
+        ["-360", "-", "SHET", "386467200000"],
+        ["-300", "RussiaAsia", "SHE%sT", "694137600000"],
+        ["-300", "-", "SHET", "692841600000"],
+        ["-300", "RussiaAsia", "AQT%sT", "794023200000"],
+        ["-240", "RussiaAsia", "AQT%sT", "1110844800000"],
+        ["-300", "-", "AQTT"]
+    ],
+    "Asia/Oral": [
+        ["-205.4", "-", "LMT", "-1441152000000"],
+        ["-240", "-", "URAT", "-1247529600000"],
+        ["-300", "-", "URAT", "354931200000"],
+        ["-300", "1:00", "URAST", "370742400000"],
+        ["-360", "-", "URAT", "386467200000"],
+        ["-300", "RussiaAsia", "URA%sT", "606880800000"],
+        ["-240", "RussiaAsia", "URA%sT", "694137600000"],
+        ["-240", "-", "URAT", "692841600000"],
+        ["-240", "RussiaAsia", "ORA%sT", "1110844800000"],
+        ["-300", "-", "ORAT"]
+    ],
+    "Asia/Bishkek": [
+        ["-298.4", "-", "LMT", "-1441152000000"],
+        ["-300", "-", "FRUT", "-1247529600000"],
+        ["-360", "RussiaAsia", "FRU%sT", "670384800000"],
+        ["-300", "1:00", "FRUST", "683604000000"],
+        ["-300", "Kyrgyz", "KG%sT", "1123804800000"],
+        ["-360", "-", "KGT"]
+    ],
+    "Asia/Seoul": [
+        ["-507.8666666666667", "-", "LMT", "-2493072000000"],
+        ["-510", "-", "KST", "-2053900800000"],
+        ["-540", "-", "JCST", "-1293926400000"],
+        ["-510", "-", "KST", "-1167696000000"],
+        ["-540", "-", "JCST", "-1017792000000"],
+        ["-540", "-", "JST", "-767318400000"],
+        ["-540", "-", "KST", "-498096000000"],
+        ["-480", "ROK", "K%sT", "-264902400000"],
+        ["-510", "-", "KST", "-39484800000"],
+        ["-540", "ROK", "K%sT"]
+    ],
+    "Asia/Pyongyang": [
+        ["-503", "-", "LMT", "-2493072000000"],
+        ["-510", "-", "KST", "-2053900800000"],
+        ["-540", "-", "JCST", "-1293926400000"],
+        ["-510", "-", "KST", "-1167696000000"],
+        ["-540", "-", "JCST", "-1017792000000"],
+        ["-540", "-", "JST", "-768614400000"],
+        ["-540", "-", "KST", "-498096000000"],
+        ["-480", "-", "KST", "-264902400000"],
+        ["-540", "-", "KST"]
+    ],
+    "Asia/Kuwait": [
+        ["-191.93333333333334", "-", "LMT", "-599702400000"],
+        ["-180", "-", "AST"]
+    ],
+    "Asia/Vientiane": [
+        ["-410.4", "-", "LMT", "-2005948800000"],
+        ["-426.3333333333333", "-", "SMT", "-1855958340000"],
+        ["-420", "-", "ICT", "-1819929600000"],
+        ["-480", "-", "ICT", "-1220400000000"],
+        ["-420", "-", "ICT"]
+    ],
+    "Asia/Beirut": [
+        ["-142", "-", "LMT", "-2808604800000"],
+        ["-120", "Lebanon", "EE%sT"]
+    ],
+    "Asia/Kuala_Lumpur": [
+        ["-406.7666666666667", "-", "LMT", "-2177452800000"],
+        ["-415.4166666666667", "-", "SMT", "-2038176000000"],
+        ["-420", "-", "MALT", "-1167609600000"],
+        ["-420", "0:20", "MALST", "-1073001600000"],
+        ["-440", "-", "MALT", "-894153600000"],
+        ["-450", "-", "MALT", "-879638400000"],
+        ["-540", "-", "JST", "-766972800000"],
+        ["-450", "-", "MALT", "378691200000"],
+        ["-480", "-", "MYT"]
+    ],
+    "Asia/Kuching": [
+        ["-441.3333333333333", "-", "LMT", "-1383436800000"],
+        ["-450", "-", "BORT", "-1136160000000"],
+        ["-480", "NBorneo", "BOR%sT", "-879638400000"],
+        ["-540", "-", "JST", "-766972800000"],
+        ["-480", "-", "BORT", "378691200000"],
+        ["-480", "-", "MYT"]
+    ],
+    "Indian/Maldives": [
+        ["-294", "-", "LMT", "-2808604800000"],
+        ["-294", "-", "MMT", "-284083200000"],
+        ["-300", "-", "MVT"]
+    ],
+    "Asia/Hovd": [
+        ["-366.6", "-", "LMT", "-2032905600000"],
+        ["-360", "-", "HOVT", "283910400000"],
+        ["-420", "Mongol", "HOV%sT"]
+    ],
+    "Asia/Ulaanbaatar": [
+        ["-427.5333333333333", "-", "LMT", "-2032905600000"],
+        ["-420", "-", "ULAT", "283910400000"],
+        ["-480", "Mongol", "ULA%sT"]
+    ],
+    "Asia/Choibalsan": [
+        ["-458", "-", "LMT", "-2032905600000"],
+        ["-420", "-", "ULAT", "283910400000"],
+        ["-480", "-", "ULAT", "418003200000"],
+        ["-540", "Mongol", "CHO%sT", "1206921600000"],
+        ["-480", "Mongol", "CHO%sT"]
+    ],
+    "Asia/Kathmandu": [
+        ["-341.2666666666667", "-", "LMT", "-1546387200000"],
+        ["-330", "-", "IST", "536371200000"],
+        ["-345", "-", "NPT"]
+    ],
+    "Asia/Muscat": [
+        ["-234.4", "-", "LMT", "-1546387200000"],
+        ["-240", "-", "GST"]
+    ],
+    "Asia/Karachi": [
+        ["-268.2", "-", "LMT", "-1956700800000"],
+        ["-330", "-", "IST", "-862617600000"],
+        ["-330", "1:00", "IST", "-764121600000"],
+        ["-330", "-", "IST", "-576115200000"],
+        ["-300", "-", "KART", "38793600000"],
+        ["-300", "Pakistan", "PK%sT"]
+    ],
+    "Asia/Gaza": [
+        ["-137.86666666666665", "-", "LMT", "-2185401600000"],
+        ["-120", "Zion", "EET", "-682646400000"],
+        ["-120", "EgyptAsia", "EE%sT", "-81302400000"],
+        ["-120", "Zion", "I%sT", "851990400000"],
+        ["-120", "Jordan", "EE%sT", "946598400000"],
+        ["-120", "Palestine", "EE%sT", "1219968000000"],
+        ["-120", "-", "EET", "1220227200000"],
+        ["-120", "Palestine", "EE%sT", "1293753600000"],
+        ["-120", "-", "EET", "1269648060000"],
+        ["-120", "Palestine", "EE%sT", "1312156800000"],
+        ["-120", "-", "EET", "1356912000000"],
+        ["-120", "Palestine", "EE%sT"]
+    ],
+    "Asia/Hebron": [
+        ["-140.38333333333335", "-", "LMT", "-2185401600000"],
+        ["-120", "Zion", "EET", "-682646400000"],
+        ["-120", "EgyptAsia", "EE%sT", "-81302400000"],
+        ["-120", "Zion", "I%sT", "851990400000"],
+        ["-120", "Jordan", "EE%sT", "946598400000"],
+        ["-120", "Palestine", "EE%sT"]
+    ],
+    "Asia/Manila": [
+        ["956", "-", "LMT", "-3944678400000"],
+        ["-484", "-", "LMT", "-2229292800000"],
+        ["-480", "Phil", "PH%sT", "-873244800000"],
+        ["-540", "-", "JST", "-794188800000"],
+        ["-480", "Phil", "PH%sT"]
+    ],
+    "Asia/Qatar": [
+        ["-206.13333333333335", "-", "LMT", "-1546387200000"],
+        ["-240", "-", "GST", "76204800000"],
+        ["-180", "-", "AST"]
+    ],
+    "Asia/Riyadh": [
+        ["-186.86666666666665", "-", "LMT", "-719625600000"],
+        ["-180", "-", "AST"]
+    ],
+    "Asia/Singapore": [
+        ["-415.4166666666667", "-", "LMT", "-2177452800000"],
+        ["-415.4166666666667", "-", "SMT", "-2038176000000"],
+        ["-420", "-", "MALT", "-1167609600000"],
+        ["-420", "0:20", "MALST", "-1073001600000"],
+        ["-440", "-", "MALT", "-894153600000"],
+        ["-450", "-", "MALT", "-879638400000"],
+        ["-540", "-", "JST", "-766972800000"],
+        ["-450", "-", "MALT", "-138758400000"],
+        ["-450", "-", "SGT", "378691200000"],
+        ["-480", "-", "SGT"]
+    ],
+    "Asia/Colombo": [
+        ["-319.4", "-", "LMT", "-2808604800000"],
+        ["-319.5333333333333", "-", "MMT", "-1988236800000"],
+        ["-330", "-", "IST", "-883267200000"],
+        ["-330", "0:30", "IHST", "-862617600000"],
+        ["-330", "1:00", "IST", "-764028000000"],
+        ["-330", "-", "IST", "832982400000"],
+        ["-390", "-", "LKT", "846289800000"],
+        ["-360", "-", "LKT", "1145061000000"],
+        ["-330", "-", "IST"]
+    ],
+    "Asia/Damascus": [
+        ["-145.2", "-", "LMT", "-1546387200000"],
+        ["-120", "Syria", "EE%sT"]
+    ],
+    "Asia/Dushanbe": [
+        ["-275.2", "-", "LMT", "-1441152000000"],
+        ["-300", "-", "DUST", "-1247529600000"],
+        ["-360", "RussiaAsia", "DUS%sT", "670384800000"],
+        ["-300", "1:00", "DUSST", "684381600000"],
+        ["-300", "-", "TJT"]
+    ],
+    "Asia/Bangkok": [
+        ["-402.06666666666666", "-", "LMT", "-2808604800000"],
+        ["-402.06666666666666", "-", "BMT", "-1570060800000"],
+        ["-420", "-", "ICT"]
+    ],
+    "Asia/Ashgabat": [
+        ["-233.53333333333333", "-", "LMT", "-1441152000000"],
+        ["-240", "-", "ASHT", "-1247529600000"],
+        ["-300", "RussiaAsia", "ASH%sT", "670384800000"],
+        ["-240", "RussiaAsia", "ASH%sT", "688521600000"],
+        ["-240", "RussiaAsia", "TM%sT", "695786400000"],
+        ["-300", "-", "TMT"]
+    ],
+    "Asia/Dubai": [
+        ["-221.2", "-", "LMT", "-1546387200000"],
+        ["-240", "-", "GST"]
+    ],
+    "Asia/Samarkand": [
+        ["-267.8833333333333", "-", "LMT", "-1441152000000"],
+        ["-240", "-", "SAMT", "-1247529600000"],
+        ["-300", "-", "SAMT", "354931200000"],
+        ["-300", "1:00", "SAMST", "370742400000"],
+        ["-360", "-", "TAST", "386467200000"],
+        ["-300", "RussiaAsia", "SAM%sT", "683683200000"],
+        ["-300", "RussiaAsia", "UZ%sT", "725760000000"],
+        ["-300", "-", "UZT"]
+    ],
+    "Asia/Tashkent": [
+        ["-277.18333333333334", "-", "LMT", "-1441152000000"],
+        ["-300", "-", "TAST", "-1247529600000"],
+        ["-360", "RussiaAsia", "TAS%sT", "670384800000"],
+        ["-300", "RussiaAsia", "TAS%sT", "683683200000"],
+        ["-300", "RussiaAsia", "UZ%sT", "725760000000"],
+        ["-300", "-", "UZT"]
+    ],
+    "Asia/Ho_Chi_Minh": [
+        ["-426.6666666666667", "-", "LMT", "-2005948800000"],
+        ["-426.3333333333333", "-", "SMT", "-1855958340000"],
+        ["-420", "-", "ICT", "-1819929600000"],
+        ["-480", "-", "ICT", "-1220400000000"],
+        ["-420", "-", "ICT"]
+    ],
+    "Asia/Aden": [
+        ["-179.9", "-", "LMT", "-599702400000"],
+        ["-180", "-", "AST"]
+    ],
+    "Australia/Darwin": [
+        ["-523.3333333333333", "-", "LMT", "-2364076800000"],
+        ["-540", "-", "ACST", "-2230156800000"],
+        ["-570", "Aus", "AC%sT"]
+    ],
+    "Australia/Perth": [
+        ["-463.4", "-", "LMT", "-2337897600000"],
+        ["-480", "Aus", "AW%sT", "-836438400000"],
+        ["-480", "AW", "AW%sT"]
+    ],
+    "Australia/Eucla": [
+        ["-515.4666666666667", "-", "LMT", "-2337897600000"],
+        ["-525", "Aus", "ACW%sT", "-836438400000"],
+        ["-525", "AW", "ACW%sT"]
+    ],
+    "Australia/Brisbane": [
+        ["-612.1333333333333", "-", "LMT", "-2335305600000"],
+        ["-600", "Aus", "AE%sT", "62985600000"],
+        ["-600", "AQ", "AE%sT"]
+    ],
+    "Australia/Lindeman": [
+        ["-595.9333333333334", "-", "LMT", "-2335305600000"],
+        ["-600", "Aus", "AE%sT", "62985600000"],
+        ["-600", "AQ", "AE%sT", "709948800000"],
+        ["-600", "Holiday", "AE%sT"]
+    ],
+    "Australia/Adelaide": [
+        ["-554.3333333333334", "-", "LMT", "-2364076800000"],
+        ["-540", "-", "ACST", "-2230156800000"],
+        ["-570", "Aus", "AC%sT", "62985600000"],
+        ["-570", "AS", "AC%sT"]
+    ],
+    "Australia/Hobart": [
+        ["-589.2666666666667", "-", "LMT", "-2345760000000"],
+        ["-600", "-", "AEST", "-1680472800000"],
+        ["-600", "1:00", "AEDT", "-1669852800000"],
+        ["-600", "Aus", "AE%sT", "-63244800000"],
+        ["-600", "AT", "AE%sT"]
+    ],
+    "Australia/Currie": [
+        ["-575.4666666666666", "-", "LMT", "-2345760000000"],
+        ["-600", "-", "AEST", "-1680472800000"],
+        ["-600", "1:00", "AEDT", "-1669852800000"],
+        ["-600", "Aus", "AE%sT", "47174400000"],
+        ["-600", "AT", "AE%sT"]
+    ],
+    "Australia/Melbourne": [
+        ["-579.8666666666667", "-", "LMT", "-2364076800000"],
+        ["-600", "Aus", "AE%sT", "62985600000"],
+        ["-600", "AV", "AE%sT"]
+    ],
+    "Australia/Sydney": [
+        ["-604.8666666666667", "-", "LMT", "-2364076800000"],
+        ["-600", "Aus", "AE%sT", "62985600000"],
+        ["-600", "AN", "AE%sT"]
+    ],
+    "Australia/Broken_Hill": [
+        ["-565.8", "-", "LMT", "-2364076800000"],
+        ["-600", "-", "AEST", "-2314915200000"],
+        ["-540", "-", "ACST", "-2230156800000"],
+        ["-570", "Aus", "AC%sT", "62985600000"],
+        ["-570", "AN", "AC%sT", "978220800000"],
+        ["-570", "AS", "AC%sT"]
+    ],
+    "Australia/Lord_Howe": [
+        ["-636.3333333333334", "-", "LMT", "-2364076800000"],
+        ["-600", "-", "AEST", "352252800000"],
+        ["-630", "LH", "LH%sT"]
+    ],
+    "Antarctica/Macquarie": [
+        ["0", "-", "zzz", "-2214259200000"],
+        ["-600", "-", "AEST", "-1680472800000"],
+        ["-600", "1:00", "AEDT", "-1669852800000"],
+        ["-600", "Aus", "AE%sT", "-1601683200000"],
+        ["0", "-", "zzz", "-687052800000"],
+        ["-600", "Aus", "AE%sT", "-63244800000"],
+        ["-600", "AT", "AE%sT", "1270350000000"],
+        ["-660", "-", "MIST"]
+    ],
+    "Indian/Christmas": [
+        ["-422.8666666666667", "-", "LMT", "-2364076800000"],
+        ["-420", "-", "CXT"]
+    ],
+    "Indian/Cocos": [
+        ["-387.6666666666667", "-", "LMT", "-2177539200000"],
+        ["-390", "-", "CCT"]
+    ],
+    "Pacific/Fiji": [
+        ["-715.7333333333333", "-", "LMT", "-1709942400000"],
+        ["-720", "Fiji", "FJ%sT"]
+    ],
+    "Pacific/Gambier": [
+        ["539.8", "-", "LMT", "-1806710400000"],
+        ["540", "-", "GAMT"]
+    ],
+    "Pacific/Marquesas": [
+        ["558", "-", "LMT", "-1806710400000"],
+        ["570", "-", "MART"]
+    ],
+    "Pacific/Tahiti": [
+        ["598.2666666666667", "-", "LMT", "-1806710400000"],
+        ["600", "-", "TAHT"]
+    ],
+    "Pacific/Guam": [
+        ["861", "-", "LMT", "-3944678400000"],
+        ["-579", "-", "LMT", "-2146003200000"],
+        ["-600", "-", "GST", "977529600000"],
+        ["-600", "-", "ChST"]
+    ],
+    "Pacific/Tarawa": [
+        ["-692.0666666666666", "-", "LMT", "-2146003200000"],
+        ["-720", "-", "GILT"]
+    ],
+    "Pacific/Enderbury": [
+        ["684.3333333333334", "-", "LMT", "-2146003200000"],
+        ["720", "-", "PHOT", "307584000000"],
+        ["660", "-", "PHOT", "820368000000"],
+        ["-780", "-", "PHOT"]
+    ],
+    "Pacific/Kiritimati": [
+        ["629.3333333333334", "-", "LMT", "-2146003200000"],
+        ["640", "-", "LINT", "307584000000"],
+        ["600", "-", "LINT", "820368000000"],
+        ["-840", "-", "LINT"]
+    ],
+    "Pacific/Saipan": [
+        ["857", "-", "LMT", "-3944678400000"],
+        ["-583", "-", "LMT", "-2146003200000"],
+        ["-540", "-", "MPT", "-7948800000"],
+        ["-600", "-", "MPT", "977529600000"],
+        ["-600", "-", "ChST"]
+    ],
+    "Pacific/Majuro": [
+        ["-684.8", "-", "LMT", "-2146003200000"],
+        ["-660", "-", "MHT", "-7948800000"],
+        ["-720", "-", "MHT"]
+    ],
+    "Pacific/Kwajalein": [
+        ["-669.3333333333334", "-", "LMT", "-2146003200000"],
+        ["-660", "-", "MHT", "-7948800000"],
+        ["720", "-", "KWAT", "745804800000"],
+        ["-720", "-", "MHT"]
+    ],
+    "Pacific/Chuuk": [
+        ["-607.1333333333333", "-", "LMT", "-2146003200000"],
+        ["-600", "-", "CHUT"]
+    ],
+    "Pacific/Pohnpei": [
+        ["-632.8666666666667", "-", "LMT", "-2146003200000"],
+        ["-660", "-", "PONT"]
+    ],
+    "Pacific/Kosrae": [
+        ["-651.9333333333334", "-", "LMT", "-2146003200000"],
+        ["-660", "-", "KOST", "-7948800000"],
+        ["-720", "-", "KOST", "946598400000"],
+        ["-660", "-", "KOST"]
+    ],
+    "Pacific/Nauru": [
+        ["-667.6666666666666", "-", "LMT", "-1545091200000"],
+        ["-690", "-", "NRT", "-877305600000"],
+        ["-540", "-", "JST", "-800928000000"],
+        ["-690", "-", "NRT", "294364800000"],
+        ["-720", "-", "NRT"]
+    ],
+    "Pacific/Noumea": [
+        ["-665.8", "-", "LMT", "-1829347200000"],
+        ["-660", "NC", "NC%sT"]
+    ],
+    "Pacific/Auckland": [
+        ["-699.0666666666666", "-", "LMT", "-3192393600000"],
+        ["-690", "NZ", "NZ%sT", "-757382400000"],
+        ["-720", "NZ", "NZ%sT"]
+    ],
+    "Pacific/Chatham": [
+        ["-733.8", "-", "LMT", "-3192393600000"],
+        ["-735", "-", "CHAST", "-757382400000"],
+        ["-765", "Chatham", "CHA%sT"]
+    ],
+    "Antarctica/McMurdo": "Pacific/Auckland", "Pacific/Rarotonga": [
+        ["639.0666666666666", "-", "LMT", "-2146003200000"],
+        ["630", "-", "CKT", "279676800000"],
+        ["600", "Cook", "CK%sT"]
+    ],
+    "Pacific/Niue": [
+        ["679.6666666666666", "-", "LMT", "-2146003200000"],
+        ["680", "-", "NUT", "-568166400000"],
+        ["690", "-", "NUT", "276048000000"],
+        ["660", "-", "NUT"]
+    ],
+    "Pacific/Norfolk": [
+        ["-671.8666666666667", "-", "LMT", "-2146003200000"],
+        ["-672", "-", "NMT", "-568166400000"],
+        ["-690", "-", "NFT"]
+    ],
+    "Pacific/Palau": [
+        ["-537.9333333333334", "-", "LMT", "-2146003200000"],
+        ["-540", "-", "PWT"]
+    ],
+    "Pacific/Port_Moresby": [
+        ["-588.6666666666666", "-", "LMT", "-2808604800000"],
+        ["-588.5333333333334", "-", "PMMT", "-2335305600000"],
+        ["-600", "-", "PGT"]
+    ],
+    "Pacific/Pitcairn": [
+        ["520.3333333333333", "-", "LMT", "-2146003200000"],
+        ["510", "-", "PNT", "893635200000"],
+        ["480", "-", "PST"]
+    ],
+    "Pacific/Pago_Pago": [
+        ["-757.2", "-", "LMT", "-2855692800000"],
+        ["682.8", "-", "LMT", "-1830470400000"],
+        ["660", "-", "NST", "-86918400000"],
+        ["660", "-", "BST", "438998400000"],
+        ["660", "-", "SST"]
+    ],
+    "Pacific/Apia": [
+        ["-753.0666666666666", "-", "LMT", "-2855692800000"],
+        ["686.9333333333334", "-", "LMT", "-1830470400000"],
+        ["690", "-", "WSST", "-599702400000"],
+        ["660", "WS", "S%sT", "1325203200000"],
+        ["-780", "WS", "WS%sT"]
+    ],
+    "Pacific/Guadalcanal": [
+        ["-639.8", "-", "LMT", "-1806710400000"],
+        ["-660", "-", "SBT"]
+    ],
+    "Pacific/Fakaofo": [
+        ["684.9333333333334", "-", "LMT", "-2146003200000"],
+        ["660", "-", "TKT", "1325203200000"],
+        ["-780", "-", "TKT"]
+    ],
+    "Pacific/Tongatapu": [
+        ["-739.3333333333334", "-", "LMT", "-2146003200000"],
+        ["-740", "-", "TOT", "-883699200000"],
+        ["-780", "-", "TOT", "946598400000"],
+        ["-780", "Tonga", "TO%sT"]
+    ],
+    "Pacific/Funafuti": [
+        ["-716.8666666666667", "-", "LMT", "-2146003200000"],
+        ["-720", "-", "TVT"]
+    ],
+    "Pacific/Midway": [
+        ["709.4666666666666", "-", "LMT", "-2146003200000"],
+        ["660", "-", "NST", "-428544000000"],
+        ["660", "1:00", "NDT", "-420681600000"],
+        ["660", "-", "NST", "-86918400000"],
+        ["660", "-", "BST", "438998400000"],
+        ["660", "-", "SST"]
+    ],
+    "Pacific/Wake": [
+        ["-666.4666666666666", "-", "LMT", "-2146003200000"],
+        ["-720", "-", "WAKT"]
+    ],
+    "Pacific/Efate": [
+        ["-673.2666666666667", "-", "LMT", "-1829347200000"],
+        ["-660", "Vanuatu", "VU%sT"]
+    ],
+    "Pacific/Wallis": [
+        ["-735.3333333333334", "-", "LMT", "-2146003200000"],
+        ["-720", "-", "WFT"]
+    ],
+    "Africa/Asmera": "Africa/Asmara",
+    "Africa/Timbuktu": "Africa/Abidjan",
+    "America/Argentina/ComodRivadavia": "America/Argentina/Catamarca",
+    "America/Atka": "America/Adak",
+    "America/Buenos_Aires": "America/Argentina/Buenos_Aires",
+    "America/Catamarca": "America/Argentina/Catamarca",
+    "America/Coral_Harbour": "America/Atikokan",
+    "America/Cordoba": "America/Argentina/Cordoba",
+    "America/Ensenada": "America/Tijuana",
+    "America/Fort_Wayne": "America/Indiana/Indianapolis",
+    "America/Indianapolis": "America/Indiana/Indianapolis",
+    "America/Jujuy": "America/Argentina/Jujuy",
+    "America/Knox_IN": "America/Indiana/Knox",
+    "America/Louisville": "America/Kentucky/Louisville",
+    "America/Mendoza": "America/Argentina/Mendoza",
+    "America/Porto_Acre": "America/Rio_Branco",
+    "America/Rosario": "America/Argentina/Cordoba",
+    "America/Shiprock": "America/Denver",
+    "America/Virgin": "America/Port_of_Spain",
+    "Antarctica/South_Pole": "Pacific/Auckland",
+    "Asia/Ashkhabad": "Asia/Ashgabat",
+    "Asia/Calcutta": "Asia/Kolkata",
+    "Asia/Chongqing": "Asia/Shanghai",
+    "Asia/Chungking": "Asia/Shanghai",
+    "Asia/Dacca": "Asia/Dhaka",
+    "Asia/Harbin": "Asia/Shanghai",
+    "Asia/Kashgar": "Asia/Urumqi",
+    "Asia/Katmandu": "Asia/Kathmandu",
+    "Asia/Macao": "Asia/Macau",
+    "Asia/Saigon": "Asia/Ho_Chi_Minh",
+    "Asia/Tel_Aviv": "Asia/Jerusalem",
+    "Asia/Thimbu": "Asia/Thimphu",
+    "Asia/Ujung_Pandang": "Asia/Makassar",
+    "Asia/Ulan_Bator": "Asia/Ulaanbaatar",
+    "Atlantic/Faeroe": "Atlantic/Faroe",
+    "Atlantic/Jan_Mayen": "Europe/Oslo",
+    "Australia/ACT": "Australia/Sydney",
+    "Australia/Canberra": "Australia/Sydney",
+    "Australia/LHI": "Australia/Lord_Howe",
+    "Australia/NSW": "Australia/Sydney",
+    "Australia/North": "Australia/Darwin",
+    "Australia/Queensland": "Australia/Brisbane",
+    "Australia/South": "Australia/Adelaide",
+    "Australia/Tasmania": "Australia/Hobart",
+    "Australia/Victoria": "Australia/Melbourne",
+    "Australia/West": "Australia/Perth",
+    "Australia/Yancowinna": "Australia/Broken_Hill",
+    "Brazil/Acre": "America/Rio_Branco",
+    "Brazil/DeNoronha": "America/Noronha",
+    "Brazil/East": "America/Sao_Paulo",
+    "Brazil/West": "America/Manaus",
+    "Canada/Atlantic": "America/Halifax",
+    "Canada/Central": "America/Winnipeg",
+    "Canada/East-Saskatchewan": "America/Regina",
+    "Canada/Eastern": "America/Toronto",
+    "Canada/Mountain": "America/Edmonton",
+    "Canada/Newfoundland": "America/St_Johns",
+    "Canada/Pacific": "America/Vancouver",
+    "Canada/Saskatchewan": "America/Regina",
+    "Canada/Yukon": "America/Whitehorse",
+    "Chile/Continental": "America/Santiago",
+    "Chile/EasterIsland": "Pacific/Easter",
+    "Cuba": "America/Havana",
+    "Egypt": "Africa/Cairo",
+    "Eire": "Europe/Dublin",
+    "Europe/Belfast": "Europe/London",
+    "Europe/Tiraspol": "Europe/Chisinau",
+    "GB": "Europe/London",
+    "GB-Eire": "Europe/London",
+    "GMT+0": "Etc/GMT",
+    "GMT-0": "Etc/GMT",
+    "GMT0": "Etc/GMT",
+    "Greenwich": "Etc/GMT",
+    "Hongkong": "Asia/Hong_Kong",
+    "Iceland": "Atlantic/Reykjavik",
+    "Iran": "Asia/Tehran",
+    "Israel": "Asia/Jerusalem",
+    "Jamaica": "America/Jamaica",
+    "Japan": "Asia/Tokyo",
+    "Kwajalein": "Pacific/Kwajalein",
+    "Libya": "Africa/Tripoli",
+    "Mexico/BajaNorte": "America/Tijuana",
+    "Mexico/BajaSur": "America/Mazatlan",
+    "Mexico/General": "America/Mexico_City",
+    "NZ": "Pacific/Auckland",
+    "NZ-CHAT": "Pacific/Chatham",
+    "Navajo": "America/Denver",
+    "PRC": "Asia/Shanghai",
+    "Pacific/Ponape": "Pacific/Pohnpei",
+    "Pacific/Samoa": "Pacific/Pago_Pago",
+    "Pacific/Truk": "Pacific/Chuuk",
+    "Pacific/Yap": "Pacific/Chuuk",
+    "Poland": "Europe/Warsaw",
+    "Portugal": "Europe/Lisbon",
+    "ROC": "Asia/Taipei",
+    "ROK": "Asia/Seoul",
+    "Singapore": "Asia/Singapore",
+    "Turkey": "Europe/Istanbul",
+    "UCT": "Etc/UCT",
+    "US/Alaska": "America/Anchorage",
+    "US/Aleutian": "America/Adak",
+    "US/Arizona": "America/Phoenix",
+    "US/Central": "America/Chicago",
+    "US/East-Indiana": "America/Indiana/Indianapolis",
+    "US/Eastern": "America/New_York",
+    "US/Hawaii": "Pacific/Honolulu",
+    "US/Indiana-Starke": "America/Indiana/Knox",
+    "US/Michigan": "America/Detroit",
+    "US/Mountain": "America/Denver",
+    "US/Pacific": "America/Los_Angeles",
+    "US/Samoa": "Pacific/Pago_Pago",
+    "UTC": "Etc/UTC",
+    "Universal": "Etc/UTC",
+    "W-SU": "Europe/Moscow",
+    "Zulu": "Etc/UTC", "Etc/GMT": [
+        ["0", "-", "GMT"]
+    ],
+    "Etc/UTC": [
+        ["0", "-", "UTC"]
+    ],
+    "Etc/UCT": [
+        ["0", "-", "UCT"]
+    ],
+    "GMT": "Etc/GMT",
+    "Etc/Universal": "Etc/UTC",
+    "Etc/Zulu": "Etc/UTC",
+    "Etc/Greenwich": "Etc/GMT",
+    "Etc/GMT-0": "Etc/GMT",
+    "Etc/GMT+0": "Etc/GMT",
+    "Etc/GMT0": "Etc/GMT",
+    "Etc/GMT-14": [
+        ["-840", "-", "GMT-14"]
+    ],
+    "Etc/GMT-13": [
+        ["-780", "-", "GMT-13"]
+    ],
+    "Etc/GMT-12": [
+        ["-720", "-", "GMT-12"]
+    ],
+    "Etc/GMT-11": [
+        ["-660", "-", "GMT-11"]
+    ],
+    "Etc/GMT-10": [
+        ["-600", "-", "GMT-10"]
+    ],
+    "Etc/GMT-9": [
+        ["-540", "-", "GMT-9"]
+    ],
+    "Etc/GMT-8": [
+        ["-480", "-", "GMT-8"]
+    ],
+    "Etc/GMT-7": [
+        ["-420", "-", "GMT-7"]
+    ],
+    "Etc/GMT-6": [
+        ["-360", "-", "GMT-6"]
+    ],
+    "Etc/GMT-5": [
+        ["-300", "-", "GMT-5"]
+    ],
+    "Etc/GMT-4": [
+        ["-240", "-", "GMT-4"]
+    ],
+    "Etc/GMT-3": [
+        ["-180", "-", "GMT-3"]
+    ],
+    "Etc/GMT-2": [
+        ["-120", "-", "GMT-2"]
+    ],
+    "Etc/GMT-1": [
+        ["-60", "-", "GMT-1"]
+    ],
+    "Etc/GMT+1": [
+        ["60", "-", "GMT+1"]
+    ],
+    "Etc/GMT+2": [
+        ["120", "-", "GMT+2"]
+    ],
+    "Etc/GMT+3": [
+        ["180", "-", "GMT+3"]
+    ],
+    "Etc/GMT+4": [
+        ["240", "-", "GMT+4"]
+    ],
+    "Etc/GMT+5": [
+        ["300", "-", "GMT+5"]
+    ],
+    "Etc/GMT+6": [
+        ["360", "-", "GMT+6"]
+    ],
+    "Etc/GMT+7": [
+        ["420", "-", "GMT+7"]
+    ],
+    "Etc/GMT+8": [
+        ["480", "-", "GMT+8"]
+    ],
+    "Etc/GMT+9": [
+        ["540", "-", "GMT+9"]
+    ],
+    "Etc/GMT+10": [
+        ["600", "-", "GMT+10"]
+    ],
+    "Etc/GMT+11": [
+        ["660", "-", "GMT+11"]
+    ],
+    "Etc/GMT+12": [
+        ["720", "-", "GMT+12"]
+    ],
+    "Europe/London": [
+        ["1.25", "-", "LMT", "-3852662400000"],
+        ["0", "GB-Eire", "%s", "-37238400000"],
+        ["-60", "-", "BST", "57722400000"],
+        ["0", "GB-Eire", "%s", "851990400000"],
+        ["0", "EU", "GMT/BST"]
+    ],
+    "Europe/Jersey": "Europe/London", "Europe/Guernsey": "Europe/London", "Europe/Isle_of_Man": "Europe/London", "Europe/Dublin": [
+        ["25", "-", "LMT", "-2821651200000"],
+        ["25.35", "-", "DMT", "-1691964000000"],
+        ["25.35", "1:00", "IST", "-1680472800000"],
+        ["0", "GB-Eire", "%s", "-1517011200000"],
+        ["0", "GB-Eire", "GMT/IST", "-942012000000"],
+        ["0", "1:00", "IST", "-733356000000"],
+        ["0", "-", "GMT", "-719445600000"],
+        ["0", "1:00", "IST", "-699487200000"],
+        ["0", "-", "GMT", "-684972000000"],
+        ["0", "GB-Eire", "GMT/IST", "-37238400000"],
+        ["-60", "-", "IST", "57722400000"],
+        ["0", "GB-Eire", "GMT/IST", "851990400000"],
+        ["0", "EU", "GMT/IST"]
+    ],
+    "WET": [
+        ["0", "EU", "WE%sT"]
+    ],
+    "CET": [
+        ["-60", "C-Eur", "CE%sT"]
+    ],
+    "MET": [
+        ["-60", "C-Eur", "ME%sT"]
+    ],
+    "EET": [
+        ["-120", "EU", "EE%sT"]
+    ],
+    "Europe/Tirane": [
+        ["-79.33333333333333", "-", "LMT", "-1735776000000"],
+        ["-60", "-", "CET", "-932342400000"],
+        ["-60", "Albania", "CE%sT", "457488000000"],
+        ["-60", "EU", "CE%sT"]
+    ],
+    "Europe/Andorra": [
+        ["-6.066666666666667", "-", "LMT", "-2146003200000"],
+        ["0", "-", "WET", "-733881600000"],
+        ["-60", "-", "CET", "481082400000"],
+        ["-60", "EU", "CE%sT"]
+    ],
+    "Europe/Vienna": [
+        ["-65.35", "-", "LMT", "-2422051200000"],
+        ["-60", "C-Eur", "CE%sT", "-1546387200000"],
+        ["-60", "Austria", "CE%sT", "-938901600000"],
+        ["-60", "C-Eur", "CE%sT", "-781048800000"],
+        ["-60", "1:00", "CEST", "-780184800000"],
+        ["-60", "-", "CET", "-725932800000"],
+        ["-60", "Austria", "CE%sT", "378604800000"],
+        ["-60", "EU", "CE%sT"]
+    ],
+    "Europe/Minsk": [
+        ["-110.26666666666667", "-", "LMT", "-2808604800000"],
+        ["-110", "-", "MMT", "-1441152000000"],
+        ["-120", "-", "EET", "-1247529600000"],
+        ["-180", "-", "MSK", "-899769600000"],
+        ["-60", "C-Eur", "CE%sT", "-804643200000"],
+        ["-180", "Russia", "MSK/MSD", "662601600000"],
+        ["-180", "-", "MSK", "670384800000"],
+        ["-120", "1:00", "EEST", "686109600000"],
+        ["-120", "-", "EET", "701827200000"],
+        ["-120", "1:00", "EEST", "717552000000"],
+        ["-120", "Russia", "EE%sT", "1301191200000"],
+        ["-180", "-", "FET"]
+    ],
+    "Europe/Brussels": [
+        ["-17.5", "-", "LMT", "-2808604800000"],
+        ["-17.5", "-", "BMT", "-2450952000000"],
+        ["0", "-", "WET", "-1740355200000"],
+        ["-60", "-", "CET", "-1693699200000"],
+        ["-60", "C-Eur", "CE%sT", "-1613826000000"],
+        ["0", "Belgium", "WE%sT", "-934668000000"],
+        ["-60", "C-Eur", "CE%sT", "-799286400000"],
+        ["-60", "Belgium", "CE%sT", "252374400000"],
+        ["-60", "EU", "CE%sT"]
+    ],
+    "Europe/Sofia": [
+        ["-93.26666666666667", "-", "LMT", "-2808604800000"],
+        ["-116.93333333333332", "-", "IMT", "-2369520000000"],
+        ["-120", "-", "EET", "-857250000000"],
+        ["-60", "C-Eur", "CE%sT", "-757468800000"],
+        ["-60", "-", "CET", "-781045200000"],
+        ["-120", "-", "EET", "291769200000"],
+        ["-120", "Bulg", "EE%sT", "401853600000"],
+        ["-120", "C-Eur", "EE%sT", "694137600000"],
+        ["-120", "E-Eur", "EE%sT", "883526400000"],
+        ["-120", "EU", "EE%sT"]
+    ],
+    "Europe/Prague": [
+        ["-57.733333333333334", "-", "LMT", "-3755376000000"],
+        ["-57.733333333333334", "-", "PMT", "-2469398400000"],
+        ["-60", "C-Eur", "CE%sT", "-798069600000"],
+        ["-60", "Czech", "CE%sT", "315446400000"],
+        ["-60", "EU", "CE%sT"]
+    ],
+    "Europe/Copenhagen": [
+        ["-50.333333333333336", "-", "LMT", "-2493072000000"],
+        ["-50.333333333333336", "-", "CMT", "-2398291200000"],
+        ["-60", "Denmark", "CE%sT", "-857253600000"],
+        ["-60", "C-Eur", "CE%sT", "-781048800000"],
+        ["-60", "Denmark", "CE%sT", "347068800000"],
+        ["-60", "EU", "CE%sT"]
+    ],
+    "Atlantic/Faroe": [
+        ["27.066666666666666", "-", "LMT", "-1955750400000"],
+        ["0", "-", "WET", "378604800000"],
+        ["0", "EU", "WE%sT"]
+    ],
+    "America/Danmarkshavn": [
+        ["74.66666666666667", "-", "LMT", "-1686096000000"],
+        ["180", "-", "WGT", "323834400000"],
+        ["180", "EU", "WG%sT", "851990400000"],
+        ["0", "-", "GMT"]
+    ],
+    "America/Scoresbysund": [
+        ["87.86666666666667", "-", "LMT", "-1686096000000"],
+        ["120", "-", "CGT", "323834400000"],
+        ["120", "C-Eur", "CG%sT", "354672000000"],
+        ["60", "EU", "EG%sT"]
+    ],
+    "America/Godthab": [
+        ["206.93333333333334", "-", "LMT", "-1686096000000"],
+        ["180", "-", "WGT", "323834400000"],
+        ["180", "EU", "WG%sT"]
+    ],
+    "America/Thule": [
+        ["275.1333333333333", "-", "LMT", "-1686096000000"],
+        ["240", "Thule", "A%sT"]
+    ],
+    "Europe/Tallinn": [
+        ["-99", "-", "LMT", "-2808604800000"],
+        ["-99", "-", "TMT", "-1638316800000"],
+        ["-60", "C-Eur", "CE%sT", "-1593820800000"],
+        ["-99", "-", "TMT", "-1535932800000"],
+        ["-120", "-", "EET", "-927936000000"],
+        ["-180", "-", "MSK", "-892944000000"],
+        ["-60", "C-Eur", "CE%sT", "-797644800000"],
+        ["-180", "Russia", "MSK/MSD", "606880800000"],
+        ["-120", "1:00", "EEST", "622605600000"],
+        ["-120", "C-Eur", "EE%sT", "906422400000"],
+        ["-120", "EU", "EE%sT", "941414400000"],
+        ["-120", "-", "EET", "1014249600000"],
+        ["-120", "EU", "EE%sT"]
+    ],
+    "Europe/Helsinki": [
+        ["-99.81666666666668", "-", "LMT", "-2890252800000"],
+        ["-99.81666666666668", "-", "HMT", "-1535932800000"],
+        ["-120", "Finland", "EE%sT", "441676800000"],
+        ["-120", "EU", "EE%sT"]
+    ],
+    "Europe/Mariehamn": "Europe/Helsinki", "Europe/Paris": [
+        ["-9.35", "-", "LMT", "-2486678340000"],
+        ["-9.35", "-", "PMT", "-1855958340000"],
+        ["0", "France", "WE%sT", "-932432400000"],
+        ["-60", "C-Eur", "CE%sT", "-800064000000"],
+        ["0", "France", "WE%sT", "-766616400000"],
+        ["-60", "France", "CE%sT", "252374400000"],
+        ["-60", "EU", "CE%sT"]
+    ],
+    "Europe/Berlin": [
+        ["-53.46666666666666", "-", "LMT", "-2422051200000"],
+        ["-60", "C-Eur", "CE%sT", "-776556000000"],
+        ["-60", "SovietZone", "CE%sT", "-725932800000"],
+        ["-60", "Germany", "CE%sT", "347068800000"],
+        ["-60", "EU", "CE%sT"]
+    ],
+    "Europe/Busingen": "Europe/Zurich", "Europe/Gibraltar": [
+        ["21.4", "-", "LMT", "-2821651200000"],
+        ["0", "GB-Eire", "%s", "-401320800000"],
+        ["-60", "-", "CET", "410140800000"],
+        ["-60", "EU", "CE%sT"]
+    ],
+    "Europe/Athens": [
+        ["-94.86666666666667", "-", "LMT", "-2344636800000"],
+        ["-94.86666666666667", "-", "AMT", "-1686095940000"],
+        ["-120", "Greece", "EE%sT", "-904867200000"],
+        ["-60", "Greece", "CE%sT", "-812419200000"],
+        ["-120", "Greece", "EE%sT", "378604800000"],
+        ["-120", "EU", "EE%sT"]
+    ],
+    "Europe/Budapest": [
+        ["-76.33333333333333", "-", "LMT", "-2500934400000"],
+        ["-60", "C-Eur", "CE%sT", "-1609545600000"],
+        ["-60", "Hungary", "CE%sT", "-906768000000"],
+        ["-60", "C-Eur", "CE%sT", "-757468800000"],
+        ["-60", "Hungary", "CE%sT", "338954400000"],
+        ["-60", "EU", "CE%sT"]
+    ],
+    "Atlantic/Reykjavik": [
+        ["87.4", "-", "LMT", "-4165603200000"],
+        ["87.8", "-", "RMT", "-1925078400000"],
+        ["60", "Iceland", "IS%sT", "-54774000000"],
+        ["0", "-", "GMT"]
+    ],
+    "Europe/Rome": [
+        ["-49.93333333333334", "-", "LMT", "-3259094400000"],
+        ["-49.93333333333334", "-", "RMT", "-2403561600000"],
+        ["-60", "Italy", "CE%sT", "-857253600000"],
+        ["-60", "C-Eur", "CE%sT", "-804816000000"],
+        ["-60", "Italy", "CE%sT", "347068800000"],
+        ["-60", "EU", "CE%sT"]
+    ],
+    "Europe/Vatican": "Europe/Rome", "Europe/San_Marino": "Europe/Rome", "Europe/Riga": [
+        ["-96.56666666666668", "-", "LMT", "-2808604800000"],
+        ["-96.56666666666668", "-", "RMT", "-1632002400000"],
+        ["-96.56666666666668", "1:00", "LST", "-1618693200000"],
+        ["-96.56666666666668", "-", "RMT", "-1601676000000"],
+        ["-96.56666666666668", "1:00", "LST", "-1597266000000"],
+        ["-96.56666666666668", "-", "RMT", "-1377302400000"],
+        ["-120", "-", "EET", "-928022400000"],
+        ["-180", "-", "MSK", "-899510400000"],
+        ["-60", "C-Eur", "CE%sT", "-795830400000"],
+        ["-180", "Russia", "MSK/MSD", "604720800000"],
+        ["-120", "1:00", "EEST", "620618400000"],
+        ["-120", "Latvia", "EE%sT", "853804800000"],
+        ["-120", "EU", "EE%sT", "951782400000"],
+        ["-120", "-", "EET", "978393600000"],
+        ["-120", "EU", "EE%sT"]
+    ],
+    "Europe/Vaduz": "Europe/Zurich", "Europe/Vilnius": [
+        ["-101.26666666666667", "-", "LMT", "-2808604800000"],
+        ["-84", "-", "WMT", "-1641081600000"],
+        ["-95.6", "-", "KMT", "-1585094400000"],
+        ["-60", "-", "CET", "-1561248000000"],
+        ["-120", "-", "EET", "-1553558400000"],
+        ["-60", "-", "CET", "-928195200000"],
+        ["-180", "-", "MSK", "-900115200000"],
+        ["-60", "C-Eur", "CE%sT", "-802137600000"],
+        ["-180", "Russia", "MSK/MSD", "670384800000"],
+        ["-120", "1:00", "EEST", "686109600000"],
+        ["-120", "C-Eur", "EE%sT", "915062400000"],
+        ["-120", "-", "EET", "891133200000"],
+        ["-60", "EU", "CE%sT", "941331600000"],
+        ["-120", "-", "EET", "1041379200000"],
+        ["-120", "EU", "EE%sT"]
+    ],
+    "Europe/Luxembourg": [
+        ["-24.6", "-", "LMT", "-2069712000000"],
+        ["-60", "Lux", "CE%sT", "-1612656000000"],
+        ["0", "Lux", "WE%sT", "-1269813600000"],
+        ["0", "Belgium", "WE%sT", "-935182800000"],
+        ["-60", "C-Eur", "WE%sT", "-797979600000"],
+        ["-60", "Belgium", "CE%sT", "252374400000"],
+        ["-60", "EU", "CE%sT"]
+    ],
+    "Europe/Malta": [
+        ["-58.06666666666666", "-", "LMT", "-2403475200000"],
+        ["-60", "Italy", "CE%sT", "-857253600000"],
+        ["-60", "C-Eur", "CE%sT", "-781048800000"],
+        ["-60", "Italy", "CE%sT", "102384000000"],
+        ["-60", "Malta", "CE%sT", "378604800000"],
+        ["-60", "EU", "CE%sT"]
+    ],
+    "Europe/Chisinau": [
+        ["-115.33333333333333", "-", "LMT", "-2808604800000"],
+        ["-115", "-", "CMT", "-1637107200000"],
+        ["-104.4", "-", "BMT", "-1213142400000"],
+        ["-120", "Romania", "EE%sT", "-927158400000"],
+        ["-120", "1:00", "EEST", "-898128000000"],
+        ["-60", "C-Eur", "CE%sT", "-800150400000"],
+        ["-180", "Russia", "MSK/MSD", "662601600000"],
+        ["-180", "-", "MSK", "641952000000"],
+        ["-120", "-", "EET", "694137600000"],
+        ["-120", "Russia", "EE%sT", "725760000000"],
+        ["-120", "E-Eur", "EE%sT", "883526400000"],
+        ["-120", "EU", "EE%sT"]
+    ],
+    "Europe/Monaco": [
+        ["-29.53333333333333", "-", "LMT", "-2486678400000"],
+        ["-9.35", "-", "PMT", "-1855958400000"],
+        ["0", "France", "WE%sT", "-766616400000"],
+        ["-60", "France", "CE%sT", "252374400000"],
+        ["-60", "EU", "CE%sT"]
+    ],
+    "Europe/Amsterdam": [
+        ["-19.53333333333333", "-", "LMT", "-4228761600000"],
+        ["-19.53333333333333", "Neth", "%s", "-1025740800000"],
+        ["-20", "Neth", "NE%sT", "-935020800000"],
+        ["-60", "C-Eur", "CE%sT", "-781048800000"],
+        ["-60", "Neth", "CE%sT", "252374400000"],
+        ["-60", "EU", "CE%sT"]
+    ],
+    "Europe/Oslo": [
+        ["-43", "-", "LMT", "-2366755200000"],
+        ["-60", "Norway", "CE%sT", "-927507600000"],
+        ["-60", "C-Eur", "CE%sT", "-781048800000"],
+        ["-60", "Norway", "CE%sT", "347068800000"],
+        ["-60", "EU", "CE%sT"]
+    ],
+    "Arctic/Longyearbyen": "Europe/Oslo", "Europe/Warsaw": [
+        ["-84", "-", "LMT", "-2808604800000"],
+        ["-84", "-", "WMT", "-1717027200000"],
+        ["-60", "C-Eur", "CE%sT", "-1618693200000"],
+        ["-120", "Poland", "EE%sT", "-1501718400000"],
+        ["-60", "Poland", "CE%sT", "-931730400000"],
+        ["-60", "C-Eur", "CE%sT", "-796867200000"],
+        ["-60", "Poland", "CE%sT", "252374400000"],
+        ["-60", "W-Eur", "CE%sT", "599529600000"],
+        ["-60", "EU", "CE%sT"]
+    ],
+    "Europe/Lisbon": [
+        ["36.75", "-", "LMT", "-2682374400000"],
+        ["36.75", "-", "LMT", "-1830384000000"],
+        ["0", "Port", "WE%sT", "-118274400000"],
+        ["-60", "-", "CET", "212547600000"],
+        ["0", "Port", "WE%sT", "433299600000"],
+        ["0", "W-Eur", "WE%sT", "717555600000"],
+        ["-60", "EU", "CE%sT", "828234000000"],
+        ["0", "EU", "WE%sT"]
+    ],
+    "Atlantic/Azores": [
+        ["102.66666666666667", "-", "LMT", "-2682374400000"],
+        ["114.53333333333333", "-", "HMT", "-1830384000000"],
+        ["120", "Port", "AZO%sT", "-118274400000"],
+        ["60", "Port", "AZO%sT", "433299600000"],
+        ["60", "W-Eur", "AZO%sT", "717555600000"],
+        ["0", "EU", "WE%sT", "733280400000"],
+        ["60", "EU", "AZO%sT"]
+    ],
+    "Atlantic/Madeira": [
+        ["67.6", "-", "LMT", "-2682374400000"],
+        ["67.6", "-", "FMT", "-1830384000000"],
+        ["60", "Port", "MAD%sT", "-118274400000"],
+        ["0", "Port", "WE%sT", "433299600000"],
+        ["0", "EU", "WE%sT"]
+    ],
+    "Europe/Bucharest": [
+        ["-104.4", "-", "LMT", "-2469398400000"],
+        ["-104.4", "-", "BMT", "-1213142400000"],
+        ["-120", "Romania", "EE%sT", "354679200000"],
+        ["-120", "C-Eur", "EE%sT", "694137600000"],
+        ["-120", "Romania", "EE%sT", "788832000000"],
+        ["-120", "E-Eur", "EE%sT", "883526400000"],
+        ["-120", "EU", "EE%sT"]
+    ],
+    "Europe/Kaliningrad": [
+        ["-82", "-", "LMT", "-2422051200000"],
+        ["-60", "C-Eur", "CE%sT", "-757468800000"],
+        ["-120", "Poland", "CE%sT", "-725932800000"],
+        ["-180", "Russia", "MSK/MSD", "670384800000"],
+        ["-120", "Russia", "EE%sT", "1301191200000"],
+        ["-180", "-", "FET", "1414288800000"],
+        ["-120", "-", "EET"]
+    ],
+    "Europe/Moscow": [
+        ["-150.28333333333333", "-", "LMT", "-2808604800000"],
+        ["-150.28333333333333", "-", "MMT", "-1688256000000"],
+        ["-151.31666666666666", "Russia", "%s", "-1593813600000"],
+        ["-180", "Russia", "%s", "-1522713600000"],
+        ["-180", "Russia", "MSK/MSD", "-1491177600000"],
+        ["-120", "-", "EET", "-1247529600000"],
+        ["-180", "Russia", "MSK/MSD", "670384800000"],
+        ["-120", "Russia", "EE%sT", "695786400000"],
+        ["-180", "Russia", "MSK/MSD", "1301191200000"],
+        ["-240", "-", "MSK", "1414288800000"],
+        ["-180", "-", "MSK"]
+    ],
+    "Europe/Simferopol": [
+        ["-136.4", "-", "LMT", "-2808604800000"],
+        ["-136", "-", "SMT", "-1441152000000"],
+        ["-120", "-", "EET", "-1247529600000"],
+        ["-180", "-", "MSK", "-888883200000"],
+        ["-60", "C-Eur", "CE%sT", "-811641600000"],
+        ["-180", "Russia", "MSK/MSD", "662601600000"],
+        ["-180", "-", "MSK", "646797600000"],
+        ["-120", "-", "EET", "725760000000"],
+        ["-120", "E-Eur", "EE%sT", "767750400000"],
+        ["-180", "E-Eur", "MSK/MSD", "828241200000"],
+        ["-180", "1:00", "MSD", "846385200000"],
+        ["-180", "Russia", "MSK/MSD", "883526400000"],
+        ["-180", "-", "MSK", "857178000000"],
+        ["-120", "EU", "EE%sT", "1396144800000"],
+        ["-240", "-", "MSK", "1414288800000"],
+        ["-180", "-", "MSK"]
+    ],
+    "Europe/Volgograd": [
+        ["-177.66666666666666", "-", "LMT", "-1577750400000"],
+        ["-180", "-", "TSAT", "-1411862400000"],
+        ["-180", "-", "STAT", "-1247529600000"],
+        ["-240", "-", "STAT", "-256867200000"],
+        ["-240", "Russia", "VOL%sT", "606880800000"],
+        ["-180", "Russia", "VOL%sT", "670384800000"],
+        ["-240", "-", "VOLT", "701834400000"],
+        ["-180", "Russia", "MSK", "1301191200000"],
+        ["-240", "-", "MSK", "1414288800000"],
+        ["-180", "-", "MSK"]
+    ],
+    "Europe/Samara": [
+        ["-200.33333333333334", "-", "LMT", "-1593813600000"],
+        ["-180", "-", "SAMT", "-1247529600000"],
+        ["-240", "-", "SAMT", "-1102291200000"],
+        ["-240", "Russia", "KUY%sT", "606880800000"],
+        ["-180", "Russia", "MSK/MSD", "670384800000"],
+        ["-120", "Russia", "EE%sT", "686109600000"],
+        ["-180", "-", "KUYT", "687927600000"],
+        ["-240", "Russia", "SAM%sT", "1269741600000"],
+        ["-180", "Russia", "SAM%sT", "1301191200000"],
+        ["-240", "-", "SAMT"]
+    ],
+    "Asia/Yekaterinburg": [
+        ["-242.55", "-", "LMT", "-1688256000000"],
+        ["-225.08333333333334", "-", "PMT", "-1592596800000"],
+        ["-240", "-", "SVET", "-1247529600000"],
+        ["-300", "Russia", "SVE%sT", "670384800000"],
+        ["-240", "Russia", "SVE%sT", "695786400000"],
+        ["-300", "Russia", "YEK%sT", "1301191200000"],
+        ["-360", "-", "YEKT", "1414288800000"],
+        ["-300", "-", "YEKT"]
+    ],
+    "Asia/Omsk": [
+        ["-293.5", "-", "LMT", "-1582070400000"],
+        ["-300", "-", "OMST", "-1247529600000"],
+        ["-360", "Russia", "OMS%sT", "670384800000"],
+        ["-300", "Russia", "OMS%sT", "695786400000"],
+        ["-360", "Russia", "OMS%sT", "1301191200000"],
+        ["-420", "-", "OMST", "1414288800000"],
+        ["-360", "-", "OMST"]
+    ],
+    "Asia/Novosibirsk": [
+        ["-331.6666666666667", "-", "LMT", "-1579456800000"],
+        ["-360", "-", "NOVT", "-1247529600000"],
+        ["-420", "Russia", "NOV%sT", "670384800000"],
+        ["-360", "Russia", "NOV%sT", "695786400000"],
+        ["-420", "Russia", "NOV%sT", "738115200000"],
+        ["-360", "Russia", "NOV%sT", "1301191200000"],
+        ["-420", "-", "NOVT", "1414288800000"],
+        ["-360", "-", "NOVT"]
+    ],
+    "Asia/Novokuznetsk": [
+        ["-348.8", "-", "LMT", "-1441238400000"],
+        ["-360", "-", "KRAT", "-1247529600000"],
+        ["-420", "Russia", "KRA%sT", "670384800000"],
+        ["-360", "Russia", "KRA%sT", "695786400000"],
+        ["-420", "Russia", "KRA%sT", "1269741600000"],
+        ["-360", "Russia", "NOV%sT", "1301191200000"],
+        ["-420", "-", "NOVT", "1414288800000"],
+        ["-420", "-", "KRAT"]
+    ],
+    "Asia/Krasnoyarsk": [
+        ["-371.43333333333334", "-", "LMT", "-1577491200000"],
+        ["-360", "-", "KRAT", "-1247529600000"],
+        ["-420", "Russia", "KRA%sT", "670384800000"],
+        ["-360", "Russia", "KRA%sT", "695786400000"],
+        ["-420", "Russia", "KRA%sT", "1301191200000"],
+        ["-480", "-", "KRAT", "1414288800000"],
+        ["-420", "-", "KRAT"]
+    ],
+    "Asia/Irkutsk": [
+        ["-417.0833333333333", "-", "LMT", "-2808604800000"],
+        ["-417.0833333333333", "-", "IMT", "-1575849600000"],
+        ["-420", "-", "IRKT", "-1247529600000"],
+        ["-480", "Russia", "IRK%sT", "670384800000"],
+        ["-420", "Russia", "IRK%sT", "695786400000"],
+        ["-480", "Russia", "IRK%sT", "1301191200000"],
+        ["-540", "-", "IRKT", "1414288800000"],
+        ["-480", "-", "IRKT"]
+    ],
+    "Asia/Chita": [
+        ["-453.8666666666667", "-", "LMT", "-1579392000000"],
+        ["-480", "-", "YAKT", "-1247529600000"],
+        ["-540", "Russia", "YAK%sT", "670384800000"],
+        ["-480", "Russia", "YAK%sT", "695786400000"],
+        ["-540", "Russia", "YAK%sT", "1301191200000"],
+        ["-600", "-", "YAKT", "1414288800000"],
+        ["-480", "-", "IRKT"]
+    ],
+    "Asia/Yakutsk": [
+        ["-518.9666666666667", "-", "LMT", "-1579392000000"],
+        ["-480", "-", "YAKT", "-1247529600000"],
+        ["-540", "Russia", "YAK%sT", "670384800000"],
+        ["-480", "Russia", "YAK%sT", "695786400000"],
+        ["-540", "Russia", "YAK%sT", "1301191200000"],
+        ["-600", "-", "YAKT", "1414288800000"],
+        ["-540", "-", "YAKT"]
+    ],
+    "Asia/Vladivostok": [
+        ["-527.5166666666667", "-", "LMT", "-1487289600000"],
+        ["-540", "-", "VLAT", "-1247529600000"],
+        ["-600", "Russia", "VLA%sT", "670384800000"],
+        ["-540", "Russia", "VLA%sT", "695786400000"],
+        ["-600", "Russia", "VLA%sT", "1301191200000"],
+        ["-660", "-", "VLAT", "1414288800000"],
+        ["-600", "-", "VLAT"]
+    ],
+    "Asia/Khandyga": [
+        ["-542.2166666666666", "-", "LMT", "-1579392000000"],
+        ["-480", "-", "YAKT", "-1247529600000"],
+        ["-540", "Russia", "YAK%sT", "670384800000"],
+        ["-480", "Russia", "YAK%sT", "695786400000"],
+        ["-540", "Russia", "YAK%sT", "1104451200000"],
+        ["-600", "Russia", "VLA%sT", "1301191200000"],
+        ["-660", "-", "VLAT", "1315872000000"],
+        ["-600", "-", "YAKT", "1414288800000"],
+        ["-540", "-", "YAKT"]
+    ],
+    "Asia/Sakhalin": [
+        ["-570.8", "-", "LMT", "-2031004800000"],
+        ["-540", "-", "JCST", "-1017792000000"],
+        ["-540", "-", "JST", "-768528000000"],
+        ["-660", "Russia", "SAK%sT", "670384800000"],
+        ["-600", "Russia", "SAK%sT", "695786400000"],
+        ["-660", "Russia", "SAK%sT", "857181600000"],
+        ["-600", "Russia", "SAK%sT", "1301191200000"],
+        ["-660", "-", "SAKT", "1414288800000"],
+        ["-600", "-", "SAKT"]
+    ],
+    "Asia/Magadan": [
+        ["-603.2", "-", "LMT", "-1441152000000"],
+        ["-600", "-", "MAGT", "-1247529600000"],
+        ["-660", "Russia", "MAG%sT", "670384800000"],
+        ["-600", "Russia", "MAG%sT", "695786400000"],
+        ["-660", "Russia", "MAG%sT", "1301191200000"],
+        ["-720", "-", "MAGT", "1414288800000"],
+        ["-600", "-", "MAGT"]
+    ],
+    "Asia/Srednekolymsk": [
+        ["-614.8666666666667", "-", "LMT", "-1441152000000"],
+        ["-600", "-", "MAGT", "-1247529600000"],
+        ["-660", "Russia", "MAG%sT", "670384800000"],
+        ["-600", "Russia", "MAG%sT", "695786400000"],
+        ["-660", "Russia", "MAG%sT", "1301191200000"],
+        ["-720", "-", "MAGT", "1414288800000"],
+        ["-660", "-", "SRET"]
+    ],
+    "Asia/Ust-Nera": [
+        ["-572.9", "-", "LMT", "-1579392000000"],
+        ["-480", "-", "YAKT", "-1247529600000"],
+        ["-540", "Russia", "YAKT", "354931200000"],
+        ["-660", "Russia", "MAG%sT", "670384800000"],
+        ["-600", "Russia", "MAG%sT", "695786400000"],
+        ["-660", "Russia", "MAG%sT", "1301191200000"],
+        ["-720", "-", "MAGT", "1315872000000"],
+        ["-660", "-", "VLAT", "1414288800000"],
+        ["-600", "-", "VLAT"]
+    ],
+    "Asia/Kamchatka": [
+        ["-634.6", "-", "LMT", "-1487721600000"],
+        ["-660", "-", "PETT", "-1247529600000"],
+        ["-720", "Russia", "PET%sT", "670384800000"],
+        ["-660", "Russia", "PET%sT", "695786400000"],
+        ["-720", "Russia", "PET%sT", "1269741600000"],
+        ["-660", "Russia", "PET%sT", "1301191200000"],
+        ["-720", "-", "PETT"]
+    ],
+    "Asia/Anadyr": [
+        ["-709.9333333333334", "-", "LMT", "-1441152000000"],
+        ["-720", "-", "ANAT", "-1247529600000"],
+        ["-780", "Russia", "ANA%sT", "386467200000"],
+        ["-720", "Russia", "ANA%sT", "670384800000"],
+        ["-660", "Russia", "ANA%sT", "695786400000"],
+        ["-720", "Russia", "ANA%sT", "1269741600000"],
+        ["-660", "Russia", "ANA%sT", "1301191200000"],
+        ["-720", "-", "ANAT"]
+    ],
+    "Europe/Belgrade": [
+        ["-82", "-", "LMT", "-2682374400000"],
+        ["-60", "-", "CET", "-905821200000"],
+        ["-60", "C-Eur", "CE%sT", "-757468800000"],
+        ["-60", "-", "CET", "-777938400000"],
+        ["-60", "1:00", "CEST", "-766620000000"],
+        ["-60", "-", "CET", "407203200000"],
+        ["-60", "EU", "CE%sT"]
+    ],
+    "Europe/Ljubljana": "Europe/Belgrade",
+    "Europe/Podgorica": "Europe/Belgrade",
+    "Europe/Sarajevo": "Europe/Belgrade",
+    "Europe/Skopje": "Europe/Belgrade",
+    "Europe/Zagreb": "Europe/Belgrade",
+    "Europe/Bratislava": "Europe/Prague",
+    "Europe/Madrid": [
+        ["14.733333333333334", "-", "LMT", "-2177452800000"],
+        ["0", "Spain", "WE%sT", "-733881600000"],
+        ["-60", "Spain", "CE%sT", "315446400000"],
+        ["-60", "EU", "CE%sT"]
+    ],
+    "Africa/Ceuta": [
+        ["21.26666666666667", "-", "LMT", "-2146003200000"],
+        ["0", "-", "WET", "-1630112400000"],
+        ["0", "1:00", "WEST", "-1616806800000"],
+        ["0", "-", "WET", "-1420156800000"],
+        ["0", "Spain", "WE%sT", "-1262390400000"],
+        ["0", "SpainAfrica", "WE%sT", "448243200000"],
+        ["-60", "-", "CET", "536371200000"],
+        ["-60", "EU", "CE%sT"]
+    ],
+    "Atlantic/Canary": [
+        ["61.6", "-", "LMT", "-1509667200000"],
+        ["60", "-", "CANT", "-733878000000"],
+        ["0", "-", "WET", "323827200000"],
+        ["0", "1:00", "WEST", "338947200000"],
+        ["0", "EU", "WE%sT"]
+    ],
+    "Europe/Stockholm": [
+        ["-72.2", "-", "LMT", "-2871676800000"],
+        ["-60.233333333333334", "-", "SET", "-2208988800000"],
+        ["-60", "-", "CET", "-1692493200000"],
+        ["-60", "1:00", "CEST", "-1680476400000"],
+        ["-60", "-", "CET", "347068800000"],
+        ["-60", "EU", "CE%sT"]
+    ],
+    "Europe/Zurich": [
+        ["-34.13333333333333", "-", "LMT", "-3675196800000"],
+        ["-29.76666666666667", "-", "BMT", "-2385244800000"],
+        ["-60", "Swiss", "CE%sT", "378604800000"],
+        ["-60", "EU", "CE%sT"]
+    ],
+    "Europe/Istanbul": [
+        ["-115.86666666666667", "-", "LMT", "-2808604800000"],
+        ["-116.93333333333332", "-", "IMT", "-1869868800000"],
+        ["-120", "Turkey", "EE%sT", "277257600000"],
+        ["-180", "Turkey", "TR%sT", "482803200000"],
+        ["-120", "Turkey", "EE%sT", "1199059200000"],
+        ["-120", "EU", "EE%sT", "1301187600000"],
+        ["-120", "-", "EET", "1301274000000"],
+        ["-120", "EU", "EE%sT", "1396141200000"],
+        ["-120", "-", "EET", "1396227600000"],
+        ["-120", "EU", "EE%sT"]
+    ],
+    "Asia/Istanbul": "Europe/Istanbul", "Europe/Kiev": [
+        ["-122.06666666666668", "-", "LMT", "-2808604800000"],
+        ["-122.06666666666668", "-", "KMT", "-1441152000000"],
+        ["-120", "-", "EET", "-1247529600000"],
+        ["-180", "-", "MSK", "-892512000000"],
+        ["-60", "C-Eur", "CE%sT", "-825379200000"],
+        ["-180", "Russia", "MSK/MSD", "646797600000"],
+        ["-120", "1:00", "EEST", "686113200000"],
+        ["-120", "E-Eur", "EE%sT", "820368000000"],
+        ["-120", "EU", "EE%sT"]
+    ],
+    "Europe/Uzhgorod": [
+        ["-89.2", "-", "LMT", "-2500934400000"],
+        ["-60", "-", "CET", "-915235200000"],
+        ["-60", "C-Eur", "CE%sT", "-796867200000"],
+        ["-60", "1:00", "CEST", "-794707200000"],
+        ["-60", "-", "CET", "-773452800000"],
+        ["-180", "Russia", "MSK/MSD", "662601600000"],
+        ["-180", "-", "MSK", "646797600000"],
+        ["-60", "-", "CET", "670388400000"],
+        ["-120", "-", "EET", "725760000000"],
+        ["-120", "E-Eur", "EE%sT", "820368000000"],
+        ["-120", "EU", "EE%sT"]
+    ],
+    "Europe/Zaporozhye": [
+        ["-140.66666666666666", "-", "LMT", "-2808604800000"],
+        ["-140", "-", "CUT", "-1441152000000"],
+        ["-120", "-", "EET", "-1247529600000"],
+        ["-180", "-", "MSK", "-894758400000"],
+        ["-60", "C-Eur", "CE%sT", "-826416000000"],
+        ["-180", "Russia", "MSK/MSD", "670384800000"],
+        ["-120", "E-Eur", "EE%sT", "820368000000"],
+        ["-120", "EU", "EE%sT"]
+    ],
+    "EST": [
+        ["300", "-", "EST"]
+    ],
+    "MST": [
+        ["420", "-", "MST"]
+    ],
+    "HST": [
+        ["600", "-", "HST"]
+    ],
+    "EST5EDT": [
+        ["300", "US", "E%sT"]
+    ],
+    "CST6CDT": [
+        ["360", "US", "C%sT"]
+    ],
+    "MST7MDT": [
+        ["420", "US", "M%sT"]
+    ],
+    "PST8PDT": [
+        ["480", "US", "P%sT"]
+    ],
+    "America/New_York": [
+        ["296.0333333333333", "-", "LMT", "-2717668562000"],
+        ["300", "US", "E%sT", "-1546387200000"],
+        ["300", "NYC", "E%sT", "-852163200000"],
+        ["300", "US", "E%sT", "-725932800000"],
+        ["300", "NYC", "E%sT", "-63244800000"],
+        ["300", "US", "E%sT"]
+    ],
+    "America/Chicago": [
+        ["350.6", "-", "LMT", "-2717668236000"],
+        ["360", "US", "C%sT", "-1546387200000"],
+        ["360", "Chicago", "C%sT", "-1067810400000"],
+        ["300", "-", "EST", "-1045432800000"],
+        ["360", "Chicago", "C%sT", "-852163200000"],
+        ["360", "US", "C%sT", "-725932800000"],
+        ["360", "Chicago", "C%sT", "-63244800000"],
+        ["360", "US", "C%sT"]
+    ],
+    "America/North_Dakota/Center": [
+        ["405.2", "-", "LMT", "-2717667912000"],
+        ["420", "US", "M%sT", "719978400000"],
+        ["360", "US", "C%sT"]
+    ],
+    "America/North_Dakota/New_Salem": [
+        ["405.65", "-", "LMT", "-2717667939000"],
+        ["420", "US", "M%sT", "1067133600000"],
+        ["360", "US", "C%sT"]
+    ],
+    "America/North_Dakota/Beulah": [
+        ["407.1166666666667", "-", "LMT", "-2717668027000"],
+        ["420", "US", "M%sT", "1289095200000"],
+        ["360", "US", "C%sT"]
+    ],
+    "America/Denver": [
+        ["419.93333333333334", "-", "LMT", "-2717668796000"],
+        ["420", "US", "M%sT", "-1546387200000"],
+        ["420", "Denver", "M%sT", "-852163200000"],
+        ["420", "US", "M%sT", "-725932800000"],
+        ["420", "Denver", "M%sT", "-63244800000"],
+        ["420", "US", "M%sT"]
+    ],
+    "America/Los_Angeles": [
+        ["472.9666666666667", "-", "LMT", "-2717668378000"],
+        ["480", "US", "P%sT", "-725932800000"],
+        ["480", "CA", "P%sT", "-63244800000"],
+        ["480", "US", "P%sT"]
+    ],
+    "America/Juneau": [
+        ["-902.3166666666666", "-", "LMT", "-3225312000000"],
+        ["537.6833333333334", "-", "LMT", "-2188987200000"],
+        ["480", "-", "PST", "-852163200000"],
+        ["480", "US", "P%sT", "-725932800000"],
+        ["480", "-", "PST", "-86400000"],
+        ["480", "US", "P%sT", "325648800000"],
+        ["540", "US", "Y%sT", "341373600000"],
+        ["480", "US", "P%sT", "436327200000"],
+        ["540", "US", "Y%sT", "438998400000"],
+        ["540", "US", "AK%sT"]
+    ],
+    "America/Sitka": [
+        ["-898.7833333333334", "-", "LMT", "-3225312000000"],
+        ["541.2166666666666", "-", "LMT", "-2188987200000"],
+        ["480", "-", "PST", "-852163200000"],
+        ["480", "US", "P%sT", "-725932800000"],
+        ["480", "-", "PST", "-86400000"],
+        ["480", "US", "P%sT", "436327200000"],
+        ["540", "US", "Y%sT", "438998400000"],
+        ["540", "US", "AK%sT"]
+    ],
+    "America/Metlakatla": [
+        ["-913.7", "-", "LMT", "-3225312000000"],
+        ["526.3", "-", "LMT", "-2188987200000"],
+        ["480", "-", "PST", "-852163200000"],
+        ["480", "US", "P%sT", "-725932800000"],
+        ["480", "-", "PST", "-86400000"],
+        ["480", "US", "P%sT", "436327200000"],
+        ["480", "-", "PST"]
+    ],
+    "America/Yakutat": [
+        ["-881.0833333333334", "-", "LMT", "-3225312000000"],
+        ["558.9166666666666", "-", "LMT", "-2188987200000"],
+        ["540", "-", "YST", "-852163200000"],
+        ["540", "US", "Y%sT", "-725932800000"],
+        ["540", "-", "YST", "-86400000"],
+        ["540", "US", "Y%sT", "438998400000"],
+        ["540", "US", "AK%sT"]
+    ],
+    "America/Anchorage": [
+        ["-840.4", "-", "LMT", "-3225312000000"],
+        ["599.6", "-", "LMT", "-2188987200000"],
+        ["600", "-", "CAT", "-852163200000"],
+        ["600", "US", "CAT/CAWT", "-769395600000"],
+        ["600", "US", "CAT/CAPT", "-725932800000"],
+        ["600", "-", "CAT", "-86918400000"],
+        ["600", "-", "AHST", "-86400000"],
+        ["600", "US", "AH%sT", "436327200000"],
+        ["540", "US", "Y%sT", "438998400000"],
+        ["540", "US", "AK%sT"]
+    ],
+    "America/Nome": [
+        ["-778.35", "-", "LMT", "-3225312000000"],
+        ["661.6333333333333", "-", "LMT", "-2188987200000"],
+        ["660", "-", "NST", "-852163200000"],
+        ["660", "US", "N%sT", "-725932800000"],
+        ["660", "-", "NST", "-86918400000"],
+        ["660", "-", "BST", "-86400000"],
+        ["660", "US", "B%sT", "436327200000"],
+        ["540", "US", "Y%sT", "438998400000"],
+        ["540", "US", "AK%sT"]
+    ],
+    "America/Adak": [
+        ["-733.35", "-", "LMT", "-3225312000000"],
+        ["706.6333333333333", "-", "LMT", "-2188987200000"],
+        ["660", "-", "NST", "-852163200000"],
+        ["660", "US", "N%sT", "-725932800000"],
+        ["660", "-", "NST", "-86918400000"],
+        ["660", "-", "BST", "-86400000"],
+        ["660", "US", "B%sT", "436327200000"],
+        ["600", "US", "AH%sT", "438998400000"],
+        ["600", "US", "HA%sT"]
+    ],
+    "Pacific/Honolulu": [
+        ["631.4333333333334", "-", "LMT", "-2334139200000"],
+        ["630", "-", "HST", "-1157320800000"],
+        ["630", "1:00", "HDT", "-1155470400000"],
+        ["630", "-", "HST", "-880236000000"],
+        ["630", "1:00", "HDT", "-765410400000"],
+        ["630", "-", "HST", "-712188000000"],
+        ["600", "-", "HST"]
+    ],
+    "Pacific/Johnston": "Pacific/Honolulu", "America/Phoenix": [
+        ["448.3", "-", "LMT", "-2717670498000"],
+        ["420", "US", "M%sT", "-820540740000"],
+        ["420", "-", "MST", "-812678340000"],
+        ["420", "US", "M%sT", "-796867140000"],
+        ["420", "-", "MST", "-63244800000"],
+        ["420", "US", "M%sT", "-56246400000"],
+        ["420", "-", "MST"]
+    ],
+    "America/Boise": [
+        ["464.81666666666666", "-", "LMT", "-2717667889000"],
+        ["480", "US", "P%sT", "-1471816800000"],
+        ["420", "US", "M%sT", "157680000000"],
+        ["420", "-", "MST", "129088800000"],
+        ["420", "US", "M%sT"]
+    ],
+    "America/Indiana/Indianapolis": [
+        ["344.6333333333333", "-", "LMT", "-2717667878000"],
+        ["360", "US", "C%sT", "-1546387200000"],
+        ["360", "Indianapolis", "C%sT", "-852163200000"],
+        ["360", "US", "C%sT", "-725932800000"],
+        ["360", "Indianapolis", "C%sT", "-463615200000"],
+        ["300", "-", "EST", "-386805600000"],
+        ["360", "-", "CST", "-368661600000"],
+        ["300", "-", "EST", "-86400000"],
+        ["300", "US", "E%sT", "62985600000"],
+        ["300", "-", "EST", "1167523200000"],
+        ["300", "US", "E%sT"]
+    ],
+    "America/Indiana/Marengo": [
+        ["345.3833333333333", "-", "LMT", "-2717667923000"],
+        ["360", "US", "C%sT", "-568166400000"],
+        ["360", "Marengo", "C%sT", "-273708000000"],
+        ["300", "-", "EST", "-86400000"],
+        ["300", "US", "E%sT", "126669600000"],
+        ["360", "1:00", "CDT", "152071200000"],
+        ["300", "US", "E%sT", "220838400000"],
+        ["300", "-", "EST", "1167523200000"],
+        ["300", "US", "E%sT"]
+    ],
+    "America/Indiana/Vincennes": [
+        ["350.1166666666667", "-", "LMT", "-2717668207000"],
+        ["360", "US", "C%sT", "-725932800000"],
+        ["360", "Vincennes", "C%sT", "-179359200000"],
+        ["300", "-", "EST", "-86400000"],
+        ["300", "US", "E%sT", "62985600000"],
+        ["300", "-", "EST", "1143943200000"],
+        ["360", "US", "C%sT", "1194141600000"],
+        ["300", "US", "E%sT"]
+    ],
+    "America/Indiana/Tell_City": [
+        ["347.05", "-", "LMT", "-2717668023000"],
+        ["360", "US", "C%sT", "-725932800000"],
+        ["360", "Perry", "C%sT", "-179359200000"],
+        ["300", "-", "EST", "-86400000"],
+        ["300", "US", "E%sT", "62985600000"],
+        ["300", "-", "EST", "1143943200000"],
+        ["360", "US", "C%sT"]
+    ],
+    "America/Indiana/Petersburg": [
+        ["349.1166666666667", "-", "LMT", "-2717668147000"],
+        ["360", "US", "C%sT", "-441936000000"],
+        ["360", "Pike", "C%sT", "-147909600000"],
+        ["300", "-", "EST", "-100130400000"],
+        ["360", "US", "C%sT", "247024800000"],
+        ["300", "-", "EST", "1143943200000"],
+        ["360", "US", "C%sT", "1194141600000"],
+        ["300", "US", "E%sT"]
+    ],
+    "America/Indiana/Knox": [
+        ["346.5", "-", "LMT", "-2717667990000"],
+        ["360", "US", "C%sT", "-694396800000"],
+        ["360", "Starke", "C%sT", "-242258400000"],
+        ["300", "-", "EST", "-195084000000"],
+        ["360", "US", "C%sT", "688528800000"],
+        ["300", "-", "EST", "1143943200000"],
+        ["360", "US", "C%sT"]
+    ],
+    "America/Indiana/Winamac": [
+        ["346.4166666666667", "-", "LMT", "-2717667985000"],
+        ["360", "US", "C%sT", "-725932800000"],
+        ["360", "Pulaski", "C%sT", "-273708000000"],
+        ["300", "-", "EST", "-86400000"],
+        ["300", "US", "E%sT", "62985600000"],
+        ["300", "-", "EST", "1143943200000"],
+        ["360", "US", "C%sT", "1173578400000"],
+        ["300", "US", "E%sT"]
+    ],
+    "America/Indiana/Vevay": [
+        ["340.2666666666667", "-", "LMT", "-2717667616000"],
+        ["360", "US", "C%sT", "-495064800000"],
+        ["300", "-", "EST", "-86400000"],
+        ["300", "US", "E%sT", "126144000000"],
+        ["300", "-", "EST", "1167523200000"],
+        ["300", "US", "E%sT"]
+    ],
+    "America/Kentucky/Louisville": [
+        ["343.0333333333333", "-", "LMT", "-2717667782000"],
+        ["360", "US", "C%sT", "-1514851200000"],
+        ["360", "Louisville", "C%sT", "-852163200000"],
+        ["360", "US", "C%sT", "-725932800000"],
+        ["360", "Louisville", "C%sT", "-266450400000"],
+        ["300", "-", "EST", "-31622400000"],
+        ["300", "US", "E%sT", "126669600000"],
+        ["360", "1:00", "CDT", "152071200000"],
+        ["300", "US", "E%sT"]
+    ],
+    "America/Kentucky/Monticello": [
+        ["339.4", "-", "LMT", "-2717667564000"],
+        ["360", "US", "C%sT", "-725932800000"],
+        ["360", "-", "CST", "-31622400000"],
+        ["360", "US", "C%sT", "972784800000"],
+        ["300", "US", "E%sT"]
+    ],
+    "America/Detroit": [
+        ["332.18333333333334", "-", "LMT", "-2019772800000"],
+        ["360", "-", "CST", "-1724104800000"],
+        ["300", "-", "EST", "-852163200000"],
+        ["300", "US", "E%sT", "-725932800000"],
+        ["300", "Detroit", "E%sT", "126144000000"],
+        ["300", "US", "E%sT", "189216000000"],
+        ["300", "-", "EST", "167796000000"],
+        ["300", "US", "E%sT"]
+    ],
+    "America/Menominee": [
+        ["350.45", "-", "LMT", "-2659780800000"],
+        ["360", "US", "C%sT", "-725932800000"],
+        ["360", "Menominee", "C%sT", "-21506400000"],
+        ["300", "-", "EST", "104896800000"],
+        ["360", "US", "C%sT"]
+    ],
+    "America/St_Johns": [
+        ["210.86666666666665", "-", "LMT", "-2682374400000"],
+        ["210.86666666666665", "StJohns", "N%sT", "-1609545600000"],
+        ["210.86666666666665", "Canada", "N%sT", "-1578009600000"],
+        ["210.86666666666665", "StJohns", "N%sT", "-1096934400000"],
+        ["210", "StJohns", "N%sT", "-872380800000"],
+        ["210", "Canada", "N%sT", "-725932800000"],
+        ["210", "StJohns", "N%sT", "1320105600000"],
+        ["210", "Canada", "N%sT"]
+    ],
+    "America/Goose_Bay": [
+        ["241.66666666666666", "-", "LMT", "-2682374400000"],
+        ["210.86666666666665", "-", "NST", "-1609545600000"],
+        ["210.86666666666665", "Canada", "N%sT", "-1578009600000"],
+        ["210.86666666666665", "-", "NST", "-1096934400000"],
+        ["210", "-", "NST", "-1041465600000"],
+        ["210", "StJohns", "N%sT", "-872380800000"],
+        ["210", "Canada", "N%sT", "-725932800000"],
+        ["210", "StJohns", "N%sT", "-119916000000"],
+        ["240", "StJohns", "A%sT", "1320105600000"],
+        ["240", "Canada", "A%sT"]
+    ],
+    "America/Halifax": [
+        ["254.4", "-", "LMT", "-2131660800000"],
+        ["240", "Halifax", "A%sT", "-1609545600000"],
+        ["240", "Canada", "A%sT", "-1578009600000"],
+        ["240", "Halifax", "A%sT", "-880236000000"],
+        ["240", "Canada", "A%sT", "-725932800000"],
+        ["240", "Halifax", "A%sT", "157680000000"],
+        ["240", "Canada", "A%sT"]
+    ],
+    "America/Glace_Bay": [
+        ["239.8", "-", "LMT", "-2131660800000"],
+        ["240", "Canada", "A%sT", "-505008000000"],
+        ["240", "Halifax", "A%sT", "-473472000000"],
+        ["240", "-", "AST", "94608000000"],
+        ["240", "Halifax", "A%sT", "157680000000"],
+        ["240", "Canada", "A%sT"]
+    ],
+    "America/Moncton": [
+        ["259.1333333333333", "-", "LMT", "-2715897600000"],
+        ["300", "-", "EST", "-2131660800000"],
+        ["240", "Canada", "A%sT", "-1136160000000"],
+        ["240", "Moncton", "A%sT", "-852163200000"],
+        ["240", "Canada", "A%sT", "-725932800000"],
+        ["240", "Moncton", "A%sT", "126144000000"],
+        ["240", "Canada", "A%sT", "757296000000"],
+        ["240", "Moncton", "A%sT", "1199059200000"],
+        ["240", "Canada", "A%sT"]
+    ],
+    "America/Blanc-Sablon": [
+        ["228.46666666666667", "-", "LMT", "-2682374400000"],
+        ["240", "Canada", "A%sT", "31449600000"],
+        ["240", "-", "AST"]
+    ],
+    "America/Montreal": [
+        ["294.2666666666667", "-", "LMT", "-2682374400000"],
+        ["300", "Mont", "E%sT", "-1609545600000"],
+        ["300", "Canada", "E%sT", "-1578009600000"],
+        ["300", "Mont", "E%sT", "-880236000000"],
+        ["300", "Canada", "E%sT", "-725932800000"],
+        ["300", "Mont", "E%sT", "157680000000"],
+        ["300", "Canada", "E%sT"]
+    ],
+    "America/Toronto": [
+        ["317.5333333333333", "-", "LMT", "-2335305600000"],
+        ["300", "Canada", "E%sT", "-1578009600000"],
+        ["300", "Toronto", "E%sT", "-880236000000"],
+        ["300", "Canada", "E%sT", "-725932800000"],
+        ["300", "Toronto", "E%sT", "157680000000"],
+        ["300", "Canada", "E%sT"]
+    ],
+    "America/Thunder_Bay": [
+        ["357", "-", "LMT", "-2335305600000"],
+        ["360", "-", "CST", "-1862006400000"],
+        ["300", "-", "EST", "-852163200000"],
+        ["300", "Canada", "E%sT", "31449600000"],
+        ["300", "Toronto", "E%sT", "126144000000"],
+        ["300", "-", "EST", "157680000000"],
+        ["300", "Canada", "E%sT"]
+    ],
+    "America/Nipigon": [
+        ["353.06666666666666", "-", "LMT", "-2335305600000"],
+        ["300", "Canada", "E%sT", "-923270400000"],
+        ["300", "1:00", "EDT", "-880236000000"],
+        ["300", "Canada", "E%sT"]
+    ],
+    "America/Rainy_River": [
+        ["378.2666666666667", "-", "LMT", "-2335305600000"],
+        ["360", "Canada", "C%sT", "-923270400000"],
+        ["360", "1:00", "CDT", "-880236000000"],
+        ["360", "Canada", "C%sT"]
+    ],
+    "America/Atikokan": [
+        ["366.4666666666667", "-", "LMT", "-2335305600000"],
+        ["360", "Canada", "C%sT", "-923270400000"],
+        ["360", "1:00", "CDT", "-880236000000"],
+        ["360", "Canada", "C%sT", "-765410400000"],
+        ["300", "-", "EST"]
+    ],
+    "America/Winnipeg": [
+        ["388.6", "-", "LMT", "-2602281600000"],
+        ["360", "Winn", "C%sT", "1167523200000"],
+        ["360", "Canada", "C%sT"]
+    ],
+    "America/Regina": [
+        ["418.6", "-", "LMT", "-2030227200000"],
+        ["420", "Regina", "M%sT", "-307749600000"],
+        ["360", "-", "CST"]
+    ],
+    "America/Swift_Current": [
+        ["431.3333333333333", "-", "LMT", "-2030227200000"],
+        ["420", "Canada", "M%sT", "-749599200000"],
+        ["420", "Regina", "M%sT", "-599702400000"],
+        ["420", "Swift", "M%sT", "70941600000"],
+        ["360", "-", "CST"]
+    ],
+    "America/Edmonton": [
+        ["453.8666666666667", "-", "LMT", "-1998691200000"],
+        ["420", "Edm", "M%sT", "567907200000"],
+        ["420", "Canada", "M%sT"]
+    ],
+    "America/Vancouver": [
+        ["492.4666666666667", "-", "LMT", "-2682374400000"],
+        ["480", "Vanc", "P%sT", "567907200000"],
+        ["480", "Canada", "P%sT"]
+    ],
+    "America/Dawson_Creek": [
+        ["480.93333333333334", "-", "LMT", "-2682374400000"],
+        ["480", "Canada", "P%sT", "-694396800000"],
+        ["480", "Vanc", "P%sT", "83988000000"],
+        ["420", "-", "MST"]
+    ],
+    "America/Creston": [
+        ["466.06666666666666", "-", "LMT", "-2682374400000"],
+        ["420", "-", "MST", "-1680480000000"],
+        ["480", "-", "PST", "-1627862400000"],
+        ["420", "-", "MST"]
+    ],
+    "America/Pangnirtung": [
+        ["0", "-", "zzz", "-1514851200000"],
+        ["240", "NT_YK", "A%sT", "796701600000"],
+        ["300", "Canada", "E%sT", "941335200000"],
+        ["360", "Canada", "C%sT", "972784800000"],
+        ["300", "Canada", "E%sT"]
+    ],
+    "America/Iqaluit": [
+        ["0", "-", "zzz", "-865296000000"],
+        ["300", "NT_YK", "E%sT", "941335200000"],
+        ["360", "Canada", "C%sT", "972784800000"],
+        ["300", "Canada", "E%sT"]
+    ],
+    "America/Resolute": [
+        ["0", "-", "zzz", "-704937600000"],
+        ["360", "NT_YK", "C%sT", "972784800000"],
+        ["300", "-", "EST", "986094000000"],
+        ["360", "Canada", "C%sT", "1162087200000"],
+        ["300", "-", "EST", "1173582000000"],
+        ["360", "Canada", "C%sT"]
+    ],
+    "America/Rankin_Inlet": [
+        ["0", "-", "zzz", "-378777600000"],
+        ["360", "NT_YK", "C%sT", "972784800000"],
+        ["300", "-", "EST", "986094000000"],
+        ["360", "Canada", "C%sT"]
+    ],
+    "America/Cambridge_Bay": [
+        ["0", "-", "zzz", "-1546387200000"],
+        ["420", "NT_YK", "M%sT", "941335200000"],
+        ["360", "Canada", "C%sT", "972784800000"],
+        ["300", "-", "EST", "973382400000"],
+        ["360", "-", "CST", "986094000000"],
+        ["420", "Canada", "M%sT"]
+    ],
+    "America/Yellowknife": [
+        ["0", "-", "zzz", "-1073088000000"],
+        ["420", "NT_YK", "M%sT", "347068800000"],
+        ["420", "Canada", "M%sT"]
+    ],
+    "America/Inuvik": [
+        ["0", "-", "zzz", "-505008000000"],
+        ["480", "NT_YK", "P%sT", "291780000000"],
+        ["420", "NT_YK", "M%sT", "347068800000"],
+        ["420", "Canada", "M%sT"]
+    ],
+    "America/Whitehorse": [
+        ["540.2", "-", "LMT", "-2189030400000"],
+        ["540", "NT_YK", "Y%sT", "-110584800000"],
+        ["480", "NT_YK", "P%sT", "347068800000"],
+        ["480", "Canada", "P%sT"]
+    ],
+    "America/Dawson": [
+        ["557.6666666666666", "-", "LMT", "-2189030400000"],
+        ["540", "NT_YK", "Y%sT", "120614400000"],
+        ["480", "NT_YK", "P%sT", "347068800000"],
+        ["480", "Canada", "P%sT"]
+    ],
+    "America/Cancun": [
+        ["347.06666666666666", "-", "LMT", "-1514764024000"],
+        ["360", "-", "CST", "377913600000"],
+        ["300", "Mexico", "E%sT", "902023200000"],
+        ["360", "Mexico", "C%sT"]
+    ],
+    "America/Merida": [
+        ["358.4666666666667", "-", "LMT", "-1514764708000"],
+        ["360", "-", "CST", "377913600000"],
+        ["300", "-", "EST", "407635200000"],
+        ["360", "Mexico", "C%sT"]
+    ],
+    "America/Matamoros": [
+        ["400", "-", "LMT", "-1514767200000"],
+        ["360", "-", "CST", "599529600000"],
+        ["360", "US", "C%sT", "631065600000"],
+        ["360", "Mexico", "C%sT", "1293753600000"],
+        ["360", "US", "C%sT"]
+    ],
+    "America/Monterrey": [
+        ["401.2666666666667", "-", "LMT", "-1514767276000"],
+        ["360", "-", "CST", "599529600000"],
+        ["360", "US", "C%sT", "631065600000"],
+        ["360", "Mexico", "C%sT"]
+    ],
+    "America/Mexico_City": [
+        ["396.6", "-", "LMT", "-1514763396000"],
+        ["420", "-", "MST", "-1343091600000"],
+        ["360", "-", "CST", "-1234828800000"],
+        ["420", "-", "MST", "-1220317200000"],
+        ["360", "-", "CST", "-1207180800000"],
+        ["420", "-", "MST", "-1191369600000"],
+        ["360", "Mexico", "C%sT", "1001815200000"],
+        ["360", "-", "CST", "1014163200000"],
+        ["360", "Mexico", "C%sT"]
+    ],
+    "America/Ojinaga": [
+        ["417.6666666666667", "-", "LMT", "-1514764660000"],
+        ["420", "-", "MST", "-1343091600000"],
+        ["360", "-", "CST", "-1234828800000"],
+        ["420", "-", "MST", "-1220317200000"],
+        ["360", "-", "CST", "-1207180800000"],
+        ["420", "-", "MST", "-1191369600000"],
+        ["360", "-", "CST", "851990400000"],
+        ["360", "Mexico", "C%sT", "915062400000"],
+        ["360", "-", "CST", "891399600000"],
+        ["420", "Mexico", "M%sT", "1293753600000"],
+        ["420", "US", "M%sT"]
+    ],
+    "America/Chihuahua": [
+        ["424.3333333333333", "-", "LMT", "-1514765060000"],
+        ["420", "-", "MST", "-1343091600000"],
+        ["360", "-", "CST", "-1234828800000"],
+        ["420", "-", "MST", "-1220317200000"],
+        ["360", "-", "CST", "-1207180800000"],
+        ["420", "-", "MST", "-1191369600000"],
+        ["360", "-", "CST", "851990400000"],
+        ["360", "Mexico", "C%sT", "915062400000"],
+        ["360", "-", "CST", "891399600000"],
+        ["420", "Mexico", "M%sT"]
+    ],
+    "America/Hermosillo": [
+        ["443.8666666666667", "-", "LMT", "-1514766232000"],
+        ["420", "-", "MST", "-1343091600000"],
+        ["360", "-", "CST", "-1234828800000"],
+        ["420", "-", "MST", "-1220317200000"],
+        ["360", "-", "CST", "-1207180800000"],
+        ["420", "-", "MST", "-1191369600000"],
+        ["360", "-", "CST", "-873849600000"],
+        ["420", "-", "MST", "-661564800000"],
+        ["480", "-", "PST", "31449600000"],
+        ["420", "Mexico", "M%sT", "946598400000"],
+        ["420", "-", "MST"]
+    ],
+    "America/Mazatlan": [
+        ["425.6666666666667", "-", "LMT", "-1514765140000"],
+        ["420", "-", "MST", "-1343091600000"],
+        ["360", "-", "CST", "-1234828800000"],
+        ["420", "-", "MST", "-1220317200000"],
+        ["360", "-", "CST", "-1207180800000"],
+        ["420", "-", "MST", "-1191369600000"],
+        ["360", "-", "CST", "-873849600000"],
+        ["420", "-", "MST", "-661564800000"],
+        ["480", "-", "PST", "31449600000"],
+        ["420", "Mexico", "M%sT"]
+    ],
+    "America/Bahia_Banderas": [
+        ["421", "-", "LMT", "-1514764860000"],
+        ["420", "-", "MST", "-1343091600000"],
+        ["360", "-", "CST", "-1234828800000"],
+        ["420", "-", "MST", "-1220317200000"],
+        ["360", "-", "CST", "-1207180800000"],
+        ["420", "-", "MST", "-1191369600000"],
+        ["360", "-", "CST", "-873849600000"],
+        ["420", "-", "MST", "-661564800000"],
+        ["480", "-", "PST", "31449600000"],
+        ["420", "Mexico", "M%sT", "1270346400000"],
+        ["360", "Mexico", "C%sT"]
+    ],
+    "America/Tijuana": [
+        ["468.06666666666666", "-", "LMT", "-1514764084000"],
+        ["420", "-", "MST", "-1420156800000"],
+        ["480", "-", "PST", "-1343091600000"],
+        ["420", "-", "MST", "-1234828800000"],
+        ["480", "-", "PST", "-1222992000000"],
+        ["480", "1:00", "PDT", "-1207267200000"],
+        ["480", "-", "PST", "-873849600000"],
+        ["480", "1:00", "PWT", "-769395600000"],
+        ["480", "1:00", "PPT", "-761702400000"],
+        ["480", "-", "PST", "-686102400000"],
+        ["480", "1:00", "PDT", "-661564800000"],
+        ["480", "-", "PST", "-473472000000"],
+        ["480", "CA", "P%sT", "-252547200000"],
+        ["480", "-", "PST", "220838400000"],
+        ["480", "US", "P%sT", "851990400000"],
+        ["480", "Mexico", "P%sT", "1009756800000"],
+        ["480", "US", "P%sT", "1014163200000"],
+        ["480", "Mexico", "P%sT", "1293753600000"],
+        ["480", "US", "P%sT"]
+    ],
+    "America/Santa_Isabel": [
+        ["459.4666666666667", "-", "LMT", "-1514763568000"],
+        ["420", "-", "MST", "-1420156800000"],
+        ["480", "-", "PST", "-1343091600000"],
+        ["420", "-", "MST", "-1234828800000"],
+        ["480", "-", "PST", "-1222992000000"],
+        ["480", "1:00", "PDT", "-1207267200000"],
+        ["480", "-", "PST", "-873849600000"],
+        ["480", "1:00", "PWT", "-769395600000"],
+        ["480", "1:00", "PPT", "-761702400000"],
+        ["480", "-", "PST", "-686102400000"],
+        ["480", "1:00", "PDT", "-661564800000"],
+        ["480", "-", "PST", "-473472000000"],
+        ["480", "CA", "P%sT", "-252547200000"],
+        ["480", "-", "PST", "220838400000"],
+        ["480", "US", "P%sT", "851990400000"],
+        ["480", "Mexico", "P%sT", "1009756800000"],
+        ["480", "US", "P%sT", "1014163200000"],
+        ["480", "Mexico", "P%sT"]
+    ],
+    "America/Antigua": [
+        ["247.2", "-", "LMT", "-1825113600000"],
+        ["300", "-", "EST", "-568166400000"],
+        ["240", "-", "AST"]
+    ],
+    "America/Nassau": [
+        ["309.5", "-", "LMT", "-1825113600000"],
+        ["300", "Bahamas", "E%sT", "220838400000"],
+        ["300", "US", "E%sT"]
+    ],
+    "America/Barbados": [
+        ["238.48333333333335", "-", "LMT", "-1420156800000"],
+        ["238.48333333333335", "-", "BMT", "-1167696000000"],
+        ["240", "Barb", "A%sT"]
+    ],
+    "America/Belize": [
+        ["352.8", "-", "LMT", "-1822521600000"],
+        ["360", "Belize", "C%sT"]
+    ],
+    "Atlantic/Bermuda": [
+        ["259.3", "-", "LMT", "-1262296800000"],
+        ["240", "-", "AST", "136346400000"],
+        ["240", "Canada", "A%sT", "220838400000"],
+        ["240", "US", "A%sT"]
+    ],
+    "America/Cayman": [
+        ["325.5333333333333", "-", "LMT", "-2493072000000"],
+        ["307.18333333333334", "-", "KMT", "-1827705600000"],
+        ["300", "-", "EST"]
+    ],
+    "America/Costa_Rica": [
+        ["336.2166666666667", "-", "LMT", "-2493072000000"],
+        ["336.2166666666667", "-", "SJMT", "-1545091200000"],
+        ["360", "CR", "C%sT"]
+    ],
+    "America/Havana": [
+        ["329.4666666666667", "-", "LMT", "-2493072000000"],
+        ["329.6", "-", "HMT", "-1402833600000"],
+        ["300", "Cuba", "C%sT"]
+    ],
+    "America/Santo_Domingo": [
+        ["279.6", "-", "LMT", "-2493072000000"],
+        ["280", "-", "SDMT", "-1159790400000"],
+        ["300", "DR", "E%sT", "152064000000"],
+        ["240", "-", "AST", "972784800000"],
+        ["300", "US", "E%sT", "975805200000"],
+        ["240", "-", "AST"]
+    ],
+    "America/El_Salvador": [
+        ["356.8", "-", "LMT", "-1514851200000"],
+        ["360", "Salv", "C%sT"]
+    ],
+    "America/Guatemala": [
+        ["362.06666666666666", "-", "LMT", "-1617062400000"],
+        ["360", "Guat", "C%sT"]
+    ],
+    "America/Port-au-Prince": [
+        ["289.3333333333333", "-", "LMT", "-2493072000000"],
+        ["289", "-", "PPMT", "-1670500800000"],
+        ["300", "Haiti", "E%sT"]
+    ],
+    "America/Tegucigalpa": [
+        ["348.8666666666667", "-", "LMT", "-1538524800000"],
+        ["360", "Hond", "C%sT"]
+    ],
+    "America/Jamaica": [
+        ["307.18333333333334", "-", "LMT", "-2493072000000"],
+        ["307.18333333333334", "-", "KMT", "-1827705600000"],
+        ["300", "-", "EST", "157680000000"],
+        ["300", "US", "E%sT", "473299200000"],
+        ["300", "-", "EST"]
+    ],
+    "America/Martinique": [
+        ["244.33333333333334", "-", "LMT", "-2493072000000"],
+        ["244.33333333333334", "-", "FFMT", "-1851552000000"],
+        ["240", "-", "AST", "323827200000"],
+        ["240", "1:00", "ADT", "338947200000"],
+        ["240", "-", "AST"]
+    ],
+    "America/Managua": [
+        ["345.1333333333333", "-", "LMT", "-2493072000000"],
+        ["345.2", "-", "MMT", "-1121126400000"],
+        ["360", "-", "CST", "105062400000"],
+        ["300", "-", "EST", "161740800000"],
+        ["360", "Nic", "C%sT", "694238400000"],
+        ["300", "-", "EST", "717292800000"],
+        ["360", "-", "CST", "757296000000"],
+        ["300", "-", "EST", "883526400000"],
+        ["360", "Nic", "C%sT"]
+    ],
+    "America/Panama": [
+        ["318.1333333333333", "-", "LMT", "-2493072000000"],
+        ["319.6", "-", "CMT", "-1946937600000"],
+        ["300", "-", "EST"]
+    ],
+    "America/Puerto_Rico": [
+        ["264.4166666666667", "-", "LMT", "-2233051200000"],
+        ["240", "-", "AST", "-873072000000"],
+        ["240", "US", "A%sT", "-725932800000"],
+        ["240", "-", "AST"]
+    ],
+    "America/Miquelon": [
+        ["224.66666666666666", "-", "LMT", "-1850342400000"],
+        ["240", "-", "AST", "325987200000"],
+        ["180", "-", "PMST", "567907200000"],
+        ["180", "Canada", "PM%sT"]
+    ],
+    "America/Grand_Turk": [
+        ["284.5333333333333", "-", "LMT", "-2493072000000"],
+        ["307.18333333333334", "-", "KMT", "-1827705600000"],
+        ["300", "-", "EST", "315446400000"],
+        ["300", "US", "E%sT", "1414893600000"],
+        ["240", "-", "AST"]
+    ],
+    "US/Pacific-New": "America/Los_Angeles", "America/Argentina/Buenos_Aires": [
+        ["233.8", "-", "LMT", "-2372112000000"],
+        ["256.8", "-", "CMT", "-1567468800000"],
+        ["240", "-", "ART", "-1233446400000"],
+        ["240", "Arg", "AR%sT", "-7603200000"],
+        ["180", "Arg", "AR%sT", "938908800000"],
+        ["240", "Arg", "AR%sT", "952041600000"],
+        ["180", "Arg", "AR%sT"]
+    ],
+    "America/Argentina/Cordoba": [
+        ["256.8", "-", "LMT", "-2372112000000"],
+        ["256.8", "-", "CMT", "-1567468800000"],
+        ["240", "-", "ART", "-1233446400000"],
+        ["240", "Arg", "AR%sT", "-7603200000"],
+        ["180", "Arg", "AR%sT", "667958400000"],
+        ["240", "-", "WART", "687916800000"],
+        ["180", "Arg", "AR%sT", "938908800000"],
+        ["240", "Arg", "AR%sT", "952041600000"],
+        ["180", "Arg", "AR%sT"]
+    ],
+    "America/Argentina/Salta": [
+        ["261.66666666666663", "-", "LMT", "-2372112000000"],
+        ["256.8", "-", "CMT", "-1567468800000"],
+        ["240", "-", "ART", "-1233446400000"],
+        ["240", "Arg", "AR%sT", "-7603200000"],
+        ["180", "Arg", "AR%sT", "667958400000"],
+        ["240", "-", "WART", "687916800000"],
+        ["180", "Arg", "AR%sT", "938908800000"],
+        ["240", "Arg", "AR%sT", "952041600000"],
+        ["180", "Arg", "AR%sT", "1224288000000"],
+        ["180", "-", "ART"]
+    ],
+    "America/Argentina/Tucuman": [
+        ["260.8666666666667", "-", "LMT", "-2372112000000"],
+        ["256.8", "-", "CMT", "-1567468800000"],
+        ["240", "-", "ART", "-1233446400000"],
+        ["240", "Arg", "AR%sT", "-7603200000"],
+        ["180", "Arg", "AR%sT", "667958400000"],
+        ["240", "-", "WART", "687916800000"],
+        ["180", "Arg", "AR%sT", "938908800000"],
+        ["240", "Arg", "AR%sT", "952041600000"],
+        ["180", "-", "ART", "1086048000000"],
+        ["240", "-", "WART", "1087084800000"],
+        ["180", "Arg", "AR%sT"]
+    ],
+    "America/Argentina/La_Rioja": [
+        ["267.4", "-", "LMT", "-2372112000000"],
+        ["256.8", "-", "CMT", "-1567468800000"],
+        ["240", "-", "ART", "-1233446400000"],
+        ["240", "Arg", "AR%sT", "-7603200000"],
+        ["180", "Arg", "AR%sT", "667785600000"],
+        ["240", "-", "WART", "673574400000"],
+        ["180", "Arg", "AR%sT", "938908800000"],
+        ["240", "Arg", "AR%sT", "952041600000"],
+        ["180", "-", "ART", "1086048000000"],
+        ["240", "-", "WART", "1087689600000"],
+        ["180", "Arg", "AR%sT", "1224288000000"],
+        ["180", "-", "ART"]
+    ],
+    "America/Argentina/San_Juan": [
+        ["274.06666666666666", "-", "LMT", "-2372112000000"],
+        ["256.8", "-", "CMT", "-1567468800000"],
+        ["240", "-", "ART", "-1233446400000"],
+        ["240", "Arg", "AR%sT", "-7603200000"],
+        ["180", "Arg", "AR%sT", "667785600000"],
+        ["240", "-", "WART", "673574400000"],
+        ["180", "Arg", "AR%sT", "938908800000"],
+        ["240", "Arg", "AR%sT", "952041600000"],
+        ["180", "-", "ART", "1085961600000"],
+        ["240", "-", "WART", "1090713600000"],
+        ["180", "Arg", "AR%sT", "1224288000000"],
+        ["180", "-", "ART"]
+    ],
+    "America/Argentina/Jujuy": [
+        ["261.2", "-", "LMT", "-2372112000000"],
+        ["256.8", "-", "CMT", "-1567468800000"],
+        ["240", "-", "ART", "-1233446400000"],
+        ["240", "Arg", "AR%sT", "-7603200000"],
+        ["180", "Arg", "AR%sT", "636508800000"],
+        ["240", "-", "WART", "657072000000"],
+        ["240", "1:00", "WARST", "669168000000"],
+        ["240", "-", "WART", "686707200000"],
+        ["180", "1:00", "ARST", "725760000000"],
+        ["180", "Arg", "AR%sT", "938908800000"],
+        ["240", "Arg", "AR%sT", "952041600000"],
+        ["180", "Arg", "AR%sT", "1224288000000"],
+        ["180", "-", "ART"]
+    ],
+    "America/Argentina/Catamarca": [
+        ["263.1333333333333", "-", "LMT", "-2372112000000"],
+        ["256.8", "-", "CMT", "-1567468800000"],
+        ["240", "-", "ART", "-1233446400000"],
+        ["240", "Arg", "AR%sT", "-7603200000"],
+        ["180", "Arg", "AR%sT", "667958400000"],
+        ["240", "-", "WART", "687916800000"],
+        ["180", "Arg", "AR%sT", "938908800000"],
+        ["240", "Arg", "AR%sT", "952041600000"],
+        ["180", "-", "ART", "1086048000000"],
+        ["240", "-", "WART", "1087689600000"],
+        ["180", "Arg", "AR%sT", "1224288000000"],
+        ["180", "-", "ART"]
+    ],
+    "America/Argentina/Mendoza": [
+        ["275.2666666666667", "-", "LMT", "-2372112000000"],
+        ["256.8", "-", "CMT", "-1567468800000"],
+        ["240", "-", "ART", "-1233446400000"],
+        ["240", "Arg", "AR%sT", "-7603200000"],
+        ["180", "Arg", "AR%sT", "636508800000"],
+        ["240", "-", "WART", "655948800000"],
+        ["240", "1:00", "WARST", "667785600000"],
+        ["240", "-", "WART", "687484800000"],
+        ["240", "1:00", "WARST", "699408000000"],
+        ["240", "-", "WART", "719366400000"],
+        ["180", "Arg", "AR%sT", "938908800000"],
+        ["240", "Arg", "AR%sT", "952041600000"],
+        ["180", "-", "ART", "1085270400000"],
+        ["240", "-", "WART", "1096156800000"],
+        ["180", "Arg", "AR%sT", "1224288000000"],
+        ["180", "-", "ART"]
+    ],
+    "America/Argentina/San_Luis": [
+        ["265.4", "-", "LMT", "-2372112000000"],
+        ["256.8", "-", "CMT", "-1567468800000"],
+        ["240", "-", "ART", "-1233446400000"],
+        ["240", "Arg", "AR%sT", "-7603200000"],
+        ["180", "Arg", "AR%sT", "662601600000"],
+        ["180", "1:00", "ARST", "637372800000"],
+        ["240", "-", "WART", "655948800000"],
+        ["240", "1:00", "WARST", "667785600000"],
+        ["240", "-", "WART", "675734400000"],
+        ["180", "-", "ART", "938908800000"],
+        ["240", "1:00", "WARST", "952041600000"],
+        ["180", "-", "ART", "1085961600000"],
+        ["240", "-", "WART", "1090713600000"],
+        ["180", "Arg", "AR%sT", "1200873600000"],
+        ["240", "SanLuis", "WAR%sT", "1255219200000"],
+        ["180", "-", "ART"]
+    ],
+    "America/Argentina/Rio_Gallegos": [
+        ["276.8666666666667", "-", "LMT", "-2372112000000"],
+        ["256.8", "-", "CMT", "-1567468800000"],
+        ["240", "-", "ART", "-1233446400000"],
+        ["240", "Arg", "AR%sT", "-7603200000"],
+        ["180", "Arg", "AR%sT", "938908800000"],
+        ["240", "Arg", "AR%sT", "952041600000"],
+        ["180", "-", "ART", "1086048000000"],
+        ["240", "-", "WART", "1087689600000"],
+        ["180", "Arg", "AR%sT", "1224288000000"],
+        ["180", "-", "ART"]
+    ],
+    "America/Argentina/Ushuaia": [
+        ["273.2", "-", "LMT", "-2372112000000"],
+        ["256.8", "-", "CMT", "-1567468800000"],
+        ["240", "-", "ART", "-1233446400000"],
+        ["240", "Arg", "AR%sT", "-7603200000"],
+        ["180", "Arg", "AR%sT", "938908800000"],
+        ["240", "Arg", "AR%sT", "952041600000"],
+        ["180", "-", "ART", "1085875200000"],
+        ["240", "-", "WART", "1087689600000"],
+        ["180", "Arg", "AR%sT", "1224288000000"],
+        ["180", "-", "ART"]
+    ],
+    "America/Aruba": "America/Curacao", "America/La_Paz": [
+        ["272.6", "-", "LMT", "-2493072000000"],
+        ["272.6", "-", "CMT", "-1205971200000"],
+        ["272.6", "1:00", "BOST", "-1192320000000"],
+        ["240", "-", "BOT"]
+    ],
+    "America/Noronha": [
+        ["129.66666666666669", "-", "LMT", "-1735776000000"],
+        ["120", "Brazil", "FN%sT", "653529600000"],
+        ["120", "-", "FNT", "938649600000"],
+        ["120", "Brazil", "FN%sT", "971568000000"],
+        ["120", "-", "FNT", "1000339200000"],
+        ["120", "Brazil", "FN%sT", "1033430400000"],
+        ["120", "-", "FNT"]
+    ],
+    "America/Belem": [
+        ["193.93333333333334", "-", "LMT", "-1735776000000"],
+        ["180", "Brazil", "BR%sT", "590025600000"],
+        ["180", "-", "BRT"]
+    ],
+    "America/Santarem": [
+        ["218.8", "-", "LMT", "-1735776000000"],
+        ["240", "Brazil", "AM%sT", "590025600000"],
+        ["240", "-", "AMT", "1214265600000"],
+        ["180", "-", "BRT"]
+    ],
+    "America/Fortaleza": [
+        ["154", "-", "LMT", "-1735776000000"],
+        ["180", "Brazil", "BR%sT", "653529600000"],
+        ["180", "-", "BRT", "938649600000"],
+        ["180", "Brazil", "BR%sT", "972172800000"],
+        ["180", "-", "BRT", "1000339200000"],
+        ["180", "Brazil", "BR%sT", "1033430400000"],
+        ["180", "-", "BRT"]
+    ],
+    "America/Recife": [
+        ["139.6", "-", "LMT", "-1735776000000"],
+        ["180", "Brazil", "BR%sT", "653529600000"],
+        ["180", "-", "BRT", "938649600000"],
+        ["180", "Brazil", "BR%sT", "971568000000"],
+        ["180", "-", "BRT", "1000339200000"],
+        ["180", "Brazil", "BR%sT", "1033430400000"],
+        ["180", "-", "BRT"]
+    ],
+    "America/Araguaina": [
+        ["192.8", "-", "LMT", "-1735776000000"],
+        ["180", "Brazil", "BR%sT", "653529600000"],
+        ["180", "-", "BRT", "811036800000"],
+        ["180", "Brazil", "BR%sT", "1064361600000"],
+        ["180", "-", "BRT", "1350777600000"],
+        ["180", "Brazil", "BR%sT", "1377993600000"],
+        ["180", "-", "BRT"]
+    ],
+    "America/Maceio": [
+        ["142.86666666666665", "-", "LMT", "-1735776000000"],
+        ["180", "Brazil", "BR%sT", "653529600000"],
+        ["180", "-", "BRT", "813542400000"],
+        ["180", "Brazil", "BR%sT", "841795200000"],
+        ["180", "-", "BRT", "938649600000"],
+        ["180", "Brazil", "BR%sT", "972172800000"],
+        ["180", "-", "BRT", "1000339200000"],
+        ["180", "Brazil", "BR%sT", "1033430400000"],
+        ["180", "-", "BRT"]
+    ],
+    "America/Bahia": [
+        ["154.06666666666666", "-", "LMT", "-1735776000000"],
+        ["180", "Brazil", "BR%sT", "1064361600000"],
+        ["180", "-", "BRT", "1318723200000"],
+        ["180", "Brazil", "BR%sT", "1350777600000"],
+        ["180", "-", "BRT"]
+    ],
+    "America/Sao_Paulo": [
+        ["186.46666666666667", "-", "LMT", "-1735776000000"],
+        ["180", "Brazil", "BR%sT", "-195436800000"],
+        ["180", "1:00", "BRST", "-157852800000"],
+        ["180", "Brazil", "BR%sT"]
+    ],
+    "America/Campo_Grande": [
+        ["218.46666666666667", "-", "LMT", "-1735776000000"],
+        ["240", "Brazil", "AM%sT"]
+    ],
+    "America/Cuiaba": [
+        ["224.33333333333334", "-", "LMT", "-1735776000000"],
+        ["240", "Brazil", "AM%sT", "1064361600000"],
+        ["240", "-", "AMT", "1096588800000"],
+        ["240", "Brazil", "AM%sT"]
+    ],
+    "America/Porto_Velho": [
+        ["255.6", "-", "LMT", "-1735776000000"],
+        ["240", "Brazil", "AM%sT", "590025600000"],
+        ["240", "-", "AMT"]
+    ],
+    "America/Boa_Vista": [
+        ["242.66666666666666", "-", "LMT", "-1735776000000"],
+        ["240", "Brazil", "AM%sT", "590025600000"],
+        ["240", "-", "AMT", "938649600000"],
+        ["240", "Brazil", "AM%sT", "971568000000"],
+        ["240", "-", "AMT"]
+    ],
+    "America/Manaus": [
+        ["240.06666666666666", "-", "LMT", "-1735776000000"],
+        ["240", "Brazil", "AM%sT", "590025600000"],
+        ["240", "-", "AMT", "749174400000"],
+        ["240", "Brazil", "AM%sT", "780192000000"],
+        ["240", "-", "AMT"]
+    ],
+    "America/Eirunepe": [
+        ["279.4666666666667", "-", "LMT", "-1735776000000"],
+        ["300", "Brazil", "AC%sT", "590025600000"],
+        ["300", "-", "ACT", "749174400000"],
+        ["300", "Brazil", "AC%sT", "780192000000"],
+        ["300", "-", "ACT", "1214265600000"],
+        ["240", "-", "AMT", "1384041600000"],
+        ["300", "-", "ACT"]
+    ],
+    "America/Rio_Branco": [
+        ["271.2", "-", "LMT", "-1735776000000"],
+        ["300", "Brazil", "AC%sT", "590025600000"],
+        ["300", "-", "ACT", "1214265600000"],
+        ["240", "-", "AMT", "1384041600000"],
+        ["300", "-", "ACT"]
+    ],
+    "America/Santiago": [
+        ["282.7666666666667", "-", "LMT", "-2493072000000"],
+        ["282.7666666666667", "-", "SMT", "-1862006400000"],
+        ["300", "-", "CLT", "-1688428800000"],
+        ["282.7666666666667", "-", "SMT", "-1620000000000"],
+        ["240", "-", "CLT", "-1593820800000"],
+        ["282.7666666666667", "-", "SMT", "-1336003200000"],
+        ["300", "Chile", "CL%sT", "-713664000000"],
+        ["240", "Chile", "CL%sT"]
+    ],
+    "Pacific/Easter": [
+        ["437.7333333333333", "-", "LMT", "-2493072000000"],
+        ["437.4666666666667", "-", "EMT", "-1178150400000"],
+        ["420", "Chile", "EAS%sT", "384901200000"],
+        ["360", "Chile", "EAS%sT"]
+    ],
+    "America/Bogota": [
+        ["296.2666666666667", "-", "LMT", "-2707689600000"],
+        ["296.2666666666667", "-", "BMT", "-1739059200000"],
+        ["300", "CO", "CO%sT"]
+    ],
+    "America/Curacao": [
+        ["275.7833333333333", "-", "LMT", "-1826755200000"],
+        ["270", "-", "ANT", "-126316800000"],
+        ["240", "-", "AST"]
+    ],
+    "America/Lower_Princes": "America/Curacao",
+    "America/Kralendijk": "America/Curacao",
+    "America/Guayaquil": [
+        ["319.3333333333333", "-", "LMT", "-2493072000000"],
+        ["314", "-", "QMT", "-1199318400000"],
+        ["300", "-", "ECT"]
+    ],
+    "Pacific/Galapagos": [
+        ["358.4", "-", "LMT", "-1199318400000"],
+        ["300", "-", "ECT", "536371200000"],
+        ["360", "-", "GALT"]
+    ],
+    "Atlantic/Stanley": [
+        ["231.4", "-", "LMT", "-2493072000000"],
+        ["231.4", "-", "SMT", "-1824249600000"],
+        ["240", "Falk", "FK%sT", "420595200000"],
+        ["180", "Falk", "FK%sT", "495590400000"],
+        ["240", "Falk", "FK%sT", "1283652000000"],
+        ["180", "-", "FKST"]
+    ],
+    "America/Cayenne": [
+        ["209.33333333333334", "-", "LMT", "-1846281600000"],
+        ["240", "-", "GFT", "-71107200000"],
+        ["180", "-", "GFT"]
+    ],
+    "America/Guyana": [
+        ["232.66666666666666", "-", "LMT", "-1730592000000"],
+        ["225", "-", "GBGT", "-113702400000"],
+        ["225", "-", "GYT", "175996800000"],
+        ["180", "-", "GYT", "694137600000"],
+        ["240", "-", "GYT"]
+    ],
+    "America/Asuncion": [
+        ["230.66666666666666", "-", "LMT", "-2493072000000"],
+        ["230.66666666666666", "-", "AMT", "-1206403200000"],
+        ["240", "-", "PYT", "86745600000"],
+        ["180", "-", "PYT", "134006400000"],
+        ["240", "Para", "PY%sT"]
+    ],
+    "America/Lima": [
+        ["308.2", "-", "LMT", "-2493072000000"],
+        ["308.6", "-", "LMT", "-1938556800000"],
+        ["300", "Peru", "PE%sT"]
+    ],
+    "Atlantic/South_Georgia": [
+        ["146.13333333333335", "-", "LMT", "-2493072000000"],
+        ["120", "-", "GST"]
+    ],
+    "America/Paramaribo": [
+        ["220.66666666666666", "-", "LMT", "-1830470400000"],
+        ["220.86666666666665", "-", "PMT", "-1073088000000"],
+        ["220.6", "-", "PMT", "-765331200000"],
+        ["210", "-", "NEGT", "185673600000"],
+        ["210", "-", "SRT", "465436800000"],
+        ["180", "-", "SRT"]
+    ],
+    "America/Port_of_Spain": [
+        ["246.06666666666666", "-", "LMT", "-1825113600000"],
+        ["240", "-", "AST"]
+    ],
+    "America/Anguilla": "America/Port_of_Spain",
+    "America/Dominica": "America/Port_of_Spain",
+    "America/Grenada": "America/Port_of_Spain",
+    "America/Guadeloupe": "America/Port_of_Spain",
+    "America/Marigot": "America/Port_of_Spain",
+    "America/Montserrat": "America/Port_of_Spain",
+    "America/St_Barthelemy": "America/Port_of_Spain",
+    "America/St_Kitts": "America/Port_of_Spain",
+    "America/St_Lucia": "America/Port_of_Spain",
+    "America/St_Thomas": "America/Port_of_Spain",
+    "America/St_Vincent": "America/Port_of_Spain",
+    "America/Tortola": "America/Port_of_Spain",
+    "America/Montevideo": [
+        ["224.73333333333335", "-", "LMT", "-2256681600000"],
+        ["224.73333333333335", "-", "MMT", "-1567468800000"],
+        ["210", "Uruguay", "UY%sT", "-853632000000"],
+        ["180", "Uruguay", "UY%sT"]
+    ],
+    "America/Caracas": [
+        ["267.7333333333333", "-", "LMT", "-2493072000000"],
+        ["267.6666666666667", "-", "CMT", "-1826755200000"],
+        ["270", "-", "VET", "-126316800000"],
+        ["240", "-", "VET", "1197169200000"],
+        ["270", "-", "VET"]
+    ]
+};
+exports.rules = {
+    "Algeria": [
+        ["1916", "only", "-", "Jun", "14", ["23", "0", "0", "s"], "60", "S"],
+        ["1916", "1919", "-", "Oct", "Sun>=1", ["23", "0", "0", "s"], "0", "-"],
+        ["1917", "only", "-", "Mar", "24", ["23", "0", "0", "s"], "60", "S"],
+        ["1918", "only", "-", "Mar", "9", ["23", "0", "0", "s"], "60", "S"],
+        ["1919", "only", "-", "Mar", "1", ["23", "0", "0", "s"], "60", "S"],
+        ["1920", "only", "-", "Feb", "14", ["23", "0", "0", "s"], "60", "S"],
+        ["1920", "only", "-", "Oct", "23", ["23", "0", "0", "s"], "0", "-"],
+        ["1921", "only", "-", "Mar", "14", ["23", "0", "0", "s"], "60", "S"],
+        ["1921", "only", "-", "Jun", "21", ["23", "0", "0", "s"], "0", "-"],
+        ["1939", "only", "-", "Sep", "11", ["23", "0", "0", "s"], "60", "S"],
+        ["1939", "only", "-", "Nov", "19", ["1", "0", "0"], "0", "-"],
+        ["1944", "1945", "-", "Apr", "Mon>=1", ["2", "0", "0"], "60", "S"],
+        ["1944", "only", "-", "Oct", "8", ["2", "0", "0"], "0", "-"],
+        ["1945", "only", "-", "Sep", "16", ["1", "0", "0"], "0", "-"],
+        ["1971", "only", "-", "Apr", "25", ["23", "0", "0", "s"], "60", "S"],
+        ["1971", "only", "-", "Sep", "26", ["23", "0", "0", "s"], "0", "-"],
+        ["1977", "only", "-", "May", "6", ["0", "0", "0"], "60", "S"],
+        ["1977", "only", "-", "Oct", "21", ["0", "0", "0"], "0", "-"],
+        ["1978", "only", "-", "Mar", "24", ["1", "0", "0"], "60", "S"],
+        ["1978", "only", "-", "Sep", "22", ["3", "0", "0"], "0", "-"],
+        ["1980", "only", "-", "Apr", "25", ["0", "0", "0"], "60", "S"],
+        ["1980", "only", "-", "Oct", "31", ["2", "0", "0"], "0", "-"]
+    ],
+    "Egypt": [
+        ["1940", "only", "-", "Jul", "15", ["0", "0", "0"], "60", "S"],
+        ["1940", "only", "-", "Oct", "1", ["0", "0", "0"], "0", "-"],
+        ["1941", "only", "-", "Apr", "15", ["0", "0", "0"], "60", "S"],
+        ["1941", "only", "-", "Sep", "16", ["0", "0", "0"], "0", "-"],
+        ["1942", "1944", "-", "Apr", "1", ["0", "0", "0"], "60", "S"],
+        ["1942", "only", "-", "Oct", "27", ["0", "0", "0"], "0", "-"],
+        ["1943", "1945", "-", "Nov", "1", ["0", "0", "0"], "0", "-"],
+        ["1945", "only", "-", "Apr", "16", ["0", "0", "0"], "60", "S"],
+        ["1957", "only", "-", "May", "10", ["0", "0", "0"], "60", "S"],
+        ["1957", "1958", "-", "Oct", "1", ["0", "0", "0"], "0", "-"],
+        ["1958", "only", "-", "May", "1", ["0", "0", "0"], "60", "S"],
+        ["1959", "1981", "-", "May", "1", ["1", "0", "0"], "60", "S"],
+        ["1959", "1965", "-", "Sep", "30", ["3", "0", "0"], "0", "-"],
+        ["1966", "1994", "-", "Oct", "1", ["3", "0", "0"], "0", "-"],
+        ["1982", "only", "-", "Jul", "25", ["1", "0", "0"], "60", "S"],
+        ["1983", "only", "-", "Jul", "12", ["1", "0", "0"], "60", "S"],
+        ["1984", "1988", "-", "May", "1", ["1", "0", "0"], "60", "S"],
+        ["1989", "only", "-", "May", "6", ["1", "0", "0"], "60", "S"],
+        ["1990", "1994", "-", "May", "1", ["1", "0", "0"], "60", "S"],
+        ["1995", "2010", "-", "Apr", "lastFri", ["0", "0", "0", "s"], "60", "S"],
+        ["1995", "2005", "-", "Sep", "lastThu", ["24", "0", "0"], "0", "-"],
+        ["2006", "only", "-", "Sep", "21", ["24", "0", "0"], "0", "-"],
+        ["2007", "only", "-", "Sep", "Thu>=1", ["24", "0", "0"], "0", "-"],
+        ["2008", "only", "-", "Aug", "lastThu", ["24", "0", "0"], "0", "-"],
+        ["2009", "only", "-", "Aug", "20", ["24", "0", "0"], "0", "-"],
+        ["2010", "only", "-", "Aug", "10", ["24", "0", "0"], "0", "-"],
+        ["2010", "only", "-", "Sep", "9", ["24", "0", "0"], "60", "S"],
+        ["2010", "only", "-", "Sep", "lastThu", ["24", "0", "0"], "0", "-"],
+        ["2014", "only", "-", "May", "15", ["24", "0", "0"], "60", "S"],
+        ["2014", "only", "-", "Jun", "26", ["24", "0", "0"], "0", "-"],
+        ["2014", "only", "-", "Jul", "31", ["24", "0", "0"], "60", "S"],
+        ["2014", "max", "-", "Sep", "lastThu", ["24", "0", "0"], "0", "-"],
+        ["2015", "2019", "-", "Apr", "lastFri", ["0", "0", "0", "s"], "60", "S"],
+        ["2015", "only", "-", "Jun", "11", ["24", "0", "0"], "0", "-"],
+        ["2015", "only", "-", "Jul", "23", ["24", "0", "0"], "60", "S"],
+        ["2016", "only", "-", "Jun", "2", ["24", "0", "0"], "0", "-"],
+        ["2016", "only", "-", "Jul", "7", ["24", "0", "0"], "60", "S"],
+        ["2017", "only", "-", "May", "25", ["24", "0", "0"], "0", "-"],
+        ["2017", "only", "-", "Jun", "29", ["24", "0", "0"], "60", "S"],
+        ["2018", "only", "-", "May", "10", ["24", "0", "0"], "0", "-"],
+        ["2018", "only", "-", "Jun", "14", ["24", "0", "0"], "60", "S"],
+        ["2019", "only", "-", "May", "2", ["24", "0", "0"], "0", "-"],
+        ["2019", "only", "-", "Jun", "6", ["24", "0", "0"], "60", "S"],
+        ["2020", "only", "-", "May", "28", ["24", "0", "0"], "60", "S"],
+        ["2021", "only", "-", "May", "13", ["24", "0", "0"], "60", "S"],
+        ["2022", "only", "-", "May", "5", ["24", "0", "0"], "60", "S"],
+        ["2023", "max", "-", "Apr", "lastFri", ["0", "0", "0", "s"], "60", "S"]
+    ],
+    "Ghana": [
+        ["1920", "1942", "-", "Sep", "1", ["0", "0", "0"], "20", "GHST"],
+        ["1920", "1942", "-", "Dec", "31", ["0", "0", "0"], "0", "GMT"]
+    ],
+    "Libya": [
+        ["1951", "only", "-", "Oct", "14", ["2", "0", "0"], "60", "S"],
+        ["1952", "only", "-", "Jan", "1", ["0", "0", "0"], "0", "-"],
+        ["1953", "only", "-", "Oct", "9", ["2", "0", "0"], "60", "S"],
+        ["1954", "only", "-", "Jan", "1", ["0", "0", "0"], "0", "-"],
+        ["1955", "only", "-", "Sep", "30", ["0", "0", "0"], "60", "S"],
+        ["1956", "only", "-", "Jan", "1", ["0", "0", "0"], "0", "-"],
+        ["1982", "1984", "-", "Apr", "1", ["0", "0", "0"], "60", "S"],
+        ["1982", "1985", "-", "Oct", "1", ["0", "0", "0"], "0", "-"],
+        ["1985", "only", "-", "Apr", "6", ["0", "0", "0"], "60", "S"],
+        ["1986", "only", "-", "Apr", "4", ["0", "0", "0"], "60", "S"],
+        ["1986", "only", "-", "Oct", "3", ["0", "0", "0"], "0", "-"],
+        ["1987", "1989", "-", "Apr", "1", ["0", "0", "0"], "60", "S"],
+        ["1987", "1989", "-", "Oct", "1", ["0", "0", "0"], "0", "-"],
+        ["1997", "only", "-", "Apr", "4", ["0", "0", "0"], "60", "S"],
+        ["1997", "only", "-", "Oct", "4", ["0", "0", "0"], "0", "-"],
+        ["2013", "only", "-", "Mar", "lastFri", ["1", "0", "0"], "60", "S"],
+        ["2013", "only", "-", "Oct", "lastFri", ["2", "0", "0"], "0", "-"]
+    ],
+    "Mauritius": [
+        ["1982", "only", "-", "Oct", "10", ["0", "0", "0"], "60", "S"],
+        ["1983", "only", "-", "Mar", "21", ["0", "0", "0"], "0", "-"],
+        ["2008", "only", "-", "Oct", "lastSun", ["2", "0", "0"], "60", "S"],
+        ["2009", "only", "-", "Mar", "lastSun", ["2", "0", "0"], "0", "-"]
+    ],
+    "Morocco": [
+        ["1939", "only", "-", "Sep", "12", ["0", "0", "0"], "60", "S"],
+        ["1939", "only", "-", "Nov", "19", ["0", "0", "0"], "0", "-"],
+        ["1940", "only", "-", "Feb", "25", ["0", "0", "0"], "60", "S"],
+        ["1945", "only", "-", "Nov", "18", ["0", "0", "0"], "0", "-"],
+        ["1950", "only", "-", "Jun", "11", ["0", "0", "0"], "60", "S"],
+        ["1950", "only", "-", "Oct", "29", ["0", "0", "0"], "0", "-"],
+        ["1967", "only", "-", "Jun", "3", ["12", "0", "0"], "60", "S"],
+        ["1967", "only", "-", "Oct", "1", ["0", "0", "0"], "0", "-"],
+        ["1974", "only", "-", "Jun", "24", ["0", "0", "0"], "60", "S"],
+        ["1974", "only", "-", "Sep", "1", ["0", "0", "0"], "0", "-"],
+        ["1976", "1977", "-", "May", "1", ["0", "0", "0"], "60", "S"],
+        ["1976", "only", "-", "Aug", "1", ["0", "0", "0"], "0", "-"],
+        ["1977", "only", "-", "Sep", "28", ["0", "0", "0"], "0", "-"],
+        ["1978", "only", "-", "Jun", "1", ["0", "0", "0"], "60", "S"],
+        ["1978", "only", "-", "Aug", "4", ["0", "0", "0"], "0", "-"],
+        ["2008", "only", "-", "Jun", "1", ["0", "0", "0"], "60", "S"],
+        ["2008", "only", "-", "Sep", "1", ["0", "0", "0"], "0", "-"],
+        ["2009", "only", "-", "Jun", "1", ["0", "0", "0"], "60", "S"],
+        ["2009", "only", "-", "Aug", "21", ["0", "0", "0"], "0", "-"],
+        ["2010", "only", "-", "May", "2", ["0", "0", "0"], "60", "S"],
+        ["2010", "only", "-", "Aug", "8", ["0", "0", "0"], "0", "-"],
+        ["2011", "only", "-", "Apr", "3", ["0", "0", "0"], "60", "S"],
+        ["2011", "only", "-", "Jul", "31", ["0", "0", "0"], "0", "-"],
+        ["2012", "2013", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "S"],
+        ["2012", "only", "-", "Sep", "30", ["3", "0", "0"], "0", "-"],
+        ["2012", "only", "-", "Jul", "20", ["3", "0", "0"], "0", "-"],
+        ["2012", "only", "-", "Aug", "20", ["2", "0", "0"], "60", "S"],
+        ["2013", "only", "-", "Jul", "7", ["3", "0", "0"], "0", "-"],
+        ["2013", "only", "-", "Aug", "10", ["2", "0", "0"], "60", "S"],
+        ["2013", "max", "-", "Oct", "lastSun", ["3", "0", "0"], "0", "-"],
+        ["2014", "2022", "-", "Mar", "lastSun", ["2", "0", "0"], "60", "S"],
+        ["2014", "only", "-", "Jun", "28", ["3", "0", "0"], "0", "-"],
+        ["2014", "only", "-", "Aug", "2", ["2", "0", "0"], "60", "S"],
+        ["2015", "only", "-", "Jun", "13", ["3", "0", "0"], "0", "-"],
+        ["2015", "only", "-", "Jul", "18", ["2", "0", "0"], "60", "S"],
+        ["2016", "only", "-", "Jun", "4", ["3", "0", "0"], "0", "-"],
+        ["2016", "only", "-", "Jul", "9", ["2", "0", "0"], "60", "S"],
+        ["2017", "only", "-", "May", "20", ["3", "0", "0"], "0", "-"],
+        ["2017", "only", "-", "Jul", "1", ["2", "0", "0"], "60", "S"],
+        ["2018", "only", "-", "May", "12", ["3", "0", "0"], "0", "-"],
+        ["2018", "only", "-", "Jun", "16", ["2", "0", "0"], "60", "S"],
+        ["2019", "only", "-", "May", "4", ["3", "0", "0"], "0", "-"],
+        ["2019", "only", "-", "Jun", "8", ["2", "0", "0"], "60", "S"],
+        ["2020", "only", "-", "Apr", "18", ["3", "0", "0"], "0", "-"],
+        ["2020", "only", "-", "May", "30", ["2", "0", "0"], "60", "S"],
+        ["2021", "only", "-", "Apr", "10", ["3", "0", "0"], "0", "-"],
+        ["2021", "only", "-", "May", "15", ["2", "0", "0"], "60", "S"],
+        ["2022", "only", "-", "Apr", "2", ["3", "0", "0"], "0", "-"],
+        ["2022", "only", "-", "May", "7", ["2", "0", "0"], "60", "S"],
+        ["2023", "only", "-", "Apr", "22", ["2", "0", "0"], "60", "S"],
+        ["2024", "only", "-", "Apr", "13", ["2", "0", "0"], "60", "S"],
+        ["2025", "only", "-", "Apr", "5", ["2", "0", "0"], "60", "S"],
+        ["2026", "max", "-", "Mar", "lastSun", ["2", "0", "0"], "60", "S"],
+        ["2035", "only", "-", "Oct", "27", ["3", "0", "0"], "0", "-"],
+        ["2036", "only", "-", "Oct", "18", ["3", "0", "0"], "0", "-"],
+        ["2037", "only", "-", "Oct", "10", ["3", "0", "0"], "0", "-"]
+    ],
+    "Namibia": [
+        ["1994", "max", "-", "Sep", "Sun>=1", ["2", "0", "0"], "60", "S"],
+        ["1995", "max", "-", "Apr", "Sun>=1", ["2", "0", "0"], "0", "-"]
+    ],
+    "SA": [
+        ["1942", "1943", "-", "Sep", "Sun>=15", ["2", "0", "0"], "60", "-"],
+        ["1943", "1944", "-", "Mar", "Sun>=15", ["2", "0", "0"], "0", "-"]
+    ],
+    "Sudan": [
+        ["1970", "only", "-", "May", "1", ["0", "0", "0"], "60", "S"],
+        ["1970", "1985", "-", "Oct", "15", ["0", "0", "0"], "0", "-"],
+        ["1971", "only", "-", "Apr", "30", ["0", "0", "0"], "60", "S"],
+        ["1972", "1985", "-", "Apr", "lastSun", ["0", "0", "0"], "60", "S"]
+    ],
+    "Tunisia": [
+        ["1939", "only", "-", "Apr", "15", ["23", "0", "0", "s"], "60", "S"],
+        ["1939", "only", "-", "Nov", "18", ["23", "0", "0", "s"], "0", "-"],
+        ["1940", "only", "-", "Feb", "25", ["23", "0", "0", "s"], "60", "S"],
+        ["1941", "only", "-", "Oct", "6", ["0", "0", "0"], "0", "-"],
+        ["1942", "only", "-", "Mar", "9", ["0", "0", "0"], "60", "S"],
+        ["1942", "only", "-", "Nov", "2", ["3", "0", "0"], "0", "-"],
+        ["1943", "only", "-", "Mar", "29", ["2", "0", "0"], "60", "S"],
+        ["1943", "only", "-", "Apr", "17", ["2", "0", "0"], "0", "-"],
+        ["1943", "only", "-", "Apr", "25", ["2", "0", "0"], "60", "S"],
+        ["1943", "only", "-", "Oct", "4", ["2", "0", "0"], "0", "-"],
+        ["1944", "1945", "-", "Apr", "Mon>=1", ["2", "0", "0"], "60", "S"],
+        ["1944", "only", "-", "Oct", "8", ["0", "0", "0"], "0", "-"],
+        ["1945", "only", "-", "Sep", "16", ["0", "0", "0"], "0", "-"],
+        ["1977", "only", "-", "Apr", "30", ["0", "0", "0", "s"], "60", "S"],
+        ["1977", "only", "-", "Sep", "24", ["0", "0", "0", "s"], "0", "-"],
+        ["1978", "only", "-", "May", "1", ["0", "0", "0", "s"], "60", "S"],
+        ["1978", "only", "-", "Oct", "1", ["0", "0", "0", "s"], "0", "-"],
+        ["1988", "only", "-", "Jun", "1", ["0", "0", "0", "s"], "60", "S"],
+        ["1988", "1990", "-", "Sep", "lastSun", ["0", "0", "0", "s"], "0", "-"],
+        ["1989", "only", "-", "Mar", "26", ["0", "0", "0", "s"], "60", "S"],
+        ["1990", "only", "-", "May", "1", ["0", "0", "0", "s"], "60", "S"],
+        ["2005", "only", "-", "May", "1", ["0", "0", "0", "s"], "60", "S"],
+        ["2005", "only", "-", "Sep", "30", ["1", "0", "0", "s"], "0", "-"],
+        ["2006", "2008", "-", "Mar", "lastSun", ["2", "0", "0", "s"], "60", "S"],
+        ["2006", "2008", "-", "Oct", "lastSun", ["2", "0", "0", "s"], "0", "-"]
+    ],
+    "ArgAQ": [
+        ["1964", "1966", "-", "Mar", "1", ["0", "0", "0"], "0", "-"],
+        ["1964", "1966", "-", "Oct", "15", ["0", "0", "0"], "60", "S"],
+        ["1967", "only", "-", "Apr", "2", ["0", "0", "0"], "0", "-"],
+        ["1967", "1968", "-", "Oct", "Sun>=1", ["0", "0", "0"], "60", "S"],
+        ["1968", "1969", "-", "Apr", "Sun>=1", ["0", "0", "0"], "0", "-"],
+        ["1974", "only", "-", "Jan", "23", ["0", "0", "0"], "60", "S"],
+        ["1974", "only", "-", "May", "1", ["0", "0", "0"], "0", "-"]
+    ],
+    "ChileAQ": [
+        ["1972", "1986", "-", "Mar", "Sun>=9", ["3", "0", "0", "u"], "0", "-"],
+        ["1974", "1987", "-", "Oct", "Sun>=9", ["4", "0", "0", "u"], "60", "S"],
+        ["1987", "only", "-", "Apr", "12", ["3", "0", "0", "u"], "0", "-"],
+        ["1988", "1989", "-", "Mar", "Sun>=9", ["3", "0", "0", "u"], "0", "-"],
+        ["1988", "only", "-", "Oct", "Sun>=1", ["4", "0", "0", "u"], "60", "S"],
+        ["1989", "only", "-", "Oct", "Sun>=9", ["4", "0", "0", "u"], "60", "S"],
+        ["1990", "only", "-", "Mar", "18", ["3", "0", "0", "u"], "0", "-"],
+        ["1990", "only", "-", "Sep", "16", ["4", "0", "0", "u"], "60", "S"],
+        ["1991", "1996", "-", "Mar", "Sun>=9", ["3", "0", "0", "u"], "0", "-"],
+        ["1991", "1997", "-", "Oct", "Sun>=9", ["4", "0", "0", "u"], "60", "S"],
+        ["1997", "only", "-", "Mar", "30", ["3", "0", "0", "u"], "0", "-"],
+        ["1998", "only", "-", "Mar", "Sun>=9", ["3", "0", "0", "u"], "0", "-"],
+        ["1998", "only", "-", "Sep", "27", ["4", "0", "0", "u"], "60", "S"],
+        ["1999", "only", "-", "Apr", "4", ["3", "0", "0", "u"], "0", "-"],
+        ["1999", "2010", "-", "Oct", "Sun>=9", ["4", "0", "0", "u"], "60", "S"],
+        ["2000", "2007", "-", "Mar", "Sun>=9", ["3", "0", "0", "u"], "0", "-"],
+        ["2008", "only", "-", "Mar", "30", ["3", "0", "0", "u"], "0", "-"],
+        ["2009", "only", "-", "Mar", "Sun>=9", ["3", "0", "0", "u"], "0", "-"],
+        ["2010", "only", "-", "Apr", "Sun>=1", ["3", "0", "0", "u"], "0", "-"],
+        ["2011", "only", "-", "May", "Sun>=2", ["3", "0", "0", "u"], "0", "-"],
+        ["2011", "only", "-", "Aug", "Sun>=16", ["4", "0", "0", "u"], "60", "S"],
+        ["2012", "max", "-", "Apr", "Sun>=23", ["3", "0", "0", "u"], "0", "-"],
+        ["2012", "max", "-", "Sep", "Sun>=2", ["4", "0", "0", "u"], "60", "S"]
+    ],
+    "Troll": [
+        ["2005", "max", "-", "Mar", "lastSun", ["1", "0", "0", "u"], "120", "CEST"],
+        ["2004", "max", "-", "Oct", "lastSun", ["1", "0", "0", "u"], "0", "UTC"]
+    ],
+    "EUAsia": [
+        ["1981", "max", "-", "Mar", "lastSun", ["1", "0", "0", "u"], "60", "S"],
+        ["1979", "1995", "-", "Sep", "lastSun", ["1", "0", "0", "u"], "0", "-"],
+        ["1996", "max", "-", "Oct", "lastSun", ["1", "0", "0", "u"], "0", "-"]
+    ],
+    "E-EurAsia": [
+        ["1981", "max", "-", "Mar", "lastSun", ["0", "0", "0"], "60", "S"],
+        ["1979", "1995", "-", "Sep", "lastSun", ["0", "0", "0"], "0", "-"],
+        ["1996", "max", "-", "Oct", "lastSun", ["0", "0", "0"], "0", "-"]
+    ],
+    "RussiaAsia": [
+        ["1981", "1984", "-", "Apr", "1", ["0", "0", "0"], "60", "S"],
+        ["1981", "1983", "-", "Oct", "1", ["0", "0", "0"], "0", "-"],
+        ["1984", "1991", "-", "Sep", "lastSun", ["2", "0", "0", "s"], "0", "-"],
+        ["1985", "1991", "-", "Mar", "lastSun", ["2", "0", "0", "s"], "60", "S"],
+        ["1992", "only", "-", "Mar", "lastSat", ["23", "0", "0"], "60", "S"],
+        ["1992", "only", "-", "Sep", "lastSat", ["23", "0", "0"], "0", "-"],
+        ["1993", "max", "-", "Mar", "lastSun", ["2", "0", "0", "s"], "60", "S"],
+        ["1993", "1995", "-", "Sep", "lastSun", ["2", "0", "0", "s"], "0", "-"],
+        ["1996", "max", "-", "Oct", "lastSun", ["2", "0", "0", "s"], "0", "-"]
+    ],
+    "Azer": [
+        ["1997", "max", "-", "Mar", "lastSun", ["4", "0", "0"], "60", "S"],
+        ["1997", "max", "-", "Oct", "lastSun", ["5", "0", "0"], "0", "-"]
+    ],
+    "Dhaka": [
+        ["2009", "only", "-", "Jun", "19", ["23", "0", "0"], "60", "S"],
+        ["2009", "only", "-", "Dec", "31", ["24", "0", "0"], "0", "-"]
+    ],
+    "Shang": [
+        ["1940", "only", "-", "Jun", "3", ["0", "0", "0"], "60", "D"],
+        ["1940", "1941", "-", "Oct", "1", ["0", "0", "0"], "0", "S"],
+        ["1941", "only", "-", "Mar", "16", ["0", "0", "0"], "60", "D"]
+    ],
+    "PRC": [
+        ["1986", "only", "-", "May", "4", ["0", "0", "0"], "60", "D"],
+        ["1986", "1991", "-", "Sep", "Sun>=11", ["0", "0", "0"], "0", "S"],
+        ["1987", "1991", "-", "Apr", "Sun>=10", ["0", "0", "0"], "60", "D"]
+    ],
+    "HK": [
+        ["1941", "only", "-", "Apr", "1", ["3", "30", "0"], "60", "S"],
+        ["1941", "only", "-", "Sep", "30", ["3", "30", "0"], "0", "-"],
+        ["1946", "only", "-", "Apr", "20", ["3", "30", "0"], "60", "S"],
+        ["1946", "only", "-", "Dec", "1", ["3", "30", "0"], "0", "-"],
+        ["1947", "only", "-", "Apr", "13", ["3", "30", "0"], "60", "S"],
+        ["1947", "only", "-", "Dec", "30", ["3", "30", "0"], "0", "-"],
+        ["1948", "only", "-", "May", "2", ["3", "30", "0"], "60", "S"],
+        ["1948", "1951", "-", "Oct", "lastSun", ["3", "30", "0"], "0", "-"],
+        ["1952", "only", "-", "Oct", "25", ["3", "30", "0"], "0", "-"],
+        ["1949", "1953", "-", "Apr", "Sun>=1", ["3", "30", "0"], "60", "S"],
+        ["1953", "only", "-", "Nov", "1", ["3", "30", "0"], "0", "-"],
+        ["1954", "1964", "-", "Mar", "Sun>=18", ["3", "30", "0"], "60", "S"],
+        ["1954", "only", "-", "Oct", "31", ["3", "30", "0"], "0", "-"],
+        ["1955", "1964", "-", "Nov", "Sun>=1", ["3", "30", "0"], "0", "-"],
+        ["1965", "1976", "-", "Apr", "Sun>=16", ["3", "30", "0"], "60", "S"],
+        ["1965", "1976", "-", "Oct", "Sun>=16", ["3", "30", "0"], "0", "-"],
+        ["1973", "only", "-", "Dec", "30", ["3", "30", "0"], "60", "S"],
+        ["1979", "only", "-", "May", "Sun>=8", ["3", "30", "0"], "60", "S"],
+        ["1979", "only", "-", "Oct", "Sun>=16", ["3", "30", "0"], "0", "-"]
+    ],
+    "Taiwan": [
+        ["1946", "only", "-", "May", "15", ["0", "0", "0"], "60", "D"],
+        ["1946", "only", "-", "Oct", "1", ["0", "0", "0"], "0", "S"],
+        ["1947", "only", "-", "Apr", "15", ["0", "0", "0"], "60", "D"],
+        ["1947", "only", "-", "Nov", "1", ["0", "0", "0"], "0", "S"],
+        ["1948", "1951", "-", "May", "1", ["0", "0", "0"], "60", "D"],
+        ["1948", "1951", "-", "Oct", "1", ["0", "0", "0"], "0", "S"],
+        ["1952", "only", "-", "Mar", "1", ["0", "0", "0"], "60", "D"],
+        ["1952", "1954", "-", "Nov", "1", ["0", "0", "0"], "0", "S"],
+        ["1953", "1959", "-", "Apr", "1", ["0", "0", "0"], "60", "D"],
+        ["1955", "1961", "-", "Oct", "1", ["0", "0", "0"], "0", "S"],
+        ["1960", "1961", "-", "Jun", "1", ["0", "0", "0"], "60", "D"],
+        ["1974", "1975", "-", "Apr", "1", ["0", "0", "0"], "60", "D"],
+        ["1974", "1975", "-", "Oct", "1", ["0", "0", "0"], "0", "S"],
+        ["1979", "only", "-", "Jul", "1", ["0", "0", "0"], "60", "D"],
+        ["1979", "only", "-", "Oct", "1", ["0", "0", "0"], "0", "S"]
+    ],
+    "Macau": [
+        ["1961", "1962", "-", "Mar", "Sun>=16", ["3", "30", "0"], "60", "S"],
+        ["1961", "1964", "-", "Nov", "Sun>=1", ["3", "30", "0"], "0", "-"],
+        ["1963", "only", "-", "Mar", "Sun>=16", ["0", "0", "0"], "60", "S"],
+        ["1964", "only", "-", "Mar", "Sun>=16", ["3", "30", "0"], "60", "S"],
+        ["1965", "only", "-", "Mar", "Sun>=16", ["0", "0", "0"], "60", "S"],
+        ["1965", "only", "-", "Oct", "31", ["0", "0", "0"], "0", "-"],
+        ["1966", "1971", "-", "Apr", "Sun>=16", ["3", "30", "0"], "60", "S"],
+        ["1966", "1971", "-", "Oct", "Sun>=16", ["3", "30", "0"], "0", "-"],
+        ["1972", "1974", "-", "Apr", "Sun>=15", ["0", "0", "0"], "60", "S"],
+        ["1972", "1973", "-", "Oct", "Sun>=15", ["0", "0", "0"], "0", "-"],
+        ["1974", "1977", "-", "Oct", "Sun>=15", ["3", "30", "0"], "0", "-"],
+        ["1975", "1977", "-", "Apr", "Sun>=15", ["3", "30", "0"], "60", "S"],
+        ["1978", "1980", "-", "Apr", "Sun>=15", ["0", "0", "0"], "60", "S"],
+        ["1978", "1980", "-", "Oct", "Sun>=15", ["0", "0", "0"], "0", "-"]
+    ],
+    "Cyprus": [
+        ["1975", "only", "-", "Apr", "13", ["0", "0", "0"], "60", "S"],
+        ["1975", "only", "-", "Oct", "12", ["0", "0", "0"], "0", "-"],
+        ["1976", "only", "-", "May", "15", ["0", "0", "0"], "60", "S"],
+        ["1976", "only", "-", "Oct", "11", ["0", "0", "0"], "0", "-"],
+        ["1977", "1980", "-", "Apr", "Sun>=1", ["0", "0", "0"], "60", "S"],
+        ["1977", "only", "-", "Sep", "25", ["0", "0", "0"], "0", "-"],
+        ["1978", "only", "-", "Oct", "2", ["0", "0", "0"], "0", "-"],
+        ["1979", "1997", "-", "Sep", "lastSun", ["0", "0", "0"], "0", "-"],
+        ["1981", "1998", "-", "Mar", "lastSun", ["0", "0", "0"], "60", "S"]
+    ],
+    "Iran": [
+        ["1978", "1980", "-", "Mar", "21", ["0", "0", "0"], "60", "D"],
+        ["1978", "only", "-", "Oct", "21", ["0", "0", "0"], "0", "S"],
+        ["1979", "only", "-", "Sep", "19", ["0", "0", "0"], "0", "S"],
+        ["1980", "only", "-", "Sep", "23", ["0", "0", "0"], "0", "S"],
+        ["1991", "only", "-", "May", "3", ["0", "0", "0"], "60", "D"],
+        ["1992", "1995", "-", "Mar", "22", ["0", "0", "0"], "60", "D"],
+        ["1991", "1995", "-", "Sep", "22", ["0", "0", "0"], "0", "S"],
+        ["1996", "only", "-", "Mar", "21", ["0", "0", "0"], "60", "D"],
+        ["1996", "only", "-", "Sep", "21", ["0", "0", "0"], "0", "S"],
+        ["1997", "1999", "-", "Mar", "22", ["0", "0", "0"], "60", "D"],
+        ["1997", "1999", "-", "Sep", "22", ["0", "0", "0"], "0", "S"],
+        ["2000", "only", "-", "Mar", "21", ["0", "0", "0"], "60", "D"],
+        ["2000", "only", "-", "Sep", "21", ["0", "0", "0"], "0", "S"],
+        ["2001", "2003", "-", "Mar", "22", ["0", "0", "0"], "60", "D"],
+        ["2001", "2003", "-", "Sep", "22", ["0", "0", "0"], "0", "S"],
+        ["2004", "only", "-", "Mar", "21", ["0", "0", "0"], "60", "D"],
+        ["2004", "only", "-", "Sep", "21", ["0", "0", "0"], "0", "S"],
+        ["2005", "only", "-", "Mar", "22", ["0", "0", "0"], "60", "D"],
+        ["2005", "only", "-", "Sep", "22", ["0", "0", "0"], "0", "S"],
+        ["2008", "only", "-", "Mar", "21", ["0", "0", "0"], "60", "D"],
+        ["2008", "only", "-", "Sep", "21", ["0", "0", "0"], "0", "S"],
+        ["2009", "2011", "-", "Mar", "22", ["0", "0", "0"], "60", "D"],
+        ["2009", "2011", "-", "Sep", "22", ["0", "0", "0"], "0", "S"],
+        ["2012", "only", "-", "Mar", "21", ["0", "0", "0"], "60", "D"],
+        ["2012", "only", "-", "Sep", "21", ["0", "0", "0"], "0", "S"],
+        ["2013", "2015", "-", "Mar", "22", ["0", "0", "0"], "60", "D"],
+        ["2013", "2015", "-", "Sep", "22", ["0", "0", "0"], "0", "S"],
+        ["2016", "only", "-", "Mar", "21", ["0", "0", "0"], "60", "D"],
+        ["2016", "only", "-", "Sep", "21", ["0", "0", "0"], "0", "S"],
+        ["2017", "2019", "-", "Mar", "22", ["0", "0", "0"], "60", "D"],
+        ["2017", "2019", "-", "Sep", "22", ["0", "0", "0"], "0", "S"],
+        ["2020", "only", "-", "Mar", "21", ["0", "0", "0"], "60", "D"],
+        ["2020", "only", "-", "Sep", "21", ["0", "0", "0"], "0", "S"],
+        ["2021", "2023", "-", "Mar", "22", ["0", "0", "0"], "60", "D"],
+        ["2021", "2023", "-", "Sep", "22", ["0", "0", "0"], "0", "S"],
+        ["2024", "only", "-", "Mar", "21", ["0", "0", "0"], "60", "D"],
+        ["2024", "only", "-", "Sep", "21", ["0", "0", "0"], "0", "S"],
+        ["2025", "2027", "-", "Mar", "22", ["0", "0", "0"], "60", "D"],
+        ["2025", "2027", "-", "Sep", "22", ["0", "0", "0"], "0", "S"],
+        ["2028", "2029", "-", "Mar", "21", ["0", "0", "0"], "60", "D"],
+        ["2028", "2029", "-", "Sep", "21", ["0", "0", "0"], "0", "S"],
+        ["2030", "2031", "-", "Mar", "22", ["0", "0", "0"], "60", "D"],
+        ["2030", "2031", "-", "Sep", "22", ["0", "0", "0"], "0", "S"],
+        ["2032", "2033", "-", "Mar", "21", ["0", "0", "0"], "60", "D"],
+        ["2032", "2033", "-", "Sep", "21", ["0", "0", "0"], "0", "S"],
+        ["2034", "2035", "-", "Mar", "22", ["0", "0", "0"], "60", "D"],
+        ["2034", "2035", "-", "Sep", "22", ["0", "0", "0"], "0", "S"],
+        ["2036", "2037", "-", "Mar", "21", ["0", "0", "0"], "60", "D"],
+        ["2036", "2037", "-", "Sep", "21", ["0", "0", "0"], "0", "S"]
+    ],
+    "Iraq": [
+        ["1982", "only", "-", "May", "1", ["0", "0", "0"], "60", "D"],
+        ["1982", "1984", "-", "Oct", "1", ["0", "0", "0"], "0", "S"],
+        ["1983", "only", "-", "Mar", "31", ["0", "0", "0"], "60", "D"],
+        ["1984", "1985", "-", "Apr", "1", ["0", "0", "0"], "60", "D"],
+        ["1985", "1990", "-", "Sep", "lastSun", ["1", "0", "0", "s"], "0", "S"],
+        ["1986", "1990", "-", "Mar", "lastSun", ["1", "0", "0", "s"], "60", "D"],
+        ["1991", "2007", "-", "Apr", "1", ["3", "0", "0", "s"], "60", "D"],
+        ["1991", "2007", "-", "Oct", "1", ["3", "0", "0", "s"], "0", "S"]
+    ],
+    "Zion": [
+        ["1940", "only", "-", "Jun", "1", ["0", "0", "0"], "60", "D"],
+        ["1942", "1944", "-", "Nov", "1", ["0", "0", "0"], "0", "S"],
+        ["1943", "only", "-", "Apr", "1", ["2", "0", "0"], "60", "D"],
+        ["1944", "only", "-", "Apr", "1", ["0", "0", "0"], "60", "D"],
+        ["1945", "only", "-", "Apr", "16", ["0", "0", "0"], "60", "D"],
+        ["1945", "only", "-", "Nov", "1", ["2", "0", "0"], "0", "S"],
+        ["1946", "only", "-", "Apr", "16", ["2", "0", "0"], "60", "D"],
+        ["1946", "only", "-", "Nov", "1", ["0", "0", "0"], "0", "S"],
+        ["1948", "only", "-", "May", "23", ["0", "0", "0"], "120", "DD"],
+        ["1948", "only", "-", "Sep", "1", ["0", "0", "0"], "60", "D"],
+        ["1948", "1949", "-", "Nov", "1", ["2", "0", "0"], "0", "S"],
+        ["1949", "only", "-", "May", "1", ["0", "0", "0"], "60", "D"],
+        ["1950", "only", "-", "Apr", "16", ["0", "0", "0"], "60", "D"],
+        ["1950", "only", "-", "Sep", "15", ["3", "0", "0"], "0", "S"],
+        ["1951", "only", "-", "Apr", "1", ["0", "0", "0"], "60", "D"],
+        ["1951", "only", "-", "Nov", "11", ["3", "0", "0"], "0", "S"],
+        ["1952", "only", "-", "Apr", "20", ["2", "0", "0"], "60", "D"],
+        ["1952", "only", "-", "Oct", "19", ["3", "0", "0"], "0", "S"],
+        ["1953", "only", "-", "Apr", "12", ["2", "0", "0"], "60", "D"],
+        ["1953", "only", "-", "Sep", "13", ["3", "0", "0"], "0", "S"],
+        ["1954", "only", "-", "Jun", "13", ["0", "0", "0"], "60", "D"],
+        ["1954", "only", "-", "Sep", "12", ["0", "0", "0"], "0", "S"],
+        ["1955", "only", "-", "Jun", "11", ["2", "0", "0"], "60", "D"],
+        ["1955", "only", "-", "Sep", "11", ["0", "0", "0"], "0", "S"],
+        ["1956", "only", "-", "Jun", "3", ["0", "0", "0"], "60", "D"],
+        ["1956", "only", "-", "Sep", "30", ["3", "0", "0"], "0", "S"],
+        ["1957", "only", "-", "Apr", "29", ["2", "0", "0"], "60", "D"],
+        ["1957", "only", "-", "Sep", "22", ["0", "0", "0"], "0", "S"],
+        ["1974", "only", "-", "Jul", "7", ["0", "0", "0"], "60", "D"],
+        ["1974", "only", "-", "Oct", "13", ["0", "0", "0"], "0", "S"],
+        ["1975", "only", "-", "Apr", "20", ["0", "0", "0"], "60", "D"],
+        ["1975", "only", "-", "Aug", "31", ["0", "0", "0"], "0", "S"],
+        ["1985", "only", "-", "Apr", "14", ["0", "0", "0"], "60", "D"],
+        ["1985", "only", "-", "Sep", "15", ["0", "0", "0"], "0", "S"],
+        ["1986", "only", "-", "May", "18", ["0", "0", "0"], "60", "D"],
+        ["1986", "only", "-", "Sep", "7", ["0", "0", "0"], "0", "S"],
+        ["1987", "only", "-", "Apr", "15", ["0", "0", "0"], "60", "D"],
+        ["1987", "only", "-", "Sep", "13", ["0", "0", "0"], "0", "S"],
+        ["1988", "only", "-", "Apr", "10", ["0", "0", "0"], "60", "D"],
+        ["1988", "only", "-", "Sep", "4", ["0", "0", "0"], "0", "S"],
+        ["1989", "only", "-", "Apr", "30", ["0", "0", "0"], "60", "D"],
+        ["1989", "only", "-", "Sep", "3", ["0", "0", "0"], "0", "S"],
+        ["1990", "only", "-", "Mar", "25", ["0", "0", "0"], "60", "D"],
+        ["1990", "only", "-", "Aug", "26", ["0", "0", "0"], "0", "S"],
+        ["1991", "only", "-", "Mar", "24", ["0", "0", "0"], "60", "D"],
+        ["1991", "only", "-", "Sep", "1", ["0", "0", "0"], "0", "S"],
+        ["1992", "only", "-", "Mar", "29", ["0", "0", "0"], "60", "D"],
+        ["1992", "only", "-", "Sep", "6", ["0", "0", "0"], "0", "S"],
+        ["1993", "only", "-", "Apr", "2", ["0", "0", "0"], "60", "D"],
+        ["1993", "only", "-", "Sep", "5", ["0", "0", "0"], "0", "S"],
+        ["1994", "only", "-", "Apr", "1", ["0", "0", "0"], "60", "D"],
+        ["1994", "only", "-", "Aug", "28", ["0", "0", "0"], "0", "S"],
+        ["1995", "only", "-", "Mar", "31", ["0", "0", "0"], "60", "D"],
+        ["1995", "only", "-", "Sep", "3", ["0", "0", "0"], "0", "S"],
+        ["1996", "only", "-", "Mar", "15", ["0", "0", "0"], "60", "D"],
+        ["1996", "only", "-", "Sep", "16", ["0", "0", "0"], "0", "S"],
+        ["1997", "only", "-", "Mar", "21", ["0", "0", "0"], "60", "D"],
+        ["1997", "only", "-", "Sep", "14", ["0", "0", "0"], "0", "S"],
+        ["1998", "only", "-", "Mar", "20", ["0", "0", "0"], "60", "D"],
+        ["1998", "only", "-", "Sep", "6", ["0", "0", "0"], "0", "S"],
+        ["1999", "only", "-", "Apr", "2", ["2", "0", "0"], "60", "D"],
+        ["1999", "only", "-", "Sep", "3", ["2", "0", "0"], "0", "S"],
+        ["2000", "only", "-", "Apr", "14", ["2", "0", "0"], "60", "D"],
+        ["2000", "only", "-", "Oct", "6", ["1", "0", "0"], "0", "S"],
+        ["2001", "only", "-", "Apr", "9", ["1", "0", "0"], "60", "D"],
+        ["2001", "only", "-", "Sep", "24", ["1", "0", "0"], "0", "S"],
+        ["2002", "only", "-", "Mar", "29", ["1", "0", "0"], "60", "D"],
+        ["2002", "only", "-", "Oct", "7", ["1", "0", "0"], "0", "S"],
+        ["2003", "only", "-", "Mar", "28", ["1", "0", "0"], "60", "D"],
+        ["2003", "only", "-", "Oct", "3", ["1", "0", "0"], "0", "S"],
+        ["2004", "only", "-", "Apr", "7", ["1", "0", "0"], "60", "D"],
+        ["2004", "only", "-", "Sep", "22", ["1", "0", "0"], "0", "S"],
+        ["2005", "only", "-", "Apr", "1", ["2", "0", "0"], "60", "D"],
+        ["2005", "only", "-", "Oct", "9", ["2", "0", "0"], "0", "S"],
+        ["2006", "2010", "-", "Mar", "Fri>=26", ["2", "0", "0"], "60", "D"],
+        ["2006", "only", "-", "Oct", "1", ["2", "0", "0"], "0", "S"],
+        ["2007", "only", "-", "Sep", "16", ["2", "0", "0"], "0", "S"],
+        ["2008", "only", "-", "Oct", "5", ["2", "0", "0"], "0", "S"],
+        ["2009", "only", "-", "Sep", "27", ["2", "0", "0"], "0", "S"],
+        ["2010", "only", "-", "Sep", "12", ["2", "0", "0"], "0", "S"],
+        ["2011", "only", "-", "Apr", "1", ["2", "0", "0"], "60", "D"],
+        ["2011", "only", "-", "Oct", "2", ["2", "0", "0"], "0", "S"],
+        ["2012", "only", "-", "Mar", "Fri>=26", ["2", "0", "0"], "60", "D"],
+        ["2012", "only", "-", "Sep", "23", ["2", "0", "0"], "0", "S"],
+        ["2013", "max", "-", "Mar", "Fri>=23", ["2", "0", "0"], "60", "D"],
+        ["2013", "max", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"]
+    ],
+    "Japan": [
+        ["1948", "only", "-", "May", "Sun>=1", ["2", "0", "0"], "60", "D"],
+        ["1948", "1951", "-", "Sep", "Sat>=8", ["2", "0", "0"], "0", "S"],
+        ["1949", "only", "-", "Apr", "Sun>=1", ["2", "0", "0"], "60", "D"],
+        ["1950", "1951", "-", "May", "Sun>=1", ["2", "0", "0"], "60", "D"]
+    ],
+    "Jordan": [
+        ["1973", "only", "-", "Jun", "6", ["0", "0", "0"], "60", "S"],
+        ["1973", "1975", "-", "Oct", "1", ["0", "0", "0"], "0", "-"],
+        ["1974", "1977", "-", "May", "1", ["0", "0", "0"], "60", "S"],
+        ["1976", "only", "-", "Nov", "1", ["0", "0", "0"], "0", "-"],
+        ["1977", "only", "-", "Oct", "1", ["0", "0", "0"], "0", "-"],
+        ["1978", "only", "-", "Apr", "30", ["0", "0", "0"], "60", "S"],
+        ["1978", "only", "-", "Sep", "30", ["0", "0", "0"], "0", "-"],
+        ["1985", "only", "-", "Apr", "1", ["0", "0", "0"], "60", "S"],
+        ["1985", "only", "-", "Oct", "1", ["0", "0", "0"], "0", "-"],
+        ["1986", "1988", "-", "Apr", "Fri>=1", ["0", "0", "0"], "60", "S"],
+        ["1986", "1990", "-", "Oct", "Fri>=1", ["0", "0", "0"], "0", "-"],
+        ["1989", "only", "-", "May", "8", ["0", "0", "0"], "60", "S"],
+        ["1990", "only", "-", "Apr", "27", ["0", "0", "0"], "60", "S"],
+        ["1991", "only", "-", "Apr", "17", ["0", "0", "0"], "60", "S"],
+        ["1991", "only", "-", "Sep", "27", ["0", "0", "0"], "0", "-"],
+        ["1992", "only", "-", "Apr", "10", ["0", "0", "0"], "60", "S"],
+        ["1992", "1993", "-", "Oct", "Fri>=1", ["0", "0", "0"], "0", "-"],
+        ["1993", "1998", "-", "Apr", "Fri>=1", ["0", "0", "0"], "60", "S"],
+        ["1994", "only", "-", "Sep", "Fri>=15", ["0", "0", "0"], "0", "-"],
+        ["1995", "1998", "-", "Sep", "Fri>=15", ["0", "0", "0", "s"], "0", "-"],
+        ["1999", "only", "-", "Jul", "1", ["0", "0", "0", "s"], "60", "S"],
+        ["1999", "2002", "-", "Sep", "lastFri", ["0", "0", "0", "s"], "0", "-"],
+        ["2000", "2001", "-", "Mar", "lastThu", ["0", "0", "0", "s"], "60", "S"],
+        ["2002", "2012", "-", "Mar", "lastThu", ["24", "0", "0"], "60", "S"],
+        ["2003", "only", "-", "Oct", "24", ["0", "0", "0", "s"], "0", "-"],
+        ["2004", "only", "-", "Oct", "15", ["0", "0", "0", "s"], "0", "-"],
+        ["2005", "only", "-", "Sep", "lastFri", ["0", "0", "0", "s"], "0", "-"],
+        ["2006", "2011", "-", "Oct", "lastFri", ["0", "0", "0", "s"], "0", "-"],
+        ["2013", "only", "-", "Dec", "20", ["0", "0", "0"], "0", "-"],
+        ["2014", "max", "-", "Mar", "lastThu", ["24", "0", "0"], "60", "S"],
+        ["2014", "max", "-", "Oct", "lastFri", ["0", "0", "0", "s"], "0", "-"]
+    ],
+    "Kyrgyz": [
+        ["1992", "1996", "-", "Apr", "Sun>=7", ["0", "0", "0", "s"], "60", "S"],
+        ["1992", "1996", "-", "Sep", "lastSun", ["0", "0", "0"], "0", "-"],
+        ["1997", "2005", "-", "Mar", "lastSun", ["2", "30", "0"], "60", "S"],
+        ["1997", "2004", "-", "Oct", "lastSun", ["2", "30", "0"], "0", "-"]
+    ],
+    "ROK": [
+        ["1960", "only", "-", "May", "15", ["0", "0", "0"], "60", "D"],
+        ["1960", "only", "-", "Sep", "13", ["0", "0", "0"], "0", "S"],
+        ["1987", "1988", "-", "May", "Sun>=8", ["0", "0", "0"], "60", "D"],
+        ["1987", "1988", "-", "Oct", "Sun>=8", ["0", "0", "0"], "0", "S"]
+    ],
+    "Lebanon": [
+        ["1920", "only", "-", "Mar", "28", ["0", "0", "0"], "60", "S"],
+        ["1920", "only", "-", "Oct", "25", ["0", "0", "0"], "0", "-"],
+        ["1921", "only", "-", "Apr", "3", ["0", "0", "0"], "60", "S"],
+        ["1921", "only", "-", "Oct", "3", ["0", "0", "0"], "0", "-"],
+        ["1922", "only", "-", "Mar", "26", ["0", "0", "0"], "60", "S"],
+        ["1922", "only", "-", "Oct", "8", ["0", "0", "0"], "0", "-"],
+        ["1923", "only", "-", "Apr", "22", ["0", "0", "0"], "60", "S"],
+        ["1923", "only", "-", "Sep", "16", ["0", "0", "0"], "0", "-"],
+        ["1957", "1961", "-", "May", "1", ["0", "0", "0"], "60", "S"],
+        ["1957", "1961", "-", "Oct", "1", ["0", "0", "0"], "0", "-"],
+        ["1972", "only", "-", "Jun", "22", ["0", "0", "0"], "60", "S"],
+        ["1972", "1977", "-", "Oct", "1", ["0", "0", "0"], "0", "-"],
+        ["1973", "1977", "-", "May", "1", ["0", "0", "0"], "60", "S"],
+        ["1978", "only", "-", "Apr", "30", ["0", "0", "0"], "60", "S"],
+        ["1978", "only", "-", "Sep", "30", ["0", "0", "0"], "0", "-"],
+        ["1984", "1987", "-", "May", "1", ["0", "0", "0"], "60", "S"],
+        ["1984", "1991", "-", "Oct", "16", ["0", "0", "0"], "0", "-"],
+        ["1988", "only", "-", "Jun", "1", ["0", "0", "0"], "60", "S"],
+        ["1989", "only", "-", "May", "10", ["0", "0", "0"], "60", "S"],
+        ["1990", "1992", "-", "May", "1", ["0", "0", "0"], "60", "S"],
+        ["1992", "only", "-", "Oct", "4", ["0", "0", "0"], "0", "-"],
+        ["1993", "max", "-", "Mar", "lastSun", ["0", "0", "0"], "60", "S"],
+        ["1993", "1998", "-", "Sep", "lastSun", ["0", "0", "0"], "0", "-"],
+        ["1999", "max", "-", "Oct", "lastSun", ["0", "0", "0"], "0", "-"]
+    ],
+    "NBorneo": [
+        ["1935", "1941", "-", "Sep", "14", ["0", "0", "0"], "20", "TS", ""],
+        ["1935", "1941", "-", "Dec", "14", ["0", "0", "0"], "0", "-"]
+    ],
+    "Mongol": [
+        ["1983", "1984", "-", "Apr", "1", ["0", "0", "0"], "60", "S"],
+        ["1983", "only", "-", "Oct", "1", ["0", "0", "0"], "0", "-"],
+        ["1985", "1998", "-", "Mar", "lastSun", ["0", "0", "0"], "60", "S"],
+        ["1984", "1998", "-", "Sep", "lastSun", ["0", "0", "0"], "0", "-"],
+        ["2001", "only", "-", "Apr", "lastSat", ["2", "0", "0"], "60", "S"],
+        ["2001", "2006", "-", "Sep", "lastSat", ["2", "0", "0"], "0", "-"],
+        ["2002", "2006", "-", "Mar", "lastSat", ["2", "0", "0"], "60", "S"]
+    ],
+    "Pakistan": [
+        ["2002", "only", "-", "Apr", "Sun>=2", ["0", "1", "0"], "60", "S"],
+        ["2002", "only", "-", "Oct", "Sun>=2", ["0", "1", "0"], "0", "-"],
+        ["2008", "only", "-", "Jun", "1", ["0", "0", "0"], "60", "S"],
+        ["2008", "2009", "-", "Nov", "1", ["0", "0", "0"], "0", "-"],
+        ["2009", "only", "-", "Apr", "15", ["0", "0", "0"], "60", "S"]
+    ],
+    "EgyptAsia": [
+        ["1957", "only", "-", "May", "10", ["0", "0", "0"], "60", "S"],
+        ["1957", "1958", "-", "Oct", "1", ["0", "0", "0"], "0", "-"],
+        ["1958", "only", "-", "May", "1", ["0", "0", "0"], "60", "S"],
+        ["1959", "1967", "-", "May", "1", ["1", "0", "0"], "60", "S"],
+        ["1959", "1965", "-", "Sep", "30", ["3", "0", "0"], "0", "-"],
+        ["1966", "only", "-", "Oct", "1", ["3", "0", "0"], "0", "-"]
+    ],
+    "Palestine": [
+        ["1999", "2005", "-", "Apr", "Fri>=15", ["0", "0", "0"], "60", "S"],
+        ["1999", "2003", "-", "Oct", "Fri>=15", ["0", "0", "0"], "0", "-"],
+        ["2004", "only", "-", "Oct", "1", ["1", "0", "0"], "0", "-"],
+        ["2005", "only", "-", "Oct", "4", ["2", "0", "0"], "0", "-"],
+        ["2006", "2007", "-", "Apr", "1", ["0", "0", "0"], "60", "S"],
+        ["2006", "only", "-", "Sep", "22", ["0", "0", "0"], "0", "-"],
+        ["2007", "only", "-", "Sep", "Thu>=8", ["2", "0", "0"], "0", "-"],
+        ["2008", "2009", "-", "Mar", "lastFri", ["0", "0", "0"], "60", "S"],
+        ["2008", "only", "-", "Sep", "1", ["0", "0", "0"], "0", "-"],
+        ["2009", "only", "-", "Sep", "Fri>=1", ["1", "0", "0"], "0", "-"],
+        ["2010", "only", "-", "Mar", "26", ["0", "0", "0"], "60", "S"],
+        ["2010", "only", "-", "Aug", "11", ["0", "0", "0"], "0", "-"],
+        ["2011", "only", "-", "Apr", "1", ["0", "1", "0"], "60", "S"],
+        ["2011", "only", "-", "Aug", "1", ["0", "0", "0"], "0", "-"],
+        ["2011", "only", "-", "Aug", "30", ["0", "0", "0"], "60", "S"],
+        ["2011", "only", "-", "Sep", "30", ["0", "0", "0"], "0", "-"],
+        ["2012", "max", "-", "Mar", "lastThu", ["24", "0", "0"], "60", "S"],
+        ["2012", "only", "-", "Sep", "21", ["1", "0", "0"], "0", "-"],
+        ["2013", "max", "-", "Sep", "Fri>=21", ["0", "0", "0"], "0", "-"]
+    ],
+    "Phil": [
+        ["1936", "only", "-", "Nov", "1", ["0", "0", "0"], "60", "S"],
+        ["1937", "only", "-", "Feb", "1", ["0", "0", "0"], "0", "-"],
+        ["1954", "only", "-", "Apr", "12", ["0", "0", "0"], "60", "S"],
+        ["1954", "only", "-", "Jul", "1", ["0", "0", "0"], "0", "-"],
+        ["1978", "only", "-", "Mar", "22", ["0", "0", "0"], "60", "S"],
+        ["1978", "only", "-", "Sep", "21", ["0", "0", "0"], "0", "-"]
+    ],
+    "Syria": [
+        ["1920", "1923", "-", "Apr", "Sun>=15", ["2", "0", "0"], "60", "S"],
+        ["1920", "1923", "-", "Oct", "Sun>=1", ["2", "0", "0"], "0", "-"],
+        ["1962", "only", "-", "Apr", "29", ["2", "0", "0"], "60", "S"],
+        ["1962", "only", "-", "Oct", "1", ["2", "0", "0"], "0", "-"],
+        ["1963", "1965", "-", "May", "1", ["2", "0", "0"], "60", "S"],
+        ["1963", "only", "-", "Sep", "30", ["2", "0", "0"], "0", "-"],
+        ["1964", "only", "-", "Oct", "1", ["2", "0", "0"], "0", "-"],
+        ["1965", "only", "-", "Sep", "30", ["2", "0", "0"], "0", "-"],
+        ["1966", "only", "-", "Apr", "24", ["2", "0", "0"], "60", "S"],
+        ["1966", "1976", "-", "Oct", "1", ["2", "0", "0"], "0", "-"],
+        ["1967", "1978", "-", "May", "1", ["2", "0", "0"], "60", "S"],
+        ["1977", "1978", "-", "Sep", "1", ["2", "0", "0"], "0", "-"],
+        ["1983", "1984", "-", "Apr", "9", ["2", "0", "0"], "60", "S"],
+        ["1983", "1984", "-", "Oct", "1", ["2", "0", "0"], "0", "-"],
+        ["1986", "only", "-", "Feb", "16", ["2", "0", "0"], "60", "S"],
+        ["1986", "only", "-", "Oct", "9", ["2", "0", "0"], "0", "-"],
+        ["1987", "only", "-", "Mar", "1", ["2", "0", "0"], "60", "S"],
+        ["1987", "1988", "-", "Oct", "31", ["2", "0", "0"], "0", "-"],
+        ["1988", "only", "-", "Mar", "15", ["2", "0", "0"], "60", "S"],
+        ["1989", "only", "-", "Mar", "31", ["2", "0", "0"], "60", "S"],
+        ["1989", "only", "-", "Oct", "1", ["2", "0", "0"], "0", "-"],
+        ["1990", "only", "-", "Apr", "1", ["2", "0", "0"], "60", "S"],
+        ["1990", "only", "-", "Sep", "30", ["2", "0", "0"], "0", "-"],
+        ["1991", "only", "-", "Apr", "1", ["0", "0", "0"], "60", "S"],
+        ["1991", "1992", "-", "Oct", "1", ["0", "0", "0"], "0", "-"],
+        ["1992", "only", "-", "Apr", "8", ["0", "0", "0"], "60", "S"],
+        ["1993", "only", "-", "Mar", "26", ["0", "0", "0"], "60", "S"],
+        ["1993", "only", "-", "Sep", "25", ["0", "0", "0"], "0", "-"],
+        ["1994", "1996", "-", "Apr", "1", ["0", "0", "0"], "60", "S"],
+        ["1994", "2005", "-", "Oct", "1", ["0", "0", "0"], "0", "-"],
+        ["1997", "1998", "-", "Mar", "lastMon", ["0", "0", "0"], "60", "S"],
+        ["1999", "2006", "-", "Apr", "1", ["0", "0", "0"], "60", "S"],
+        ["2006", "only", "-", "Sep", "22", ["0", "0", "0"], "0", "-"],
+        ["2007", "only", "-", "Mar", "lastFri", ["0", "0", "0"], "60", "S"],
+        ["2007", "only", "-", "Nov", "Fri>=1", ["0", "0", "0"], "0", "-"],
+        ["2008", "only", "-", "Apr", "Fri>=1", ["0", "0", "0"], "60", "S"],
+        ["2008", "only", "-", "Nov", "1", ["0", "0", "0"], "0", "-"],
+        ["2009", "only", "-", "Mar", "lastFri", ["0", "0", "0"], "60", "S"],
+        ["2010", "2011", "-", "Apr", "Fri>=1", ["0", "0", "0"], "60", "S"],
+        ["2012", "max", "-", "Mar", "lastFri", ["0", "0", "0"], "60", "S"],
+        ["2009", "max", "-", "Oct", "lastFri", ["0", "0", "0"], "0", "-"]
+    ],
+    "Aus": [
+        ["1917", "only", "-", "Jan", "1", ["0", "1", "0"], "60", "D"],
+        ["1917", "only", "-", "Mar", "25", ["2", "0", "0"], "0", "S"],
+        ["1942", "only", "-", "Jan", "1", ["2", "0", "0"], "60", "D"],
+        ["1942", "only", "-", "Mar", "29", ["2", "0", "0"], "0", "S"],
+        ["1942", "only", "-", "Sep", "27", ["2", "0", "0"], "60", "D"],
+        ["1943", "1944", "-", "Mar", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1943", "only", "-", "Oct", "3", ["2", "0", "0"], "60", "D"]
+    ],
+    "AW": [
+        ["1974", "only", "-", "Oct", "lastSun", ["2", "0", "0", "s"], "60", "D"],
+        ["1975", "only", "-", "Mar", "Sun>=1", ["2", "0", "0", "s"], "0", "S"],
+        ["1983", "only", "-", "Oct", "lastSun", ["2", "0", "0", "s"], "60", "D"],
+        ["1984", "only", "-", "Mar", "Sun>=1", ["2", "0", "0", "s"], "0", "S"],
+        ["1991", "only", "-", "Nov", "17", ["2", "0", "0", "s"], "60", "D"],
+        ["1992", "only", "-", "Mar", "Sun>=1", ["2", "0", "0", "s"], "0", "S"],
+        ["2006", "only", "-", "Dec", "3", ["2", "0", "0", "s"], "60", "D"],
+        ["2007", "2009", "-", "Mar", "lastSun", ["2", "0", "0", "s"], "0", "S"],
+        ["2007", "2008", "-", "Oct", "lastSun", ["2", "0", "0", "s"], "60", "D"]
+    ],
+    "AQ": [
+        ["1971", "only", "-", "Oct", "lastSun", ["2", "0", "0", "s"], "60", "D"],
+        ["1972", "only", "-", "Feb", "lastSun", ["2", "0", "0", "s"], "0", "S"],
+        ["1989", "1991", "-", "Oct", "lastSun", ["2", "0", "0", "s"], "60", "D"],
+        ["1990", "1992", "-", "Mar", "Sun>=1", ["2", "0", "0", "s"], "0", "S"]
+    ],
+    "Holiday": [
+        ["1992", "1993", "-", "Oct", "lastSun", ["2", "0", "0", "s"], "60", "D"],
+        ["1993", "1994", "-", "Mar", "Sun>=1", ["2", "0", "0", "s"], "0", "S"]
+    ],
+    "AS": [
+        ["1971", "1985", "-", "Oct", "lastSun", ["2", "0", "0", "s"], "60", "D"],
+        ["1986", "only", "-", "Oct", "19", ["2", "0", "0", "s"], "60", "D"],
+        ["1987", "2007", "-", "Oct", "lastSun", ["2", "0", "0", "s"], "60", "D"],
+        ["1972", "only", "-", "Feb", "27", ["2", "0", "0", "s"], "0", "S"],
+        ["1973", "1985", "-", "Mar", "Sun>=1", ["2", "0", "0", "s"], "0", "S"],
+        ["1986", "1990", "-", "Mar", "Sun>=15", ["2", "0", "0", "s"], "0", "S"],
+        ["1991", "only", "-", "Mar", "3", ["2", "0", "0", "s"], "0", "S"],
+        ["1992", "only", "-", "Mar", "22", ["2", "0", "0", "s"], "0", "S"],
+        ["1993", "only", "-", "Mar", "7", ["2", "0", "0", "s"], "0", "S"],
+        ["1994", "only", "-", "Mar", "20", ["2", "0", "0", "s"], "0", "S"],
+        ["1995", "2005", "-", "Mar", "lastSun", ["2", "0", "0", "s"], "0", "S"],
+        ["2006", "only", "-", "Apr", "2", ["2", "0", "0", "s"], "0", "S"],
+        ["2007", "only", "-", "Mar", "lastSun", ["2", "0", "0", "s"], "0", "S"],
+        ["2008", "max", "-", "Apr", "Sun>=1", ["2", "0", "0", "s"], "0", "S"],
+        ["2008", "max", "-", "Oct", "Sun>=1", ["2", "0", "0", "s"], "60", "D"]
+    ],
+    "AT": [
+        ["1967", "only", "-", "Oct", "Sun>=1", ["2", "0", "0", "s"], "60", "D"],
+        ["1968", "only", "-", "Mar", "lastSun", ["2", "0", "0", "s"], "0", "S"],
+        ["1968", "1985", "-", "Oct", "lastSun", ["2", "0", "0", "s"], "60", "D"],
+        ["1969", "1971", "-", "Mar", "Sun>=8", ["2", "0", "0", "s"], "0", "S"],
+        ["1972", "only", "-", "Feb", "lastSun", ["2", "0", "0", "s"], "0", "S"],
+        ["1973", "1981", "-", "Mar", "Sun>=1", ["2", "0", "0", "s"], "0", "S"],
+        ["1982", "1983", "-", "Mar", "lastSun", ["2", "0", "0", "s"], "0", "S"],
+        ["1984", "1986", "-", "Mar", "Sun>=1", ["2", "0", "0", "s"], "0", "S"],
+        ["1986", "only", "-", "Oct", "Sun>=15", ["2", "0", "0", "s"], "60", "D"],
+        ["1987", "1990", "-", "Mar", "Sun>=15", ["2", "0", "0", "s"], "0", "S"],
+        ["1987", "only", "-", "Oct", "Sun>=22", ["2", "0", "0", "s"], "60", "D"],
+        ["1988", "1990", "-", "Oct", "lastSun", ["2", "0", "0", "s"], "60", "D"],
+        ["1991", "1999", "-", "Oct", "Sun>=1", ["2", "0", "0", "s"], "60", "D"],
+        ["1991", "2005", "-", "Mar", "lastSun", ["2", "0", "0", "s"], "0", "S"],
+        ["2000", "only", "-", "Aug", "lastSun", ["2", "0", "0", "s"], "60", "D"],
+        ["2001", "max", "-", "Oct", "Sun>=1", ["2", "0", "0", "s"], "60", "D"],
+        ["2006", "only", "-", "Apr", "Sun>=1", ["2", "0", "0", "s"], "0", "S"],
+        ["2007", "only", "-", "Mar", "lastSun", ["2", "0", "0", "s"], "0", "S"],
+        ["2008", "max", "-", "Apr", "Sun>=1", ["2", "0", "0", "s"], "0", "S"]
+    ],
+    "AV": [
+        ["1971", "1985", "-", "Oct", "lastSun", ["2", "0", "0", "s"], "60", "D"],
+        ["1972", "only", "-", "Feb", "lastSun", ["2", "0", "0", "s"], "0", "S"],
+        ["1973", "1985", "-", "Mar", "Sun>=1", ["2", "0", "0", "s"], "0", "S"],
+        ["1986", "1990", "-", "Mar", "Sun>=15", ["2", "0", "0", "s"], "0", "S"],
+        ["1986", "1987", "-", "Oct", "Sun>=15", ["2", "0", "0", "s"], "60", "D"],
+        ["1988", "1999", "-", "Oct", "lastSun", ["2", "0", "0", "s"], "60", "D"],
+        ["1991", "1994", "-", "Mar", "Sun>=1", ["2", "0", "0", "s"], "0", "S"],
+        ["1995", "2005", "-", "Mar", "lastSun", ["2", "0", "0", "s"], "0", "S"],
+        ["2000", "only", "-", "Aug", "lastSun", ["2", "0", "0", "s"], "60", "D"],
+        ["2001", "2007", "-", "Oct", "lastSun", ["2", "0", "0", "s"], "60", "D"],
+        ["2006", "only", "-", "Apr", "Sun>=1", ["2", "0", "0", "s"], "0", "S"],
+        ["2007", "only", "-", "Mar", "lastSun", ["2", "0", "0", "s"], "0", "S"],
+        ["2008", "max", "-", "Apr", "Sun>=1", ["2", "0", "0", "s"], "0", "S"],
+        ["2008", "max", "-", "Oct", "Sun>=1", ["2", "0", "0", "s"], "60", "D"]
+    ],
+    "AN": [
+        ["1971", "1985", "-", "Oct", "lastSun", ["2", "0", "0", "s"], "60", "D"],
+        ["1972", "only", "-", "Feb", "27", ["2", "0", "0", "s"], "0", "S"],
+        ["1973", "1981", "-", "Mar", "Sun>=1", ["2", "0", "0", "s"], "0", "S"],
+        ["1982", "only", "-", "Apr", "Sun>=1", ["2", "0", "0", "s"], "0", "S"],
+        ["1983", "1985", "-", "Mar", "Sun>=1", ["2", "0", "0", "s"], "0", "S"],
+        ["1986", "1989", "-", "Mar", "Sun>=15", ["2", "0", "0", "s"], "0", "S"],
+        ["1986", "only", "-", "Oct", "19", ["2", "0", "0", "s"], "60", "D"],
+        ["1987", "1999", "-", "Oct", "lastSun", ["2", "0", "0", "s"], "60", "D"],
+        ["1990", "1995", "-", "Mar", "Sun>=1", ["2", "0", "0", "s"], "0", "S"],
+        ["1996", "2005", "-", "Mar", "lastSun", ["2", "0", "0", "s"], "0", "S"],
+        ["2000", "only", "-", "Aug", "lastSun", ["2", "0", "0", "s"], "60", "D"],
+        ["2001", "2007", "-", "Oct", "lastSun", ["2", "0", "0", "s"], "60", "D"],
+        ["2006", "only", "-", "Apr", "Sun>=1", ["2", "0", "0", "s"], "0", "S"],
+        ["2007", "only", "-", "Mar", "lastSun", ["2", "0", "0", "s"], "0", "S"],
+        ["2008", "max", "-", "Apr", "Sun>=1", ["2", "0", "0", "s"], "0", "S"],
+        ["2008", "max", "-", "Oct", "Sun>=1", ["2", "0", "0", "s"], "60", "D"]
+    ],
+    "LH": [
+        ["1981", "1984", "-", "Oct", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1982", "1985", "-", "Mar", "Sun>=1", ["2", "0", "0"], "0", "S"],
+        ["1985", "only", "-", "Oct", "lastSun", ["2", "0", "0"], "30", "D"],
+        ["1986", "1989", "-", "Mar", "Sun>=15", ["2", "0", "0"], "0", "S"],
+        ["1986", "only", "-", "Oct", "19", ["2", "0", "0"], "30", "D"],
+        ["1987", "1999", "-", "Oct", "lastSun", ["2", "0", "0"], "30", "D"],
+        ["1990", "1995", "-", "Mar", "Sun>=1", ["2", "0", "0"], "0", "S"],
+        ["1996", "2005", "-", "Mar", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["2000", "only", "-", "Aug", "lastSun", ["2", "0", "0"], "30", "D"],
+        ["2001", "2007", "-", "Oct", "lastSun", ["2", "0", "0"], "30", "D"],
+        ["2006", "only", "-", "Apr", "Sun>=1", ["2", "0", "0"], "0", "S"],
+        ["2007", "only", "-", "Mar", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["2008", "max", "-", "Apr", "Sun>=1", ["2", "0", "0"], "0", "S"],
+        ["2008", "max", "-", "Oct", "Sun>=1", ["2", "0", "0"], "30", "D"]
+    ],
+    "Fiji": [
+        ["1998", "1999", "-", "Nov", "Sun>=1", ["2", "0", "0"], "60", "S"],
+        ["1999", "2000", "-", "Feb", "lastSun", ["3", "0", "0"], "0", "-"],
+        ["2009", "only", "-", "Nov", "29", ["2", "0", "0"], "60", "S"],
+        ["2010", "only", "-", "Mar", "lastSun", ["3", "0", "0"], "0", "-"],
+        ["2010", "max", "-", "Oct", "Sun>=21", ["2", "0", "0"], "60", "S"],
+        ["2011", "only", "-", "Mar", "Sun>=1", ["3", "0", "0"], "0", "-"],
+        ["2012", "2013", "-", "Jan", "Sun>=18", ["3", "0", "0"], "0", "-"],
+        ["2014", "max", "-", "Jan", "Sun>=18", ["2", "0", "0"], "0", "-"]
+    ],
+    "NC": [
+        ["1977", "1978", "-", "Dec", "Sun>=1", ["0", "0", "0"], "60", "S"],
+        ["1978", "1979", "-", "Feb", "27", ["0", "0", "0"], "0", "-"],
+        ["1996", "only", "-", "Dec", "1", ["2", "0", "0", "s"], "60", "S"],
+        ["1997", "only", "-", "Mar", "2", ["2", "0", "0", "s"], "0", "-"]
+    ],
+    "NZ": [
+        ["1927", "only", "-", "Nov", "6", ["2", "0", "0"], "60", "S"],
+        ["1928", "only", "-", "Mar", "4", ["2", "0", "0"], "0", "M"],
+        ["1928", "1933", "-", "Oct", "Sun>=8", ["2", "0", "0"], "30", "S"],
+        ["1929", "1933", "-", "Mar", "Sun>=15", ["2", "0", "0"], "0", "M"],
+        ["1934", "1940", "-", "Apr", "lastSun", ["2", "0", "0"], "0", "M"],
+        ["1934", "1940", "-", "Sep", "lastSun", ["2", "0", "0"], "30", "S"],
+        ["1946", "only", "-", "Jan", "1", ["0", "0", "0"], "0", "S"],
+        ["1974", "only", "-", "Nov", "Sun>=1", ["2", "0", "0", "s"], "60", "D"],
+        ["1975", "only", "-", "Feb", "lastSun", ["2", "0", "0", "s"], "0", "S"],
+        ["1975", "1988", "-", "Oct", "lastSun", ["2", "0", "0", "s"], "60", "D"],
+        ["1976", "1989", "-", "Mar", "Sun>=1", ["2", "0", "0", "s"], "0", "S"],
+        ["1989", "only", "-", "Oct", "Sun>=8", ["2", "0", "0", "s"], "60", "D"],
+        ["1990", "2006", "-", "Oct", "Sun>=1", ["2", "0", "0", "s"], "60", "D"],
+        ["1990", "2007", "-", "Mar", "Sun>=15", ["2", "0", "0", "s"], "0", "S"],
+        ["2007", "max", "-", "Sep", "lastSun", ["2", "0", "0", "s"], "60", "D"],
+        ["2008", "max", "-", "Apr", "Sun>=1", ["2", "0", "0", "s"], "0", "S"]
+    ],
+    "Chatham": [
+        ["1974", "only", "-", "Nov", "Sun>=1", ["2", "45", "0", "s"], "60", "D"],
+        ["1975", "only", "-", "Feb", "lastSun", ["2", "45", "0", "s"], "0", "S"],
+        ["1975", "1988", "-", "Oct", "lastSun", ["2", "45", "0", "s"], "60", "D"],
+        ["1976", "1989", "-", "Mar", "Sun>=1", ["2", "45", "0", "s"], "0", "S"],
+        ["1989", "only", "-", "Oct", "Sun>=8", ["2", "45", "0", "s"], "60", "D"],
+        ["1990", "2006", "-", "Oct", "Sun>=1", ["2", "45", "0", "s"], "60", "D"],
+        ["1990", "2007", "-", "Mar", "Sun>=15", ["2", "45", "0", "s"], "0", "S"],
+        ["2007", "max", "-", "Sep", "lastSun", ["2", "45", "0", "s"], "60", "D"],
+        ["2008", "max", "-", "Apr", "Sun>=1", ["2", "45", "0", "s"], "0", "S"]
+    ],
+    "Cook": [
+        ["1978", "only", "-", "Nov", "12", ["0", "0", "0"], "30", "HS"],
+        ["1979", "1991", "-", "Mar", "Sun>=1", ["0", "0", "0"], "0", "-"],
+        ["1979", "1990", "-", "Oct", "lastSun", ["0", "0", "0"], "30", "HS"]
+    ],
+    "WS": [
+        ["2010", "only", "-", "Sep", "lastSun", ["0", "0", "0"], "60", "D"],
+        ["2011", "only", "-", "Apr", "Sat>=1", ["4", "0", "0"], "0", "S"],
+        ["2011", "only", "-", "Sep", "lastSat", ["3", "0", "0"], "60", "D"],
+        ["2012", "max", "-", "Apr", "Sun>=1", ["4", "0", "0"], "0", "S"],
+        ["2012", "max", "-", "Sep", "lastSun", ["3", "0", "0"], "60", "D"]
+    ],
+    "Tonga": [
+        ["1999", "only", "-", "Oct", "7", ["2", "0", "0", "s"], "60", "S"],
+        ["2000", "only", "-", "Mar", "19", ["2", "0", "0", "s"], "0", "-"],
+        ["2000", "2001", "-", "Nov", "Sun>=1", ["2", "0", "0"], "60", "S"],
+        ["2001", "2002", "-", "Jan", "lastSun", ["2", "0", "0"], "0", "-"]
+    ],
+    "Vanuatu": [
+        ["1983", "only", "-", "Sep", "25", ["0", "0", "0"], "60", "S"],
+        ["1984", "1991", "-", "Mar", "Sun>=23", ["0", "0", "0"], "0", "-"],
+        ["1984", "only", "-", "Oct", "23", ["0", "0", "0"], "60", "S"],
+        ["1985", "1991", "-", "Sep", "Sun>=23", ["0", "0", "0"], "60", "S"],
+        ["1992", "1993", "-", "Jan", "Sun>=23", ["0", "0", "0"], "0", "-"],
+        ["1992", "only", "-", "Oct", "Sun>=23", ["0", "0", "0"], "60", "S"]
+    ],
+    "GB-Eire": [
+        ["1916", "only", "-", "May", "21", ["2", "0", "0", "s"], "60", "BST"],
+        ["1916", "only", "-", "Oct", "1", ["2", "0", "0", "s"], "0", "GMT"],
+        ["1917", "only", "-", "Apr", "8", ["2", "0", "0", "s"], "60", "BST"],
+        ["1917", "only", "-", "Sep", "17", ["2", "0", "0", "s"], "0", "GMT"],
+        ["1918", "only", "-", "Mar", "24", ["2", "0", "0", "s"], "60", "BST"],
+        ["1918", "only", "-", "Sep", "30", ["2", "0", "0", "s"], "0", "GMT"],
+        ["1919", "only", "-", "Mar", "30", ["2", "0", "0", "s"], "60", "BST"],
+        ["1919", "only", "-", "Sep", "29", ["2", "0", "0", "s"], "0", "GMT"],
+        ["1920", "only", "-", "Mar", "28", ["2", "0", "0", "s"], "60", "BST"],
+        ["1920", "only", "-", "Oct", "25", ["2", "0", "0", "s"], "0", "GMT"],
+        ["1921", "only", "-", "Apr", "3", ["2", "0", "0", "s"], "60", "BST"],
+        ["1921", "only", "-", "Oct", "3", ["2", "0", "0", "s"], "0", "GMT"],
+        ["1922", "only", "-", "Mar", "26", ["2", "0", "0", "s"], "60", "BST"],
+        ["1922", "only", "-", "Oct", "8", ["2", "0", "0", "s"], "0", "GMT"],
+        ["1923", "only", "-", "Apr", "Sun>=16", ["2", "0", "0", "s"], "60", "BST"],
+        ["1923", "1924", "-", "Sep", "Sun>=16", ["2", "0", "0", "s"], "0", "GMT"],
+        ["1924", "only", "-", "Apr", "Sun>=9", ["2", "0", "0", "s"], "60", "BST"],
+        ["1925", "1926", "-", "Apr", "Sun>=16", ["2", "0", "0", "s"], "60", "BST"],
+        ["1925", "1938", "-", "Oct", "Sun>=2", ["2", "0", "0", "s"], "0", "GMT"],
+        ["1927", "only", "-", "Apr", "Sun>=9", ["2", "0", "0", "s"], "60", "BST"],
+        ["1928", "1929", "-", "Apr", "Sun>=16", ["2", "0", "0", "s"], "60", "BST"],
+        ["1930", "only", "-", "Apr", "Sun>=9", ["2", "0", "0", "s"], "60", "BST"],
+        ["1931", "1932", "-", "Apr", "Sun>=16", ["2", "0", "0", "s"], "60", "BST"],
+        ["1933", "only", "-", "Apr", "Sun>=9", ["2", "0", "0", "s"], "60", "BST"],
+        ["1934", "only", "-", "Apr", "Sun>=16", ["2", "0", "0", "s"], "60", "BST"],
+        ["1935", "only", "-", "Apr", "Sun>=9", ["2", "0", "0", "s"], "60", "BST"],
+        ["1936", "1937", "-", "Apr", "Sun>=16", ["2", "0", "0", "s"], "60", "BST"],
+        ["1938", "only", "-", "Apr", "Sun>=9", ["2", "0", "0", "s"], "60", "BST"],
+        ["1939", "only", "-", "Apr", "Sun>=16", ["2", "0", "0", "s"], "60", "BST"],
+        ["1939", "only", "-", "Nov", "Sun>=16", ["2", "0", "0", "s"], "0", "GMT"],
+        ["1940", "only", "-", "Feb", "Sun>=23", ["2", "0", "0", "s"], "60", "BST"],
+        ["1941", "only", "-", "May", "Sun>=2", ["1", "0", "0", "s"], "120", "BDST"],
+        ["1941", "1943", "-", "Aug", "Sun>=9", ["1", "0", "0", "s"], "60", "BST"],
+        ["1942", "1944", "-", "Apr", "Sun>=2", ["1", "0", "0", "s"], "120", "BDST"],
+        ["1944", "only", "-", "Sep", "Sun>=16", ["1", "0", "0", "s"], "60", "BST"],
+        ["1945", "only", "-", "Apr", "Mon>=2", ["1", "0", "0", "s"], "120", "BDST"],
+        ["1945", "only", "-", "Jul", "Sun>=9", ["1", "0", "0", "s"], "60", "BST"],
+        ["1945", "1946", "-", "Oct", "Sun>=2", ["2", "0", "0", "s"], "0", "GMT"],
+        ["1946", "only", "-", "Apr", "Sun>=9", ["2", "0", "0", "s"], "60", "BST"],
+        ["1947", "only", "-", "Mar", "16", ["2", "0", "0", "s"], "60", "BST"],
+        ["1947", "only", "-", "Apr", "13", ["1", "0", "0", "s"], "120", "BDST"],
+        ["1947", "only", "-", "Aug", "10", ["1", "0", "0", "s"], "60", "BST"],
+        ["1947", "only", "-", "Nov", "2", ["2", "0", "0", "s"], "0", "GMT"],
+        ["1948", "only", "-", "Mar", "14", ["2", "0", "0", "s"], "60", "BST"],
+        ["1948", "only", "-", "Oct", "31", ["2", "0", "0", "s"], "0", "GMT"],
+        ["1949", "only", "-", "Apr", "3", ["2", "0", "0", "s"], "60", "BST"],
+        ["1949", "only", "-", "Oct", "30", ["2", "0", "0", "s"], "0", "GMT"],
+        ["1950", "1952", "-", "Apr", "Sun>=14", ["2", "0", "0", "s"], "60", "BST"],
+        ["1950", "1952", "-", "Oct", "Sun>=21", ["2", "0", "0", "s"], "0", "GMT"],
+        ["1953", "only", "-", "Apr", "Sun>=16", ["2", "0", "0", "s"], "60", "BST"],
+        ["1953", "1960", "-", "Oct", "Sun>=2", ["2", "0", "0", "s"], "0", "GMT"],
+        ["1954", "only", "-", "Apr", "Sun>=9", ["2", "0", "0", "s"], "60", "BST"],
+        ["1955", "1956", "-", "Apr", "Sun>=16", ["2", "0", "0", "s"], "60", "BST"],
+        ["1957", "only", "-", "Apr", "Sun>=9", ["2", "0", "0", "s"], "60", "BST"],
+        ["1958", "1959", "-", "Apr", "Sun>=16", ["2", "0", "0", "s"], "60", "BST"],
+        ["1960", "only", "-", "Apr", "Sun>=9", ["2", "0", "0", "s"], "60", "BST"],
+        ["1961", "1963", "-", "Mar", "lastSun", ["2", "0", "0", "s"], "60", "BST"],
+        ["1961", "1968", "-", "Oct", "Sun>=23", ["2", "0", "0", "s"], "0", "GMT"],
+        ["1964", "1967", "-", "Mar", "Sun>=19", ["2", "0", "0", "s"], "60", "BST"],
+        ["1968", "only", "-", "Feb", "18", ["2", "0", "0", "s"], "60", "BST"],
+        ["1972", "1980", "-", "Mar", "Sun>=16", ["2", "0", "0", "s"], "60", "BST"],
+        ["1972", "1980", "-", "Oct", "Sun>=23", ["2", "0", "0", "s"], "0", "GMT"],
+        ["1981", "1995", "-", "Mar", "lastSun", ["1", "0", "0", "u"], "60", "BST"],
+        ["1981", "1989", "-", "Oct", "Sun>=23", ["1", "0", "0", "u"], "0", "GMT"],
+        ["1990", "1995", "-", "Oct", "Sun>=22", ["1", "0", "0", "u"], "0", "GMT"]
+    ],
+    "EU": [
+        ["1977", "1980", "-", "Apr", "Sun>=1", ["1", "0", "0", "u"], "60", "S"],
+        ["1977", "only", "-", "Sep", "lastSun", ["1", "0", "0", "u"], "0", "-"],
+        ["1978", "only", "-", "Oct", "1", ["1", "0", "0", "u"], "0", "-"],
+        ["1979", "1995", "-", "Sep", "lastSun", ["1", "0", "0", "u"], "0", "-"],
+        ["1981", "max", "-", "Mar", "lastSun", ["1", "0", "0", "u"], "60", "S"],
+        ["1996", "max", "-", "Oct", "lastSun", ["1", "0", "0", "u"], "0", "-"]
+    ],
+    "W-Eur": [
+        ["1977", "1980", "-", "Apr", "Sun>=1", ["1", "0", "0", "s"], "60", "S"],
+        ["1977", "only", "-", "Sep", "lastSun", ["1", "0", "0", "s"], "0", "-"],
+        ["1978", "only", "-", "Oct", "1", ["1", "0", "0", "s"], "0", "-"],
+        ["1979", "1995", "-", "Sep", "lastSun", ["1", "0", "0", "s"], "0", "-"],
+        ["1981", "max", "-", "Mar", "lastSun", ["1", "0", "0", "s"], "60", "S"],
+        ["1996", "max", "-", "Oct", "lastSun", ["1", "0", "0", "s"], "0", "-"]
+    ],
+    "C-Eur": [
+        ["1916", "only", "-", "Apr", "30", ["23", "0", "0"], "60", "S"],
+        ["1916", "only", "-", "Oct", "1", ["1", "0", "0"], "0", "-"],
+        ["1917", "1918", "-", "Apr", "Mon>=15", ["2", "0", "0", "s"], "60", "S"],
+        ["1917", "1918", "-", "Sep", "Mon>=15", ["2", "0", "0", "s"], "0", "-"],
+        ["1940", "only", "-", "Apr", "1", ["2", "0", "0", "s"], "60", "S"],
+        ["1942", "only", "-", "Nov", "2", ["2", "0", "0", "s"], "0", "-"],
+        ["1943", "only", "-", "Mar", "29", ["2", "0", "0", "s"], "60", "S"],
+        ["1943", "only", "-", "Oct", "4", ["2", "0", "0", "s"], "0", "-"],
+        ["1944", "1945", "-", "Apr", "Mon>=1", ["2", "0", "0", "s"], "60", "S"],
+        ["1944", "only", "-", "Oct", "2", ["2", "0", "0", "s"], "0", "-"],
+        ["1945", "only", "-", "Sep", "16", ["2", "0", "0", "s"], "0", "-"],
+        ["1977", "1980", "-", "Apr", "Sun>=1", ["2", "0", "0", "s"], "60", "S"],
+        ["1977", "only", "-", "Sep", "lastSun", ["2", "0", "0", "s"], "0", "-"],
+        ["1978", "only", "-", "Oct", "1", ["2", "0", "0", "s"], "0", "-"],
+        ["1979", "1995", "-", "Sep", "lastSun", ["2", "0", "0", "s"], "0", "-"],
+        ["1981", "max", "-", "Mar", "lastSun", ["2", "0", "0", "s"], "60", "S"],
+        ["1996", "max", "-", "Oct", "lastSun", ["2", "0", "0", "s"], "0", "-"]
+    ],
+    "E-Eur": [
+        ["1977", "1980", "-", "Apr", "Sun>=1", ["0", "0", "0"], "60", "S"],
+        ["1977", "only", "-", "Sep", "lastSun", ["0", "0", "0"], "0", "-"],
+        ["1978", "only", "-", "Oct", "1", ["0", "0", "0"], "0", "-"],
+        ["1979", "1995", "-", "Sep", "lastSun", ["0", "0", "0"], "0", "-"],
+        ["1981", "max", "-", "Mar", "lastSun", ["0", "0", "0"], "60", "S"],
+        ["1996", "max", "-", "Oct", "lastSun", ["0", "0", "0"], "0", "-"]
+    ],
+    "Russia": [
+        ["1917", "only", "-", "Jul", "1", ["23", "0", "0"], "60", "MST", ""],
+        ["1917", "only", "-", "Dec", "28", ["0", "0", "0"], "0", "MMT", ""],
+        ["1918", "only", "-", "May", "31", ["22", "0", "0"], "120", "MDST", ""],
+        ["1918", "only", "-", "Sep", "16", ["1", "0", "0"], "60", "MST"],
+        ["1919", "only", "-", "May", "31", ["23", "0", "0"], "120", "MDST"],
+        ["1919", "only", "-", "Jul", "1", ["2", "0", "0"], "60", "MSD"],
+        ["1919", "only", "-", "Aug", "16", ["0", "0", "0"], "0", "MSK"],
+        ["1921", "only", "-", "Feb", "14", ["23", "0", "0"], "60", "MSD"],
+        ["1921", "only", "-", "Mar", "20", ["23", "0", "0"], "120", "MSM", ""],
+        ["1921", "only", "-", "Sep", "1", ["0", "0", "0"], "60", "MSD"],
+        ["1921", "only", "-", "Oct", "1", ["0", "0", "0"], "0", "-"],
+        ["1981", "1984", "-", "Apr", "1", ["0", "0", "0"], "60", "S"],
+        ["1981", "1983", "-", "Oct", "1", ["0", "0", "0"], "0", "-"],
+        ["1984", "1991", "-", "Sep", "lastSun", ["2", "0", "0", "s"], "0", "-"],
+        ["1985", "1991", "-", "Mar", "lastSun", ["2", "0", "0", "s"], "60", "S"],
+        ["1992", "only", "-", "Mar", "lastSat", ["23", "0", "0"], "60", "S"],
+        ["1992", "only", "-", "Sep", "lastSat", ["23", "0", "0"], "0", "-"],
+        ["1993", "2010", "-", "Mar", "lastSun", ["2", "0", "0", "s"], "60", "S"],
+        ["1993", "1995", "-", "Sep", "lastSun", ["2", "0", "0", "s"], "0", "-"],
+        ["1996", "2010", "-", "Oct", "lastSun", ["2", "0", "0", "s"], "0", "-"]
+    ],
+    "Albania": [
+        ["1940", "only", "-", "Jun", "16", ["0", "0", "0"], "60", "S"],
+        ["1942", "only", "-", "Nov", "2", ["3", "0", "0"], "0", "-"],
+        ["1943", "only", "-", "Mar", "29", ["2", "0", "0"], "60", "S"],
+        ["1943", "only", "-", "Apr", "10", ["3", "0", "0"], "0", "-"],
+        ["1974", "only", "-", "May", "4", ["0", "0", "0"], "60", "S"],
+        ["1974", "only", "-", "Oct", "2", ["0", "0", "0"], "0", "-"],
+        ["1975", "only", "-", "May", "1", ["0", "0", "0"], "60", "S"],
+        ["1975", "only", "-", "Oct", "2", ["0", "0", "0"], "0", "-"],
+        ["1976", "only", "-", "May", "2", ["0", "0", "0"], "60", "S"],
+        ["1976", "only", "-", "Oct", "3", ["0", "0", "0"], "0", "-"],
+        ["1977", "only", "-", "May", "8", ["0", "0", "0"], "60", "S"],
+        ["1977", "only", "-", "Oct", "2", ["0", "0", "0"], "0", "-"],
+        ["1978", "only", "-", "May", "6", ["0", "0", "0"], "60", "S"],
+        ["1978", "only", "-", "Oct", "1", ["0", "0", "0"], "0", "-"],
+        ["1979", "only", "-", "May", "5", ["0", "0", "0"], "60", "S"],
+        ["1979", "only", "-", "Sep", "30", ["0", "0", "0"], "0", "-"],
+        ["1980", "only", "-", "May", "3", ["0", "0", "0"], "60", "S"],
+        ["1980", "only", "-", "Oct", "4", ["0", "0", "0"], "0", "-"],
+        ["1981", "only", "-", "Apr", "26", ["0", "0", "0"], "60", "S"],
+        ["1981", "only", "-", "Sep", "27", ["0", "0", "0"], "0", "-"],
+        ["1982", "only", "-", "May", "2", ["0", "0", "0"], "60", "S"],
+        ["1982", "only", "-", "Oct", "3", ["0", "0", "0"], "0", "-"],
+        ["1983", "only", "-", "Apr", "18", ["0", "0", "0"], "60", "S"],
+        ["1983", "only", "-", "Oct", "1", ["0", "0", "0"], "0", "-"],
+        ["1984", "only", "-", "Apr", "1", ["0", "0", "0"], "60", "S"]
+    ],
+    "Austria": [
+        ["1920", "only", "-", "Apr", "5", ["2", "0", "0", "s"], "60", "S"],
+        ["1920", "only", "-", "Sep", "13", ["2", "0", "0", "s"], "0", "-"],
+        ["1946", "only", "-", "Apr", "14", ["2", "0", "0", "s"], "60", "S"],
+        ["1946", "1948", "-", "Oct", "Sun>=1", ["2", "0", "0", "s"], "0", "-"],
+        ["1947", "only", "-", "Apr", "6", ["2", "0", "0", "s"], "60", "S"],
+        ["1948", "only", "-", "Apr", "18", ["2", "0", "0", "s"], "60", "S"],
+        ["1980", "only", "-", "Apr", "6", ["0", "0", "0"], "60", "S"],
+        ["1980", "only", "-", "Sep", "28", ["0", "0", "0"], "0", "-"]
+    ],
+    "Belgium": [
+        ["1918", "only", "-", "Mar", "9", ["0", "0", "0", "s"], "60", "S"],
+        ["1918", "1919", "-", "Oct", "Sat>=1", ["23", "0", "0", "s"], "0", "-"],
+        ["1919", "only", "-", "Mar", "1", ["23", "0", "0", "s"], "60", "S"],
+        ["1920", "only", "-", "Feb", "14", ["23", "0", "0", "s"], "60", "S"],
+        ["1920", "only", "-", "Oct", "23", ["23", "0", "0", "s"], "0", "-"],
+        ["1921", "only", "-", "Mar", "14", ["23", "0", "0", "s"], "60", "S"],
+        ["1921", "only", "-", "Oct", "25", ["23", "0", "0", "s"], "0", "-"],
+        ["1922", "only", "-", "Mar", "25", ["23", "0", "0", "s"], "60", "S"],
+        ["1922", "1927", "-", "Oct", "Sat>=1", ["23", "0", "0", "s"], "0", "-"],
+        ["1923", "only", "-", "Apr", "21", ["23", "0", "0", "s"], "60", "S"],
+        ["1924", "only", "-", "Mar", "29", ["23", "0", "0", "s"], "60", "S"],
+        ["1925", "only", "-", "Apr", "4", ["23", "0", "0", "s"], "60", "S"],
+        ["1926", "only", "-", "Apr", "17", ["23", "0", "0", "s"], "60", "S"],
+        ["1927", "only", "-", "Apr", "9", ["23", "0", "0", "s"], "60", "S"],
+        ["1928", "only", "-", "Apr", "14", ["23", "0", "0", "s"], "60", "S"],
+        ["1928", "1938", "-", "Oct", "Sun>=2", ["2", "0", "0", "s"], "0", "-"],
+        ["1929", "only", "-", "Apr", "21", ["2", "0", "0", "s"], "60", "S"],
+        ["1930", "only", "-", "Apr", "13", ["2", "0", "0", "s"], "60", "S"],
+        ["1931", "only", "-", "Apr", "19", ["2", "0", "0", "s"], "60", "S"],
+        ["1932", "only", "-", "Apr", "3", ["2", "0", "0", "s"], "60", "S"],
+        ["1933", "only", "-", "Mar", "26", ["2", "0", "0", "s"], "60", "S"],
+        ["1934", "only", "-", "Apr", "8", ["2", "0", "0", "s"], "60", "S"],
+        ["1935", "only", "-", "Mar", "31", ["2", "0", "0", "s"], "60", "S"],
+        ["1936", "only", "-", "Apr", "19", ["2", "0", "0", "s"], "60", "S"],
+        ["1937", "only", "-", "Apr", "4", ["2", "0", "0", "s"], "60", "S"],
+        ["1938", "only", "-", "Mar", "27", ["2", "0", "0", "s"], "60", "S"],
+        ["1939", "only", "-", "Apr", "16", ["2", "0", "0", "s"], "60", "S"],
+        ["1939", "only", "-", "Nov", "19", ["2", "0", "0", "s"], "0", "-"],
+        ["1940", "only", "-", "Feb", "25", ["2", "0", "0", "s"], "60", "S"],
+        ["1944", "only", "-", "Sep", "17", ["2", "0", "0", "s"], "0", "-"],
+        ["1945", "only", "-", "Apr", "2", ["2", "0", "0", "s"], "60", "S"],
+        ["1945", "only", "-", "Sep", "16", ["2", "0", "0", "s"], "0", "-"],
+        ["1946", "only", "-", "May", "19", ["2", "0", "0", "s"], "60", "S"],
+        ["1946", "only", "-", "Oct", "7", ["2", "0", "0", "s"], "0", "-"]
+    ],
+    "Bulg": [
+        ["1979", "only", "-", "Mar", "31", ["23", "0", "0"], "60", "S"],
+        ["1979", "only", "-", "Oct", "1", ["1", "0", "0"], "0", "-"],
+        ["1980", "1982", "-", "Apr", "Sat>=1", ["23", "0", "0"], "60", "S"],
+        ["1980", "only", "-", "Sep", "29", ["1", "0", "0"], "0", "-"],
+        ["1981", "only", "-", "Sep", "27", ["2", "0", "0"], "0", "-"]
+    ],
+    "Czech": [
+        ["1945", "only", "-", "Apr", "8", ["2", "0", "0", "s"], "60", "S"],
+        ["1945", "only", "-", "Nov", "18", ["2", "0", "0", "s"], "0", "-"],
+        ["1946", "only", "-", "May", "6", ["2", "0", "0", "s"], "60", "S"],
+        ["1946", "1949", "-", "Oct", "Sun>=1", ["2", "0", "0", "s"], "0", "-"],
+        ["1947", "only", "-", "Apr", "20", ["2", "0", "0", "s"], "60", "S"],
+        ["1948", "only", "-", "Apr", "18", ["2", "0", "0", "s"], "60", "S"],
+        ["1949", "only", "-", "Apr", "9", ["2", "0", "0", "s"], "60", "S"]
+    ],
+    "Denmark": [
+        ["1916", "only", "-", "May", "14", ["23", "0", "0"], "60", "S"],
+        ["1916", "only", "-", "Sep", "30", ["23", "0", "0"], "0", "-"],
+        ["1940", "only", "-", "May", "15", ["0", "0", "0"], "60", "S"],
+        ["1945", "only", "-", "Apr", "2", ["2", "0", "0", "s"], "60", "S"],
+        ["1945", "only", "-", "Aug", "15", ["2", "0", "0", "s"], "0", "-"],
+        ["1946", "only", "-", "May", "1", ["2", "0", "0", "s"], "60", "S"],
+        ["1946", "only", "-", "Sep", "1", ["2", "0", "0", "s"], "0", "-"],
+        ["1947", "only", "-", "May", "4", ["2", "0", "0", "s"], "60", "S"],
+        ["1947", "only", "-", "Aug", "10", ["2", "0", "0", "s"], "0", "-"],
+        ["1948", "only", "-", "May", "9", ["2", "0", "0", "s"], "60", "S"],
+        ["1948", "only", "-", "Aug", "8", ["2", "0", "0", "s"], "0", "-"]
+    ],
+    "Thule": [
+        ["1991", "1992", "-", "Mar", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1991", "1992", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1993", "2006", "-", "Apr", "Sun>=1", ["2", "0", "0"], "60", "D"],
+        ["1993", "2006", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["2007", "max", "-", "Mar", "Sun>=8", ["2", "0", "0"], "60", "D"],
+        ["2007", "max", "-", "Nov", "Sun>=1", ["2", "0", "0"], "0", "S"]
+    ],
+    "Finland": [
+        ["1942", "only", "-", "Apr", "2", ["24", "0", "0"], "60", "S"],
+        ["1942", "only", "-", "Oct", "4", ["1", "0", "0"], "0", "-"],
+        ["1981", "1982", "-", "Mar", "lastSun", ["2", "0", "0"], "60", "S"],
+        ["1981", "1982", "-", "Sep", "lastSun", ["3", "0", "0"], "0", "-"]
+    ],
+    "France": [
+        ["1916", "only", "-", "Jun", "14", ["23", "0", "0", "s"], "60", "S"],
+        ["1916", "1919", "-", "Oct", "Sun>=1", ["23", "0", "0", "s"], "0", "-"],
+        ["1917", "only", "-", "Mar", "24", ["23", "0", "0", "s"], "60", "S"],
+        ["1918", "only", "-", "Mar", "9", ["23", "0", "0", "s"], "60", "S"],
+        ["1919", "only", "-", "Mar", "1", ["23", "0", "0", "s"], "60", "S"],
+        ["1920", "only", "-", "Feb", "14", ["23", "0", "0", "s"], "60", "S"],
+        ["1920", "only", "-", "Oct", "23", ["23", "0", "0", "s"], "0", "-"],
+        ["1921", "only", "-", "Mar", "14", ["23", "0", "0", "s"], "60", "S"],
+        ["1921", "only", "-", "Oct", "25", ["23", "0", "0", "s"], "0", "-"],
+        ["1922", "only", "-", "Mar", "25", ["23", "0", "0", "s"], "60", "S"],
+        ["1922", "1938", "-", "Oct", "Sat>=1", ["23", "0", "0", "s"], "0", "-"],
+        ["1923", "only", "-", "May", "26", ["23", "0", "0", "s"], "60", "S"],
+        ["1924", "only", "-", "Mar", "29", ["23", "0", "0", "s"], "60", "S"],
+        ["1925", "only", "-", "Apr", "4", ["23", "0", "0", "s"], "60", "S"],
+        ["1926", "only", "-", "Apr", "17", ["23", "0", "0", "s"], "60", "S"],
+        ["1927", "only", "-", "Apr", "9", ["23", "0", "0", "s"], "60", "S"],
+        ["1928", "only", "-", "Apr", "14", ["23", "0", "0", "s"], "60", "S"],
+        ["1929", "only", "-", "Apr", "20", ["23", "0", "0", "s"], "60", "S"],
+        ["1930", "only", "-", "Apr", "12", ["23", "0", "0", "s"], "60", "S"],
+        ["1931", "only", "-", "Apr", "18", ["23", "0", "0", "s"], "60", "S"],
+        ["1932", "only", "-", "Apr", "2", ["23", "0", "0", "s"], "60", "S"],
+        ["1933", "only", "-", "Mar", "25", ["23", "0", "0", "s"], "60", "S"],
+        ["1934", "only", "-", "Apr", "7", ["23", "0", "0", "s"], "60", "S"],
+        ["1935", "only", "-", "Mar", "30", ["23", "0", "0", "s"], "60", "S"],
+        ["1936", "only", "-", "Apr", "18", ["23", "0", "0", "s"], "60", "S"],
+        ["1937", "only", "-", "Apr", "3", ["23", "0", "0", "s"], "60", "S"],
+        ["1938", "only", "-", "Mar", "26", ["23", "0", "0", "s"], "60", "S"],
+        ["1939", "only", "-", "Apr", "15", ["23", "0", "0", "s"], "60", "S"],
+        ["1939", "only", "-", "Nov", "18", ["23", "0", "0", "s"], "0", "-"],
+        ["1940", "only", "-", "Feb", "25", ["2", "0", "0"], "60", "S"],
+        ["1941", "only", "-", "May", "5", ["0", "0", "0"], "120", "M", ""],
+        ["1941", "only", "-", "Oct", "6", ["0", "0", "0"], "60", "S"],
+        ["1942", "only", "-", "Mar", "9", ["0", "0", "0"], "120", "M"],
+        ["1942", "only", "-", "Nov", "2", ["3", "0", "0"], "60", "S"],
+        ["1943", "only", "-", "Mar", "29", ["2", "0", "0"], "120", "M"],
+        ["1943", "only", "-", "Oct", "4", ["3", "0", "0"], "60", "S"],
+        ["1944", "only", "-", "Apr", "3", ["2", "0", "0"], "120", "M"],
+        ["1944", "only", "-", "Oct", "8", ["1", "0", "0"], "60", "S"],
+        ["1945", "only", "-", "Apr", "2", ["2", "0", "0"], "120", "M"],
+        ["1945", "only", "-", "Sep", "16", ["3", "0", "0"], "0", "-"],
+        ["1976", "only", "-", "Mar", "28", ["1", "0", "0"], "60", "S"],
+        ["1976", "only", "-", "Sep", "26", ["1", "0", "0"], "0", "-"]
+    ],
+    "Germany": [
+        ["1946", "only", "-", "Apr", "14", ["2", "0", "0", "s"], "60", "S"],
+        ["1946", "only", "-", "Oct", "7", ["2", "0", "0", "s"], "0", "-"],
+        ["1947", "1949", "-", "Oct", "Sun>=1", ["2", "0", "0", "s"], "0", "-"],
+        ["1947", "only", "-", "Apr", "6", ["3", "0", "0", "s"], "60", "S"],
+        ["1947", "only", "-", "May", "11", ["2", "0", "0", "s"], "120", "M"],
+        ["1947", "only", "-", "Jun", "29", ["3", "0", "0"], "60", "S"],
+        ["1948", "only", "-", "Apr", "18", ["2", "0", "0", "s"], "60", "S"],
+        ["1949", "only", "-", "Apr", "10", ["2", "0", "0", "s"], "60", "S"]
+    ],
+    "SovietZone": [
+        ["1945", "only", "-", "May", "24", ["2", "0", "0"], "120", "M", ""],
+        ["1945", "only", "-", "Sep", "24", ["3", "0", "0"], "60", "S"],
+        ["1945", "only", "-", "Nov", "18", ["2", "0", "0", "s"], "0", "-"]
+    ],
+    "Greece": [
+        ["1932", "only", "-", "Jul", "7", ["0", "0", "0"], "60", "S"],
+        ["1932", "only", "-", "Sep", "1", ["0", "0", "0"], "0", "-"],
+        ["1941", "only", "-", "Apr", "7", ["0", "0", "0"], "60", "S"],
+        ["1942", "only", "-", "Nov", "2", ["3", "0", "0"], "0", "-"],
+        ["1943", "only", "-", "Mar", "30", ["0", "0", "0"], "60", "S"],
+        ["1943", "only", "-", "Oct", "4", ["0", "0", "0"], "0", "-"],
+        ["1952", "only", "-", "Jul", "1", ["0", "0", "0"], "60", "S"],
+        ["1952", "only", "-", "Nov", "2", ["0", "0", "0"], "0", "-"],
+        ["1975", "only", "-", "Apr", "12", ["0", "0", "0", "s"], "60", "S"],
+        ["1975", "only", "-", "Nov", "26", ["0", "0", "0", "s"], "0", "-"],
+        ["1976", "only", "-", "Apr", "11", ["2", "0", "0", "s"], "60", "S"],
+        ["1976", "only", "-", "Oct", "10", ["2", "0", "0", "s"], "0", "-"],
+        ["1977", "1978", "-", "Apr", "Sun>=1", ["2", "0", "0", "s"], "60", "S"],
+        ["1977", "only", "-", "Sep", "26", ["2", "0", "0", "s"], "0", "-"],
+        ["1978", "only", "-", "Sep", "24", ["4", "0", "0"], "0", "-"],
+        ["1979", "only", "-", "Apr", "1", ["9", "0", "0"], "60", "S"],
+        ["1979", "only", "-", "Sep", "29", ["2", "0", "0"], "0", "-"],
+        ["1980", "only", "-", "Apr", "1", ["0", "0", "0"], "60", "S"],
+        ["1980", "only", "-", "Sep", "28", ["0", "0", "0"], "0", "-"]
+    ],
+    "Hungary": [
+        ["1918", "only", "-", "Apr", "1", ["3", "0", "0"], "60", "S"],
+        ["1918", "only", "-", "Sep", "16", ["3", "0", "0"], "0", "-"],
+        ["1919", "only", "-", "Apr", "15", ["3", "0", "0"], "60", "S"],
+        ["1919", "only", "-", "Nov", "24", ["3", "0", "0"], "0", "-"],
+        ["1945", "only", "-", "May", "1", ["23", "0", "0"], "60", "S"],
+        ["1945", "only", "-", "Nov", "1", ["0", "0", "0"], "0", "-"],
+        ["1946", "only", "-", "Mar", "31", ["2", "0", "0", "s"], "60", "S"],
+        ["1946", "1949", "-", "Oct", "Sun>=1", ["2", "0", "0", "s"], "0", "-"],
+        ["1947", "1949", "-", "Apr", "Sun>=4", ["2", "0", "0", "s"], "60", "S"],
+        ["1950", "only", "-", "Apr", "17", ["2", "0", "0", "s"], "60", "S"],
+        ["1950", "only", "-", "Oct", "23", ["2", "0", "0", "s"], "0", "-"],
+        ["1954", "1955", "-", "May", "23", ["0", "0", "0"], "60", "S"],
+        ["1954", "1955", "-", "Oct", "3", ["0", "0", "0"], "0", "-"],
+        ["1956", "only", "-", "Jun", "Sun>=1", ["0", "0", "0"], "60", "S"],
+        ["1956", "only", "-", "Sep", "lastSun", ["0", "0", "0"], "0", "-"],
+        ["1957", "only", "-", "Jun", "Sun>=1", ["1", "0", "0"], "60", "S"],
+        ["1957", "only", "-", "Sep", "lastSun", ["3", "0", "0"], "0", "-"],
+        ["1980", "only", "-", "Apr", "6", ["1", "0", "0"], "60", "S"]
+    ],
+    "Iceland": [
+        ["1917", "1918", "-", "Feb", "19", ["23", "0", "0"], "60", "S"],
+        ["1917", "only", "-", "Oct", "21", ["1", "0", "0"], "0", "-"],
+        ["1918", "only", "-", "Nov", "16", ["1", "0", "0"], "0", "-"],
+        ["1939", "only", "-", "Apr", "29", ["23", "0", "0"], "60", "S"],
+        ["1939", "only", "-", "Nov", "29", ["2", "0", "0"], "0", "-"],
+        ["1940", "only", "-", "Feb", "25", ["2", "0", "0"], "60", "S"],
+        ["1940", "only", "-", "Nov", "3", ["2", "0", "0"], "0", "-"],
+        ["1941", "only", "-", "Mar", "2", ["1", "0", "0", "s"], "60", "S"],
+        ["1941", "only", "-", "Nov", "2", ["1", "0", "0", "s"], "0", "-"],
+        ["1942", "only", "-", "Mar", "8", ["1", "0", "0", "s"], "60", "S"],
+        ["1942", "only", "-", "Oct", "25", ["1", "0", "0", "s"], "0", "-"],
+        ["1943", "1946", "-", "Mar", "Sun>=1", ["1", "0", "0", "s"], "60", "S"],
+        ["1943", "1948", "-", "Oct", "Sun>=22", ["1", "0", "0", "s"], "0", "-"],
+        ["1947", "1967", "-", "Apr", "Sun>=1", ["1", "0", "0", "s"], "60", "S"],
+        ["1949", "only", "-", "Oct", "30", ["1", "0", "0", "s"], "0", "-"],
+        ["1950", "1966", "-", "Oct", "Sun>=22", ["1", "0", "0", "s"], "0", "-"],
+        ["1967", "only", "-", "Oct", "29", ["1", "0", "0", "s"], "0", "-"]
+    ],
+    "Italy": [
+        ["1916", "only", "-", "Jun", "3", ["0", "0", "0", "s"], "60", "S"],
+        ["1916", "only", "-", "Oct", "1", ["0", "0", "0", "s"], "0", "-"],
+        ["1917", "only", "-", "Apr", "1", ["0", "0", "0", "s"], "60", "S"],
+        ["1917", "only", "-", "Sep", "30", ["0", "0", "0", "s"], "0", "-"],
+        ["1918", "only", "-", "Mar", "10", ["0", "0", "0", "s"], "60", "S"],
+        ["1918", "1919", "-", "Oct", "Sun>=1", ["0", "0", "0", "s"], "0", "-"],
+        ["1919", "only", "-", "Mar", "2", ["0", "0", "0", "s"], "60", "S"],
+        ["1920", "only", "-", "Mar", "21", ["0", "0", "0", "s"], "60", "S"],
+        ["1920", "only", "-", "Sep", "19", ["0", "0", "0", "s"], "0", "-"],
+        ["1940", "only", "-", "Jun", "15", ["0", "0", "0", "s"], "60", "S"],
+        ["1944", "only", "-", "Sep", "17", ["0", "0", "0", "s"], "0", "-"],
+        ["1945", "only", "-", "Apr", "2", ["2", "0", "0"], "60", "S"],
+        ["1945", "only", "-", "Sep", "15", ["0", "0", "0", "s"], "0", "-"],
+        ["1946", "only", "-", "Mar", "17", ["2", "0", "0", "s"], "60", "S"],
+        ["1946", "only", "-", "Oct", "6", ["2", "0", "0", "s"], "0", "-"],
+        ["1947", "only", "-", "Mar", "16", ["0", "0", "0", "s"], "60", "S"],
+        ["1947", "only", "-", "Oct", "5", ["0", "0", "0", "s"], "0", "-"],
+        ["1948", "only", "-", "Feb", "29", ["2", "0", "0", "s"], "60", "S"],
+        ["1948", "only", "-", "Oct", "3", ["2", "0", "0", "s"], "0", "-"],
+        ["1966", "1968", "-", "May", "Sun>=22", ["0", "0", "0"], "60", "S"],
+        ["1966", "1969", "-", "Sep", "Sun>=22", ["0", "0", "0"], "0", "-"],
+        ["1969", "only", "-", "Jun", "1", ["0", "0", "0"], "60", "S"],
+        ["1970", "only", "-", "May", "31", ["0", "0", "0"], "60", "S"],
+        ["1970", "only", "-", "Sep", "lastSun", ["0", "0", "0"], "0", "-"],
+        ["1971", "1972", "-", "May", "Sun>=22", ["0", "0", "0"], "60", "S"],
+        ["1971", "only", "-", "Sep", "lastSun", ["1", "0", "0"], "0", "-"],
+        ["1972", "only", "-", "Oct", "1", ["0", "0", "0"], "0", "-"],
+        ["1973", "only", "-", "Jun", "3", ["0", "0", "0"], "60", "S"],
+        ["1973", "1974", "-", "Sep", "lastSun", ["0", "0", "0"], "0", "-"],
+        ["1974", "only", "-", "May", "26", ["0", "0", "0"], "60", "S"],
+        ["1975", "only", "-", "Jun", "1", ["0", "0", "0", "s"], "60", "S"],
+        ["1975", "1977", "-", "Sep", "lastSun", ["0", "0", "0", "s"], "0", "-"],
+        ["1976", "only", "-", "May", "30", ["0", "0", "0", "s"], "60", "S"],
+        ["1977", "1979", "-", "May", "Sun>=22", ["0", "0", "0", "s"], "60", "S"],
+        ["1978", "only", "-", "Oct", "1", ["0", "0", "0", "s"], "0", "-"],
+        ["1979", "only", "-", "Sep", "30", ["0", "0", "0", "s"], "0", "-"]
+    ],
+    "Latvia": [
+        ["1989", "1996", "-", "Mar", "lastSun", ["2", "0", "0", "s"], "60", "S"],
+        ["1989", "1996", "-", "Sep", "lastSun", ["2", "0", "0", "s"], "0", "-"]
+    ],
+    "Lux": [
+        ["1916", "only", "-", "May", "14", ["23", "0", "0"], "60", "S"],
+        ["1916", "only", "-", "Oct", "1", ["1", "0", "0"], "0", "-"],
+        ["1917", "only", "-", "Apr", "28", ["23", "0", "0"], "60", "S"],
+        ["1917", "only", "-", "Sep", "17", ["1", "0", "0"], "0", "-"],
+        ["1918", "only", "-", "Apr", "Mon>=15", ["2", "0", "0", "s"], "60", "S"],
+        ["1918", "only", "-", "Sep", "Mon>=15", ["2", "0", "0", "s"], "0", "-"],
+        ["1919", "only", "-", "Mar", "1", ["23", "0", "0"], "60", "S"],
+        ["1919", "only", "-", "Oct", "5", ["3", "0", "0"], "0", "-"],
+        ["1920", "only", "-", "Feb", "14", ["23", "0", "0"], "60", "S"],
+        ["1920", "only", "-", "Oct", "24", ["2", "0", "0"], "0", "-"],
+        ["1921", "only", "-", "Mar", "14", ["23", "0", "0"], "60", "S"],
+        ["1921", "only", "-", "Oct", "26", ["2", "0", "0"], "0", "-"],
+        ["1922", "only", "-", "Mar", "25", ["23", "0", "0"], "60", "S"],
+        ["1922", "only", "-", "Oct", "Sun>=2", ["1", "0", "0"], "0", "-"],
+        ["1923", "only", "-", "Apr", "21", ["23", "0", "0"], "60", "S"],
+        ["1923", "only", "-", "Oct", "Sun>=2", ["2", "0", "0"], "0", "-"],
+        ["1924", "only", "-", "Mar", "29", ["23", "0", "0"], "60", "S"],
+        ["1924", "1928", "-", "Oct", "Sun>=2", ["1", "0", "0"], "0", "-"],
+        ["1925", "only", "-", "Apr", "5", ["23", "0", "0"], "60", "S"],
+        ["1926", "only", "-", "Apr", "17", ["23", "0", "0"], "60", "S"],
+        ["1927", "only", "-", "Apr", "9", ["23", "0", "0"], "60", "S"],
+        ["1928", "only", "-", "Apr", "14", ["23", "0", "0"], "60", "S"],
+        ["1929", "only", "-", "Apr", "20", ["23", "0", "0"], "60", "S"]
+    ],
+    "Malta": [
+        ["1973", "only", "-", "Mar", "31", ["0", "0", "0", "s"], "60", "S"],
+        ["1973", "only", "-", "Sep", "29", ["0", "0", "0", "s"], "0", "-"],
+        ["1974", "only", "-", "Apr", "21", ["0", "0", "0", "s"], "60", "S"],
+        ["1974", "only", "-", "Sep", "16", ["0", "0", "0", "s"], "0", "-"],
+        ["1975", "1979", "-", "Apr", "Sun>=15", ["2", "0", "0"], "60", "S"],
+        ["1975", "1980", "-", "Sep", "Sun>=15", ["2", "0", "0"], "0", "-"],
+        ["1980", "only", "-", "Mar", "31", ["2", "0", "0"], "60", "S"]
+    ],
+    "Neth": [
+        ["1916", "only", "-", "May", "1", ["0", "0", "0"], "60", "NST", ""],
+        ["1916", "only", "-", "Oct", "1", ["0", "0", "0"], "0", "AMT", ""],
+        ["1917", "only", "-", "Apr", "16", ["2", "0", "0", "s"], "60", "NST"],
+        ["1917", "only", "-", "Sep", "17", ["2", "0", "0", "s"], "0", "AMT"],
+        ["1918", "1921", "-", "Apr", "Mon>=1", ["2", "0", "0", "s"], "60", "NST"],
+        ["1918", "1921", "-", "Sep", "lastMon", ["2", "0", "0", "s"], "0", "AMT"],
+        ["1922", "only", "-", "Mar", "lastSun", ["2", "0", "0", "s"], "60", "NST"],
+        ["1922", "1936", "-", "Oct", "Sun>=2", ["2", "0", "0", "s"], "0", "AMT"],
+        ["1923", "only", "-", "Jun", "Fri>=1", ["2", "0", "0", "s"], "60", "NST"],
+        ["1924", "only", "-", "Mar", "lastSun", ["2", "0", "0", "s"], "60", "NST"],
+        ["1925", "only", "-", "Jun", "Fri>=1", ["2", "0", "0", "s"], "60", "NST"],
+        ["1926", "1931", "-", "May", "15", ["2", "0", "0", "s"], "60", "NST"],
+        ["1932", "only", "-", "May", "22", ["2", "0", "0", "s"], "60", "NST"],
+        ["1933", "1936", "-", "May", "15", ["2", "0", "0", "s"], "60", "NST"],
+        ["1937", "only", "-", "May", "22", ["2", "0", "0", "s"], "60", "NST"],
+        ["1937", "only", "-", "Jul", "1", ["0", "0", "0"], "60", "S"],
+        ["1937", "1939", "-", "Oct", "Sun>=2", ["2", "0", "0", "s"], "0", "-"],
+        ["1938", "1939", "-", "May", "15", ["2", "0", "0", "s"], "60", "S"],
+        ["1945", "only", "-", "Apr", "2", ["2", "0", "0", "s"], "60", "S"],
+        ["1945", "only", "-", "Sep", "16", ["2", "0", "0", "s"], "0", "-"]
+    ],
+    "Norway": [
+        ["1916", "only", "-", "May", "22", ["1", "0", "0"], "60", "S"],
+        ["1916", "only", "-", "Sep", "30", ["0", "0", "0"], "0", "-"],
+        ["1945", "only", "-", "Apr", "2", ["2", "0", "0", "s"], "60", "S"],
+        ["1945", "only", "-", "Oct", "1", ["2", "0", "0", "s"], "0", "-"],
+        ["1959", "1964", "-", "Mar", "Sun>=15", ["2", "0", "0", "s"], "60", "S"],
+        ["1959", "1965", "-", "Sep", "Sun>=15", ["2", "0", "0", "s"], "0", "-"],
+        ["1965", "only", "-", "Apr", "25", ["2", "0", "0", "s"], "60", "S"]
+    ],
+    "Poland": [
+        ["1918", "1919", "-", "Sep", "16", ["2", "0", "0", "s"], "0", "-"],
+        ["1919", "only", "-", "Apr", "15", ["2", "0", "0", "s"], "60", "S"],
+        ["1944", "only", "-", "Apr", "3", ["2", "0", "0", "s"], "60", "S"],
+        ["1944", "only", "-", "Oct", "4", ["2", "0", "0"], "0", "-"],
+        ["1945", "only", "-", "Apr", "29", ["0", "0", "0"], "60", "S"],
+        ["1945", "only", "-", "Nov", "1", ["0", "0", "0"], "0", "-"],
+        ["1946", "only", "-", "Apr", "14", ["0", "0", "0", "s"], "60", "S"],
+        ["1946", "only", "-", "Oct", "7", ["2", "0", "0", "s"], "0", "-"],
+        ["1947", "only", "-", "May", "4", ["2", "0", "0", "s"], "60", "S"],
+        ["1947", "1949", "-", "Oct", "Sun>=1", ["2", "0", "0", "s"], "0", "-"],
+        ["1948", "only", "-", "Apr", "18", ["2", "0", "0", "s"], "60", "S"],
+        ["1949", "only", "-", "Apr", "10", ["2", "0", "0", "s"], "60", "S"],
+        ["1957", "only", "-", "Jun", "2", ["1", "0", "0", "s"], "60", "S"],
+        ["1957", "1958", "-", "Sep", "lastSun", ["1", "0", "0", "s"], "0", "-"],
+        ["1958", "only", "-", "Mar", "30", ["1", "0", "0", "s"], "60", "S"],
+        ["1959", "only", "-", "May", "31", ["1", "0", "0", "s"], "60", "S"],
+        ["1959", "1961", "-", "Oct", "Sun>=1", ["1", "0", "0", "s"], "0", "-"],
+        ["1960", "only", "-", "Apr", "3", ["1", "0", "0", "s"], "60", "S"],
+        ["1961", "1964", "-", "May", "lastSun", ["1", "0", "0", "s"], "60", "S"],
+        ["1962", "1964", "-", "Sep", "lastSun", ["1", "0", "0", "s"], "0", "-"]
+    ],
+    "Port": [
+        ["1916", "only", "-", "Jun", "17", ["23", "0", "0"], "60", "S"],
+        ["1916", "only", "-", "Nov", "1", ["1", "0", "0"], "0", "-"],
+        ["1917", "only", "-", "Feb", "28", ["23", "0", "0", "s"], "60", "S"],
+        ["1917", "1921", "-", "Oct", "14", ["23", "0", "0", "s"], "0", "-"],
+        ["1918", "only", "-", "Mar", "1", ["23", "0", "0", "s"], "60", "S"],
+        ["1919", "only", "-", "Feb", "28", ["23", "0", "0", "s"], "60", "S"],
+        ["1920", "only", "-", "Feb", "29", ["23", "0", "0", "s"], "60", "S"],
+        ["1921", "only", "-", "Feb", "28", ["23", "0", "0", "s"], "60", "S"],
+        ["1924", "only", "-", "Apr", "16", ["23", "0", "0", "s"], "60", "S"],
+        ["1924", "only", "-", "Oct", "14", ["23", "0", "0", "s"], "0", "-"],
+        ["1926", "only", "-", "Apr", "17", ["23", "0", "0", "s"], "60", "S"],
+        ["1926", "1929", "-", "Oct", "Sat>=1", ["23", "0", "0", "s"], "0", "-"],
+        ["1927", "only", "-", "Apr", "9", ["23", "0", "0", "s"], "60", "S"],
+        ["1928", "only", "-", "Apr", "14", ["23", "0", "0", "s"], "60", "S"],
+        ["1929", "only", "-", "Apr", "20", ["23", "0", "0", "s"], "60", "S"],
+        ["1931", "only", "-", "Apr", "18", ["23", "0", "0", "s"], "60", "S"],
+        ["1931", "1932", "-", "Oct", "Sat>=1", ["23", "0", "0", "s"], "0", "-"],
+        ["1932", "only", "-", "Apr", "2", ["23", "0", "0", "s"], "60", "S"],
+        ["1934", "only", "-", "Apr", "7", ["23", "0", "0", "s"], "60", "S"],
+        ["1934", "1938", "-", "Oct", "Sat>=1", ["23", "0", "0", "s"], "0", "-"],
+        ["1935", "only", "-", "Mar", "30", ["23", "0", "0", "s"], "60", "S"],
+        ["1936", "only", "-", "Apr", "18", ["23", "0", "0", "s"], "60", "S"],
+        ["1937", "only", "-", "Apr", "3", ["23", "0", "0", "s"], "60", "S"],
+        ["1938", "only", "-", "Mar", "26", ["23", "0", "0", "s"], "60", "S"],
+        ["1939", "only", "-", "Apr", "15", ["23", "0", "0", "s"], "60", "S"],
+        ["1939", "only", "-", "Nov", "18", ["23", "0", "0", "s"], "0", "-"],
+        ["1940", "only", "-", "Feb", "24", ["23", "0", "0", "s"], "60", "S"],
+        ["1940", "1941", "-", "Oct", "5", ["23", "0", "0", "s"], "0", "-"],
+        ["1941", "only", "-", "Apr", "5", ["23", "0", "0", "s"], "60", "S"],
+        ["1942", "1945", "-", "Mar", "Sat>=8", ["23", "0", "0", "s"], "60", "S"],
+        ["1942", "only", "-", "Apr", "25", ["22", "0", "0", "s"], "120", "M", ""],
+        ["1942", "only", "-", "Aug", "15", ["22", "0", "0", "s"], "60", "S"],
+        ["1942", "1945", "-", "Oct", "Sat>=24", ["23", "0", "0", "s"], "0", "-"],
+        ["1943", "only", "-", "Apr", "17", ["22", "0", "0", "s"], "120", "M"],
+        ["1943", "1945", "-", "Aug", "Sat>=25", ["22", "0", "0", "s"], "60", "S"],
+        ["1944", "1945", "-", "Apr", "Sat>=21", ["22", "0", "0", "s"], "120", "M"],
+        ["1946", "only", "-", "Apr", "Sat>=1", ["23", "0", "0", "s"], "60", "S"],
+        ["1946", "only", "-", "Oct", "Sat>=1", ["23", "0", "0", "s"], "0", "-"],
+        ["1947", "1949", "-", "Apr", "Sun>=1", ["2", "0", "0", "s"], "60", "S"],
+        ["1947", "1949", "-", "Oct", "Sun>=1", ["2", "0", "0", "s"], "0", "-"],
+        ["1951", "1965", "-", "Apr", "Sun>=1", ["2", "0", "0", "s"], "60", "S"],
+        ["1951", "1965", "-", "Oct", "Sun>=1", ["2", "0", "0", "s"], "0", "-"],
+        ["1977", "only", "-", "Mar", "27", ["0", "0", "0", "s"], "60", "S"],
+        ["1977", "only", "-", "Sep", "25", ["0", "0", "0", "s"], "0", "-"],
+        ["1978", "1979", "-", "Apr", "Sun>=1", ["0", "0", "0", "s"], "60", "S"],
+        ["1978", "only", "-", "Oct", "1", ["0", "0", "0", "s"], "0", "-"],
+        ["1979", "1982", "-", "Sep", "lastSun", ["1", "0", "0", "s"], "0", "-"],
+        ["1980", "only", "-", "Mar", "lastSun", ["0", "0", "0", "s"], "60", "S"],
+        ["1981", "1982", "-", "Mar", "lastSun", ["1", "0", "0", "s"], "60", "S"],
+        ["1983", "only", "-", "Mar", "lastSun", ["2", "0", "0", "s"], "60", "S"]
+    ],
+    "Romania": [
+        ["1932", "only", "-", "May", "21", ["0", "0", "0", "s"], "60", "S"],
+        ["1932", "1939", "-", "Oct", "Sun>=1", ["0", "0", "0", "s"], "0", "-"],
+        ["1933", "1939", "-", "Apr", "Sun>=2", ["0", "0", "0", "s"], "60", "S"],
+        ["1979", "only", "-", "May", "27", ["0", "0", "0"], "60", "S"],
+        ["1979", "only", "-", "Sep", "lastSun", ["0", "0", "0"], "0", "-"],
+        ["1980", "only", "-", "Apr", "5", ["23", "0", "0"], "60", "S"],
+        ["1980", "only", "-", "Sep", "lastSun", ["1", "0", "0"], "0", "-"],
+        ["1991", "1993", "-", "Mar", "lastSun", ["0", "0", "0", "s"], "60", "S"],
+        ["1991", "1993", "-", "Sep", "lastSun", ["0", "0", "0", "s"], "0", "-"]
+    ],
+    "Spain": [
+        ["1917", "only", "-", "May", "5", ["23", "0", "0", "s"], "60", "S"],
+        ["1917", "1919", "-", "Oct", "6", ["23", "0", "0", "s"], "0", "-"],
+        ["1918", "only", "-", "Apr", "15", ["23", "0", "0", "s"], "60", "S"],
+        ["1919", "only", "-", "Apr", "5", ["23", "0", "0", "s"], "60", "S"],
+        ["1924", "only", "-", "Apr", "16", ["23", "0", "0", "s"], "60", "S"],
+        ["1924", "only", "-", "Oct", "4", ["23", "0", "0", "s"], "0", "-"],
+        ["1926", "only", "-", "Apr", "17", ["23", "0", "0", "s"], "60", "S"],
+        ["1926", "1929", "-", "Oct", "Sat>=1", ["23", "0", "0", "s"], "0", "-"],
+        ["1927", "only", "-", "Apr", "9", ["23", "0", "0", "s"], "60", "S"],
+        ["1928", "only", "-", "Apr", "14", ["23", "0", "0", "s"], "60", "S"],
+        ["1929", "only", "-", "Apr", "20", ["23", "0", "0", "s"], "60", "S"],
+        ["1937", "only", "-", "May", "22", ["23", "0", "0", "s"], "60", "S"],
+        ["1937", "1939", "-", "Oct", "Sat>=1", ["23", "0", "0", "s"], "0", "-"],
+        ["1938", "only", "-", "Mar", "22", ["23", "0", "0", "s"], "60", "S"],
+        ["1939", "only", "-", "Apr", "15", ["23", "0", "0", "s"], "60", "S"],
+        ["1940", "only", "-", "Mar", "16", ["23", "0", "0", "s"], "60", "S"],
+        ["1942", "only", "-", "May", "2", ["22", "0", "0", "s"], "120", "M", ""],
+        ["1942", "only", "-", "Sep", "1", ["22", "0", "0", "s"], "60", "S"],
+        ["1943", "1946", "-", "Apr", "Sat>=13", ["22", "0", "0", "s"], "120", "M"],
+        ["1943", "only", "-", "Oct", "3", ["22", "0", "0", "s"], "60", "S"],
+        ["1944", "only", "-", "Oct", "10", ["22", "0", "0", "s"], "60", "S"],
+        ["1945", "only", "-", "Sep", "30", ["1", "0", "0"], "60", "S"],
+        ["1946", "only", "-", "Sep", "30", ["0", "0", "0"], "0", "-"],
+        ["1949", "only", "-", "Apr", "30", ["23", "0", "0"], "60", "S"],
+        ["1949", "only", "-", "Sep", "30", ["1", "0", "0"], "0", "-"],
+        ["1974", "1975", "-", "Apr", "Sat>=13", ["23", "0", "0"], "60", "S"],
+        ["1974", "1975", "-", "Oct", "Sun>=1", ["1", "0", "0"], "0", "-"],
+        ["1976", "only", "-", "Mar", "27", ["23", "0", "0"], "60", "S"],
+        ["1976", "1977", "-", "Sep", "lastSun", ["1", "0", "0"], "0", "-"],
+        ["1977", "1978", "-", "Apr", "2", ["23", "0", "0"], "60", "S"],
+        ["1978", "only", "-", "Oct", "1", ["1", "0", "0"], "0", "-"]
+    ],
+    "SpainAfrica": [
+        ["1967", "only", "-", "Jun", "3", ["12", "0", "0"], "60", "S"],
+        ["1967", "only", "-", "Oct", "1", ["0", "0", "0"], "0", "-"],
+        ["1974", "only", "-", "Jun", "24", ["0", "0", "0"], "60", "S"],
+        ["1974", "only", "-", "Sep", "1", ["0", "0", "0"], "0", "-"],
+        ["1976", "1977", "-", "May", "1", ["0", "0", "0"], "60", "S"],
+        ["1976", "only", "-", "Aug", "1", ["0", "0", "0"], "0", "-"],
+        ["1977", "only", "-", "Sep", "28", ["0", "0", "0"], "0", "-"],
+        ["1978", "only", "-", "Jun", "1", ["0", "0", "0"], "60", "S"],
+        ["1978", "only", "-", "Aug", "4", ["0", "0", "0"], "0", "-"]
+    ],
+    "Swiss": [
+        ["1941", "1942", "-", "May", "Mon>=1", ["1", "0", "0"], "60", "S"],
+        ["1941", "1942", "-", "Oct", "Mon>=1", ["2", "0", "0"], "0", "-"]
+    ],
+    "Turkey": [
+        ["1916", "only", "-", "May", "1", ["0", "0", "0"], "60", "S"],
+        ["1916", "only", "-", "Oct", "1", ["0", "0", "0"], "0", "-"],
+        ["1920", "only", "-", "Mar", "28", ["0", "0", "0"], "60", "S"],
+        ["1920", "only", "-", "Oct", "25", ["0", "0", "0"], "0", "-"],
+        ["1921", "only", "-", "Apr", "3", ["0", "0", "0"], "60", "S"],
+        ["1921", "only", "-", "Oct", "3", ["0", "0", "0"], "0", "-"],
+        ["1922", "only", "-", "Mar", "26", ["0", "0", "0"], "60", "S"],
+        ["1922", "only", "-", "Oct", "8", ["0", "0", "0"], "0", "-"],
+        ["1924", "only", "-", "May", "13", ["0", "0", "0"], "60", "S"],
+        ["1924", "1925", "-", "Oct", "1", ["0", "0", "0"], "0", "-"],
+        ["1925", "only", "-", "May", "1", ["0", "0", "0"], "60", "S"],
+        ["1940", "only", "-", "Jun", "30", ["0", "0", "0"], "60", "S"],
+        ["1940", "only", "-", "Oct", "5", ["0", "0", "0"], "0", "-"],
+        ["1940", "only", "-", "Dec", "1", ["0", "0", "0"], "60", "S"],
+        ["1941", "only", "-", "Sep", "21", ["0", "0", "0"], "0", "-"],
+        ["1942", "only", "-", "Apr", "1", ["0", "0", "0"], "60", "S"],
+        ["1942", "only", "-", "Nov", "1", ["0", "0", "0"], "0", "-"],
+        ["1945", "only", "-", "Apr", "2", ["0", "0", "0"], "60", "S"],
+        ["1945", "only", "-", "Oct", "8", ["0", "0", "0"], "0", "-"],
+        ["1946", "only", "-", "Jun", "1", ["0", "0", "0"], "60", "S"],
+        ["1946", "only", "-", "Oct", "1", ["0", "0", "0"], "0", "-"],
+        ["1947", "1948", "-", "Apr", "Sun>=16", ["0", "0", "0"], "60", "S"],
+        ["1947", "1950", "-", "Oct", "Sun>=2", ["0", "0", "0"], "0", "-"],
+        ["1949", "only", "-", "Apr", "10", ["0", "0", "0"], "60", "S"],
+        ["1950", "only", "-", "Apr", "19", ["0", "0", "0"], "60", "S"],
+        ["1951", "only", "-", "Apr", "22", ["0", "0", "0"], "60", "S"],
+        ["1951", "only", "-", "Oct", "8", ["0", "0", "0"], "0", "-"],
+        ["1962", "only", "-", "Jul", "15", ["0", "0", "0"], "60", "S"],
+        ["1962", "only", "-", "Oct", "8", ["0", "0", "0"], "0", "-"],
+        ["1964", "only", "-", "May", "15", ["0", "0", "0"], "60", "S"],
+        ["1964", "only", "-", "Oct", "1", ["0", "0", "0"], "0", "-"],
+        ["1970", "1972", "-", "May", "Sun>=2", ["0", "0", "0"], "60", "S"],
+        ["1970", "1972", "-", "Oct", "Sun>=2", ["0", "0", "0"], "0", "-"],
+        ["1973", "only", "-", "Jun", "3", ["1", "0", "0"], "60", "S"],
+        ["1973", "only", "-", "Nov", "4", ["3", "0", "0"], "0", "-"],
+        ["1974", "only", "-", "Mar", "31", ["2", "0", "0"], "60", "S"],
+        ["1974", "only", "-", "Nov", "3", ["5", "0", "0"], "0", "-"],
+        ["1975", "only", "-", "Mar", "30", ["0", "0", "0"], "60", "S"],
+        ["1975", "1976", "-", "Oct", "lastSun", ["0", "0", "0"], "0", "-"],
+        ["1976", "only", "-", "Jun", "1", ["0", "0", "0"], "60", "S"],
+        ["1977", "1978", "-", "Apr", "Sun>=1", ["0", "0", "0"], "60", "S"],
+        ["1977", "only", "-", "Oct", "16", ["0", "0", "0"], "0", "-"],
+        ["1979", "1980", "-", "Apr", "Sun>=1", ["3", "0", "0"], "60", "S"],
+        ["1979", "1982", "-", "Oct", "Mon>=11", ["0", "0", "0"], "0", "-"],
+        ["1981", "1982", "-", "Mar", "lastSun", ["3", "0", "0"], "60", "S"],
+        ["1983", "only", "-", "Jul", "31", ["0", "0", "0"], "60", "S"],
+        ["1983", "only", "-", "Oct", "2", ["0", "0", "0"], "0", "-"],
+        ["1985", "only", "-", "Apr", "20", ["0", "0", "0"], "60", "S"],
+        ["1985", "only", "-", "Sep", "28", ["0", "0", "0"], "0", "-"],
+        ["1986", "1990", "-", "Mar", "lastSun", ["2", "0", "0", "s"], "60", "S"],
+        ["1986", "1990", "-", "Sep", "lastSun", ["2", "0", "0", "s"], "0", "-"],
+        ["1991", "2006", "-", "Mar", "lastSun", ["1", "0", "0", "s"], "60", "S"],
+        ["1991", "1995", "-", "Sep", "lastSun", ["1", "0", "0", "s"], "0", "-"],
+        ["1996", "2006", "-", "Oct", "lastSun", ["1", "0", "0", "s"], "0", "-"]
+    ],
+    "US": [
+        ["1918", "1919", "-", "Mar", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1918", "1919", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1942", "only", "-", "Feb", "9", ["2", "0", "0"], "60", "W", ""],
+        ["1945", "only", "-", "Aug", "14", ["23", "0", "0", "u"], "60", "P", ""],
+        ["1945", "only", "-", "Sep", "30", ["2", "0", "0"], "0", "S"],
+        ["1967", "2006", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1967", "1973", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1974", "only", "-", "Jan", "6", ["2", "0", "0"], "60", "D"],
+        ["1975", "only", "-", "Feb", "23", ["2", "0", "0"], "60", "D"],
+        ["1976", "1986", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1987", "2006", "-", "Apr", "Sun>=1", ["2", "0", "0"], "60", "D"],
+        ["2007", "max", "-", "Mar", "Sun>=8", ["2", "0", "0"], "60", "D"],
+        ["2007", "max", "-", "Nov", "Sun>=1", ["2", "0", "0"], "0", "S"]
+    ],
+    "NYC": [
+        ["1920", "only", "-", "Mar", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1920", "only", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1921", "1966", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1921", "1954", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1955", "1966", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"]
+    ],
+    "Chicago": [
+        ["1920", "only", "-", "Jun", "13", ["2", "0", "0"], "60", "D"],
+        ["1920", "1921", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1921", "only", "-", "Mar", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1922", "1966", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1922", "1954", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1955", "1966", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"]
+    ],
+    "Denver": [
+        ["1920", "1921", "-", "Mar", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1920", "only", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1921", "only", "-", "May", "22", ["2", "0", "0"], "0", "S"],
+        ["1965", "1966", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1965", "1966", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"]
+    ],
+    "CA": [
+        ["1948", "only", "-", "Mar", "14", ["2", "0", "0"], "60", "D"],
+        ["1949", "only", "-", "Jan", "1", ["2", "0", "0"], "0", "S"],
+        ["1950", "1966", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1950", "1961", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1962", "1966", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"]
+    ],
+    "Indianapolis": [
+        ["1941", "only", "-", "Jun", "22", ["2", "0", "0"], "60", "D"],
+        ["1941", "1954", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1946", "1954", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"]
+    ],
+    "Marengo": [
+        ["1951", "only", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1951", "only", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1954", "1960", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1954", "1960", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"]
+    ],
+    "Vincennes": [
+        ["1946", "only", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1946", "only", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1953", "1954", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1953", "1959", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1955", "only", "-", "May", "1", ["0", "0", "0"], "60", "D"],
+        ["1956", "1963", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1960", "only", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1961", "only", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1962", "1963", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"]
+    ],
+    "Perry": [
+        ["1946", "only", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1946", "only", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1953", "1954", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1953", "1959", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1955", "only", "-", "May", "1", ["0", "0", "0"], "60", "D"],
+        ["1956", "1963", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1960", "only", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1961", "only", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1962", "1963", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"]
+    ],
+    "Pike": [
+        ["1955", "only", "-", "May", "1", ["0", "0", "0"], "60", "D"],
+        ["1955", "1960", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1956", "1964", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1961", "1964", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"]
+    ],
+    "Starke": [
+        ["1947", "1961", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1947", "1954", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1955", "1956", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1957", "1958", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1959", "1961", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"]
+    ],
+    "Pulaski": [
+        ["1946", "1960", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1946", "1954", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1955", "1956", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1957", "1960", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"]
+    ],
+    "Louisville": [
+        ["1921", "only", "-", "May", "1", ["2", "0", "0"], "60", "D"],
+        ["1921", "only", "-", "Sep", "1", ["2", "0", "0"], "0", "S"],
+        ["1941", "1961", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1941", "only", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1946", "only", "-", "Jun", "2", ["2", "0", "0"], "0", "S"],
+        ["1950", "1955", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1956", "1960", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"]
+    ],
+    "Detroit": [
+        ["1948", "only", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1948", "only", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1967", "only", "-", "Jun", "14", ["2", "0", "0"], "60", "D"],
+        ["1967", "only", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"]
+    ],
+    "Menominee": [
+        ["1946", "only", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1946", "only", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1966", "only", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1966", "only", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"]
+    ],
+    "Canada": [
+        ["1918", "only", "-", "Apr", "14", ["2", "0", "0"], "60", "D"],
+        ["1918", "only", "-", "Oct", "27", ["2", "0", "0"], "0", "S"],
+        ["1942", "only", "-", "Feb", "9", ["2", "0", "0"], "60", "W", ""],
+        ["1945", "only", "-", "Aug", "14", ["23", "0", "0", "u"], "60", "P", ""],
+        ["1945", "only", "-", "Sep", "30", ["2", "0", "0"], "0", "S"],
+        ["1974", "1986", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1974", "2006", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1987", "2006", "-", "Apr", "Sun>=1", ["2", "0", "0"], "60", "D"],
+        ["2007", "max", "-", "Mar", "Sun>=8", ["2", "0", "0"], "60", "D"],
+        ["2007", "max", "-", "Nov", "Sun>=1", ["2", "0", "0"], "0", "S"]
+    ],
+    "StJohns": [
+        ["1917", "only", "-", "Apr", "8", ["2", "0", "0"], "60", "D"],
+        ["1917", "only", "-", "Sep", "17", ["2", "0", "0"], "0", "S"],
+        ["1919", "only", "-", "May", "5", ["23", "0", "0"], "60", "D"],
+        ["1919", "only", "-", "Aug", "12", ["23", "0", "0"], "0", "S"],
+        ["1920", "1935", "-", "May", "Sun>=1", ["23", "0", "0"], "60", "D"],
+        ["1920", "1935", "-", "Oct", "lastSun", ["23", "0", "0"], "0", "S"],
+        ["1936", "1941", "-", "May", "Mon>=9", ["0", "0", "0"], "60", "D"],
+        ["1936", "1941", "-", "Oct", "Mon>=2", ["0", "0", "0"], "0", "S"],
+        ["1946", "1950", "-", "May", "Sun>=8", ["2", "0", "0"], "60", "D"],
+        ["1946", "1950", "-", "Oct", "Sun>=2", ["2", "0", "0"], "0", "S"],
+        ["1951", "1986", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1951", "1959", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1960", "1986", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1987", "only", "-", "Apr", "Sun>=1", ["0", "1", "0"], "60", "D"],
+        ["1987", "2006", "-", "Oct", "lastSun", ["0", "1", "0"], "0", "S"],
+        ["1988", "only", "-", "Apr", "Sun>=1", ["0", "1", "0"], "120", "DD"],
+        ["1989", "2006", "-", "Apr", "Sun>=1", ["0", "1", "0"], "60", "D"],
+        ["2007", "2011", "-", "Mar", "Sun>=8", ["0", "1", "0"], "60", "D"],
+        ["2007", "2010", "-", "Nov", "Sun>=1", ["0", "1", "0"], "0", "S"]
+    ],
+    "Halifax": [
+        ["1916", "only", "-", "Apr", "1", ["0", "0", "0"], "60", "D"],
+        ["1916", "only", "-", "Oct", "1", ["0", "0", "0"], "0", "S"],
+        ["1920", "only", "-", "May", "9", ["0", "0", "0"], "60", "D"],
+        ["1920", "only", "-", "Aug", "29", ["0", "0", "0"], "0", "S"],
+        ["1921", "only", "-", "May", "6", ["0", "0", "0"], "60", "D"],
+        ["1921", "1922", "-", "Sep", "5", ["0", "0", "0"], "0", "S"],
+        ["1922", "only", "-", "Apr", "30", ["0", "0", "0"], "60", "D"],
+        ["1923", "1925", "-", "May", "Sun>=1", ["0", "0", "0"], "60", "D"],
+        ["1923", "only", "-", "Sep", "4", ["0", "0", "0"], "0", "S"],
+        ["1924", "only", "-", "Sep", "15", ["0", "0", "0"], "0", "S"],
+        ["1925", "only", "-", "Sep", "28", ["0", "0", "0"], "0", "S"],
+        ["1926", "only", "-", "May", "16", ["0", "0", "0"], "60", "D"],
+        ["1926", "only", "-", "Sep", "13", ["0", "0", "0"], "0", "S"],
+        ["1927", "only", "-", "May", "1", ["0", "0", "0"], "60", "D"],
+        ["1927", "only", "-", "Sep", "26", ["0", "0", "0"], "0", "S"],
+        ["1928", "1931", "-", "May", "Sun>=8", ["0", "0", "0"], "60", "D"],
+        ["1928", "only", "-", "Sep", "9", ["0", "0", "0"], "0", "S"],
+        ["1929", "only", "-", "Sep", "3", ["0", "0", "0"], "0", "S"],
+        ["1930", "only", "-", "Sep", "15", ["0", "0", "0"], "0", "S"],
+        ["1931", "1932", "-", "Sep", "Mon>=24", ["0", "0", "0"], "0", "S"],
+        ["1932", "only", "-", "May", "1", ["0", "0", "0"], "60", "D"],
+        ["1933", "only", "-", "Apr", "30", ["0", "0", "0"], "60", "D"],
+        ["1933", "only", "-", "Oct", "2", ["0", "0", "0"], "0", "S"],
+        ["1934", "only", "-", "May", "20", ["0", "0", "0"], "60", "D"],
+        ["1934", "only", "-", "Sep", "16", ["0", "0", "0"], "0", "S"],
+        ["1935", "only", "-", "Jun", "2", ["0", "0", "0"], "60", "D"],
+        ["1935", "only", "-", "Sep", "30", ["0", "0", "0"], "0", "S"],
+        ["1936", "only", "-", "Jun", "1", ["0", "0", "0"], "60", "D"],
+        ["1936", "only", "-", "Sep", "14", ["0", "0", "0"], "0", "S"],
+        ["1937", "1938", "-", "May", "Sun>=1", ["0", "0", "0"], "60", "D"],
+        ["1937", "1941", "-", "Sep", "Mon>=24", ["0", "0", "0"], "0", "S"],
+        ["1939", "only", "-", "May", "28", ["0", "0", "0"], "60", "D"],
+        ["1940", "1941", "-", "May", "Sun>=1", ["0", "0", "0"], "60", "D"],
+        ["1946", "1949", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1946", "1949", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1951", "1954", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1951", "1954", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1956", "1959", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1956", "1959", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1962", "1973", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1962", "1973", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"]
+    ],
+    "Moncton": [
+        ["1933", "1935", "-", "Jun", "Sun>=8", ["1", "0", "0"], "60", "D"],
+        ["1933", "1935", "-", "Sep", "Sun>=8", ["1", "0", "0"], "0", "S"],
+        ["1936", "1938", "-", "Jun", "Sun>=1", ["1", "0", "0"], "60", "D"],
+        ["1936", "1938", "-", "Sep", "Sun>=1", ["1", "0", "0"], "0", "S"],
+        ["1939", "only", "-", "May", "27", ["1", "0", "0"], "60", "D"],
+        ["1939", "1941", "-", "Sep", "Sat>=21", ["1", "0", "0"], "0", "S"],
+        ["1940", "only", "-", "May", "19", ["1", "0", "0"], "60", "D"],
+        ["1941", "only", "-", "May", "4", ["1", "0", "0"], "60", "D"],
+        ["1946", "1972", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1946", "1956", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1957", "1972", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1993", "2006", "-", "Apr", "Sun>=1", ["0", "1", "0"], "60", "D"],
+        ["1993", "2006", "-", "Oct", "lastSun", ["0", "1", "0"], "0", "S"]
+    ],
+    "Mont": [
+        ["1917", "only", "-", "Mar", "25", ["2", "0", "0"], "60", "D"],
+        ["1917", "only", "-", "Apr", "24", ["0", "0", "0"], "0", "S"],
+        ["1919", "only", "-", "Mar", "31", ["2", "30", "0"], "60", "D"],
+        ["1919", "only", "-", "Oct", "25", ["2", "30", "0"], "0", "S"],
+        ["1920", "only", "-", "May", "2", ["2", "30", "0"], "60", "D"],
+        ["1920", "1922", "-", "Oct", "Sun>=1", ["2", "30", "0"], "0", "S"],
+        ["1921", "only", "-", "May", "1", ["2", "0", "0"], "60", "D"],
+        ["1922", "only", "-", "Apr", "30", ["2", "0", "0"], "60", "D"],
+        ["1924", "only", "-", "May", "17", ["2", "0", "0"], "60", "D"],
+        ["1924", "1926", "-", "Sep", "lastSun", ["2", "30", "0"], "0", "S"],
+        ["1925", "1926", "-", "May", "Sun>=1", ["2", "0", "0"], "60", "D"],
+        ["1927", "1937", "-", "Apr", "lastSat", ["24", "0", "0"], "60", "D"],
+        ["1927", "1937", "-", "Sep", "lastSat", ["24", "0", "0"], "0", "S"],
+        ["1938", "1940", "-", "Apr", "lastSun", ["0", "0", "0"], "60", "D"],
+        ["1938", "1939", "-", "Sep", "lastSun", ["0", "0", "0"], "0", "S"],
+        ["1946", "1973", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1945", "1948", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1949", "1950", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1951", "1956", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1957", "1973", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"]
+    ],
+    "Toronto": [
+        ["1919", "only", "-", "Mar", "30", ["23", "30", "0"], "60", "D"],
+        ["1919", "only", "-", "Oct", "26", ["0", "0", "0"], "0", "S"],
+        ["1920", "only", "-", "May", "2", ["2", "0", "0"], "60", "D"],
+        ["1920", "only", "-", "Sep", "26", ["0", "0", "0"], "0", "S"],
+        ["1921", "only", "-", "May", "15", ["2", "0", "0"], "60", "D"],
+        ["1921", "only", "-", "Sep", "15", ["2", "0", "0"], "0", "S"],
+        ["1922", "1923", "-", "May", "Sun>=8", ["2", "0", "0"], "60", "D"],
+        ["1922", "1926", "-", "Sep", "Sun>=15", ["2", "0", "0"], "0", "S"],
+        ["1924", "1927", "-", "May", "Sun>=1", ["2", "0", "0"], "60", "D"],
+        ["1927", "1932", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1928", "1931", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1932", "only", "-", "May", "1", ["2", "0", "0"], "60", "D"],
+        ["1933", "1940", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1933", "only", "-", "Oct", "1", ["2", "0", "0"], "0", "S"],
+        ["1934", "1939", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1945", "1946", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1946", "only", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1947", "1949", "-", "Apr", "lastSun", ["0", "0", "0"], "60", "D"],
+        ["1947", "1948", "-", "Sep", "lastSun", ["0", "0", "0"], "0", "S"],
+        ["1949", "only", "-", "Nov", "lastSun", ["0", "0", "0"], "0", "S"],
+        ["1950", "1973", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1950", "only", "-", "Nov", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1951", "1956", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1957", "1973", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"]
+    ],
+    "Winn": [
+        ["1916", "only", "-", "Apr", "23", ["0", "0", "0"], "60", "D"],
+        ["1916", "only", "-", "Sep", "17", ["0", "0", "0"], "0", "S"],
+        ["1918", "only", "-", "Apr", "14", ["2", "0", "0"], "60", "D"],
+        ["1918", "only", "-", "Oct", "27", ["2", "0", "0"], "0", "S"],
+        ["1937", "only", "-", "May", "16", ["2", "0", "0"], "60", "D"],
+        ["1937", "only", "-", "Sep", "26", ["2", "0", "0"], "0", "S"],
+        ["1942", "only", "-", "Feb", "9", ["2", "0", "0"], "60", "W", ""],
+        ["1945", "only", "-", "Aug", "14", ["23", "0", "0", "u"], "60", "P", ""],
+        ["1945", "only", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1946", "only", "-", "May", "12", ["2", "0", "0"], "60", "D"],
+        ["1946", "only", "-", "Oct", "13", ["2", "0", "0"], "0", "S"],
+        ["1947", "1949", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1947", "1949", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1950", "only", "-", "May", "1", ["2", "0", "0"], "60", "D"],
+        ["1950", "only", "-", "Sep", "30", ["2", "0", "0"], "0", "S"],
+        ["1951", "1960", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1951", "1958", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1959", "only", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1960", "only", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1963", "only", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1963", "only", "-", "Sep", "22", ["2", "0", "0"], "0", "S"],
+        ["1966", "1986", "-", "Apr", "lastSun", ["2", "0", "0", "s"], "60", "D"],
+        ["1966", "2005", "-", "Oct", "lastSun", ["2", "0", "0", "s"], "0", "S"],
+        ["1987", "2005", "-", "Apr", "Sun>=1", ["2", "0", "0", "s"], "60", "D"]
+    ],
+    "Regina": [
+        ["1918", "only", "-", "Apr", "14", ["2", "0", "0"], "60", "D"],
+        ["1918", "only", "-", "Oct", "27", ["2", "0", "0"], "0", "S"],
+        ["1930", "1934", "-", "May", "Sun>=1", ["0", "0", "0"], "60", "D"],
+        ["1930", "1934", "-", "Oct", "Sun>=1", ["0", "0", "0"], "0", "S"],
+        ["1937", "1941", "-", "Apr", "Sun>=8", ["0", "0", "0"], "60", "D"],
+        ["1937", "only", "-", "Oct", "Sun>=8", ["0", "0", "0"], "0", "S"],
+        ["1938", "only", "-", "Oct", "Sun>=1", ["0", "0", "0"], "0", "S"],
+        ["1939", "1941", "-", "Oct", "Sun>=8", ["0", "0", "0"], "0", "S"],
+        ["1942", "only", "-", "Feb", "9", ["2", "0", "0"], "60", "W", ""],
+        ["1945", "only", "-", "Aug", "14", ["23", "0", "0", "u"], "60", "P", ""],
+        ["1945", "only", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1946", "only", "-", "Apr", "Sun>=8", ["2", "0", "0"], "60", "D"],
+        ["1946", "only", "-", "Oct", "Sun>=8", ["2", "0", "0"], "0", "S"],
+        ["1947", "1957", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1947", "1957", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1959", "only", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1959", "only", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"]
+    ],
+    "Swift": [
+        ["1957", "only", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1957", "only", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1959", "1961", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1959", "only", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1960", "1961", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"]
+    ],
+    "Edm": [
+        ["1918", "1919", "-", "Apr", "Sun>=8", ["2", "0", "0"], "60", "D"],
+        ["1918", "only", "-", "Oct", "27", ["2", "0", "0"], "0", "S"],
+        ["1919", "only", "-", "May", "27", ["2", "0", "0"], "0", "S"],
+        ["1920", "1923", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1920", "only", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1921", "1923", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1942", "only", "-", "Feb", "9", ["2", "0", "0"], "60", "W", ""],
+        ["1945", "only", "-", "Aug", "14", ["23", "0", "0", "u"], "60", "P", ""],
+        ["1945", "only", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1947", "only", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1947", "only", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1967", "only", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1967", "only", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1969", "only", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1969", "only", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1972", "1986", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1972", "2006", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"]
+    ],
+    "Vanc": [
+        ["1918", "only", "-", "Apr", "14", ["2", "0", "0"], "60", "D"],
+        ["1918", "only", "-", "Oct", "27", ["2", "0", "0"], "0", "S"],
+        ["1942", "only", "-", "Feb", "9", ["2", "0", "0"], "60", "W", ""],
+        ["1945", "only", "-", "Aug", "14", ["23", "0", "0", "u"], "60", "P", ""],
+        ["1945", "only", "-", "Sep", "30", ["2", "0", "0"], "0", "S"],
+        ["1946", "1986", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1946", "only", "-", "Oct", "13", ["2", "0", "0"], "0", "S"],
+        ["1947", "1961", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1962", "2006", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"]
+    ],
+    "NT_YK": [
+        ["1918", "only", "-", "Apr", "14", ["2", "0", "0"], "60", "D"],
+        ["1918", "only", "-", "Oct", "27", ["2", "0", "0"], "0", "S"],
+        ["1919", "only", "-", "May", "25", ["2", "0", "0"], "60", "D"],
+        ["1919", "only", "-", "Nov", "1", ["0", "0", "0"], "0", "S"],
+        ["1942", "only", "-", "Feb", "9", ["2", "0", "0"], "60", "W", ""],
+        ["1945", "only", "-", "Aug", "14", ["23", "0", "0", "u"], "60", "P", ""],
+        ["1945", "only", "-", "Sep", "30", ["2", "0", "0"], "0", "S"],
+        ["1965", "only", "-", "Apr", "lastSun", ["0", "0", "0"], "120", "DD"],
+        ["1965", "only", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1980", "1986", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1980", "2006", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1987", "2006", "-", "Apr", "Sun>=1", ["2", "0", "0"], "60", "D"]
+    ],
+    "Mexico": [
+        ["1939", "only", "-", "Feb", "5", ["0", "0", "0"], "60", "D"],
+        ["1939", "only", "-", "Jun", "25", ["0", "0", "0"], "0", "S"],
+        ["1940", "only", "-", "Dec", "9", ["0", "0", "0"], "60", "D"],
+        ["1941", "only", "-", "Apr", "1", ["0", "0", "0"], "0", "S"],
+        ["1943", "only", "-", "Dec", "16", ["0", "0", "0"], "60", "W", ""],
+        ["1944", "only", "-", "May", "1", ["0", "0", "0"], "0", "S"],
+        ["1950", "only", "-", "Feb", "12", ["0", "0", "0"], "60", "D"],
+        ["1950", "only", "-", "Jul", "30", ["0", "0", "0"], "0", "S"],
+        ["1996", "2000", "-", "Apr", "Sun>=1", ["2", "0", "0"], "60", "D"],
+        ["1996", "2000", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["2001", "only", "-", "May", "Sun>=1", ["2", "0", "0"], "60", "D"],
+        ["2001", "only", "-", "Sep", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["2002", "max", "-", "Apr", "Sun>=1", ["2", "0", "0"], "60", "D"],
+        ["2002", "max", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"]
+    ],
+    "Bahamas": [
+        ["1964", "1975", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1964", "1975", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"]
+    ],
+    "Barb": [
+        ["1977", "only", "-", "Jun", "12", ["2", "0", "0"], "60", "D"],
+        ["1977", "1978", "-", "Oct", "Sun>=1", ["2", "0", "0"], "0", "S"],
+        ["1978", "1980", "-", "Apr", "Sun>=15", ["2", "0", "0"], "60", "D"],
+        ["1979", "only", "-", "Sep", "30", ["2", "0", "0"], "0", "S"],
+        ["1980", "only", "-", "Sep", "25", ["2", "0", "0"], "0", "S"]
+    ],
+    "Belize": [
+        ["1918", "1942", "-", "Oct", "Sun>=2", ["0", "0", "0"], "30", "HD"],
+        ["1919", "1943", "-", "Feb", "Sun>=9", ["0", "0", "0"], "0", "S"],
+        ["1973", "only", "-", "Dec", "5", ["0", "0", "0"], "60", "D"],
+        ["1974", "only", "-", "Feb", "9", ["0", "0", "0"], "0", "S"],
+        ["1982", "only", "-", "Dec", "18", ["0", "0", "0"], "60", "D"],
+        ["1983", "only", "-", "Feb", "12", ["0", "0", "0"], "0", "S"]
+    ],
+    "CR": [
+        ["1979", "1980", "-", "Feb", "lastSun", ["0", "0", "0"], "60", "D"],
+        ["1979", "1980", "-", "Jun", "Sun>=1", ["0", "0", "0"], "0", "S"],
+        ["1991", "1992", "-", "Jan", "Sat>=15", ["0", "0", "0"], "60", "D"],
+        ["1991", "only", "-", "Jul", "1", ["0", "0", "0"], "0", "S"],
+        ["1992", "only", "-", "Mar", "15", ["0", "0", "0"], "0", "S"]
+    ],
+    "Cuba": [
+        ["1928", "only", "-", "Jun", "10", ["0", "0", "0"], "60", "D"],
+        ["1928", "only", "-", "Oct", "10", ["0", "0", "0"], "0", "S"],
+        ["1940", "1942", "-", "Jun", "Sun>=1", ["0", "0", "0"], "60", "D"],
+        ["1940", "1942", "-", "Sep", "Sun>=1", ["0", "0", "0"], "0", "S"],
+        ["1945", "1946", "-", "Jun", "Sun>=1", ["0", "0", "0"], "60", "D"],
+        ["1945", "1946", "-", "Sep", "Sun>=1", ["0", "0", "0"], "0", "S"],
+        ["1965", "only", "-", "Jun", "1", ["0", "0", "0"], "60", "D"],
+        ["1965", "only", "-", "Sep", "30", ["0", "0", "0"], "0", "S"],
+        ["1966", "only", "-", "May", "29", ["0", "0", "0"], "60", "D"],
+        ["1966", "only", "-", "Oct", "2", ["0", "0", "0"], "0", "S"],
+        ["1967", "only", "-", "Apr", "8", ["0", "0", "0"], "60", "D"],
+        ["1967", "1968", "-", "Sep", "Sun>=8", ["0", "0", "0"], "0", "S"],
+        ["1968", "only", "-", "Apr", "14", ["0", "0", "0"], "60", "D"],
+        ["1969", "1977", "-", "Apr", "lastSun", ["0", "0", "0"], "60", "D"],
+        ["1969", "1971", "-", "Oct", "lastSun", ["0", "0", "0"], "0", "S"],
+        ["1972", "1974", "-", "Oct", "8", ["0", "0", "0"], "0", "S"],
+        ["1975", "1977", "-", "Oct", "lastSun", ["0", "0", "0"], "0", "S"],
+        ["1978", "only", "-", "May", "7", ["0", "0", "0"], "60", "D"],
+        ["1978", "1990", "-", "Oct", "Sun>=8", ["0", "0", "0"], "0", "S"],
+        ["1979", "1980", "-", "Mar", "Sun>=15", ["0", "0", "0"], "60", "D"],
+        ["1981", "1985", "-", "May", "Sun>=5", ["0", "0", "0"], "60", "D"],
+        ["1986", "1989", "-", "Mar", "Sun>=14", ["0", "0", "0"], "60", "D"],
+        ["1990", "1997", "-", "Apr", "Sun>=1", ["0", "0", "0"], "60", "D"],
+        ["1991", "1995", "-", "Oct", "Sun>=8", ["0", "0", "0", "s"], "0", "S"],
+        ["1996", "only", "-", "Oct", "6", ["0", "0", "0", "s"], "0", "S"],
+        ["1997", "only", "-", "Oct", "12", ["0", "0", "0", "s"], "0", "S"],
+        ["1998", "1999", "-", "Mar", "lastSun", ["0", "0", "0", "s"], "60", "D"],
+        ["1998", "2003", "-", "Oct", "lastSun", ["0", "0", "0", "s"], "0", "S"],
+        ["2000", "2003", "-", "Apr", "Sun>=1", ["0", "0", "0", "s"], "60", "D"],
+        ["2004", "only", "-", "Mar", "lastSun", ["0", "0", "0", "s"], "60", "D"],
+        ["2006", "2010", "-", "Oct", "lastSun", ["0", "0", "0", "s"], "0", "S"],
+        ["2007", "only", "-", "Mar", "Sun>=8", ["0", "0", "0", "s"], "60", "D"],
+        ["2008", "only", "-", "Mar", "Sun>=15", ["0", "0", "0", "s"], "60", "D"],
+        ["2009", "2010", "-", "Mar", "Sun>=8", ["0", "0", "0", "s"], "60", "D"],
+        ["2011", "only", "-", "Mar", "Sun>=15", ["0", "0", "0", "s"], "60", "D"],
+        ["2011", "only", "-", "Nov", "13", ["0", "0", "0", "s"], "0", "S"],
+        ["2012", "only", "-", "Apr", "1", ["0", "0", "0", "s"], "60", "D"],
+        ["2012", "max", "-", "Nov", "Sun>=1", ["0", "0", "0", "s"], "0", "S"],
+        ["2013", "max", "-", "Mar", "Sun>=8", ["0", "0", "0", "s"], "60", "D"]
+    ],
+    "DR": [
+        ["1966", "only", "-", "Oct", "30", ["0", "0", "0"], "60", "D"],
+        ["1967", "only", "-", "Feb", "28", ["0", "0", "0"], "0", "S"],
+        ["1969", "1973", "-", "Oct", "lastSun", ["0", "0", "0"], "30", "HD"],
+        ["1970", "only", "-", "Feb", "21", ["0", "0", "0"], "0", "S"],
+        ["1971", "only", "-", "Jan", "20", ["0", "0", "0"], "0", "S"],
+        ["1972", "1974", "-", "Jan", "21", ["0", "0", "0"], "0", "S"]
+    ],
+    "Salv": [
+        ["1987", "1988", "-", "May", "Sun>=1", ["0", "0", "0"], "60", "D"],
+        ["1987", "1988", "-", "Sep", "lastSun", ["0", "0", "0"], "0", "S"]
+    ],
+    "Guat": [
+        ["1973", "only", "-", "Nov", "25", ["0", "0", "0"], "60", "D"],
+        ["1974", "only", "-", "Feb", "24", ["0", "0", "0"], "0", "S"],
+        ["1983", "only", "-", "May", "21", ["0", "0", "0"], "60", "D"],
+        ["1983", "only", "-", "Sep", "22", ["0", "0", "0"], "0", "S"],
+        ["1991", "only", "-", "Mar", "23", ["0", "0", "0"], "60", "D"],
+        ["1991", "only", "-", "Sep", "7", ["0", "0", "0"], "0", "S"],
+        ["2006", "only", "-", "Apr", "30", ["0", "0", "0"], "60", "D"],
+        ["2006", "only", "-", "Oct", "1", ["0", "0", "0"], "0", "S"]
+    ],
+    "Haiti": [
+        ["1983", "only", "-", "May", "8", ["0", "0", "0"], "60", "D"],
+        ["1984", "1987", "-", "Apr", "lastSun", ["0", "0", "0"], "60", "D"],
+        ["1983", "1987", "-", "Oct", "lastSun", ["0", "0", "0"], "0", "S"],
+        ["1988", "1997", "-", "Apr", "Sun>=1", ["1", "0", "0", "s"], "60", "D"],
+        ["1988", "1997", "-", "Oct", "lastSun", ["1", "0", "0", "s"], "0", "S"],
+        ["2005", "2006", "-", "Apr", "Sun>=1", ["0", "0", "0"], "60", "D"],
+        ["2005", "2006", "-", "Oct", "lastSun", ["0", "0", "0"], "0", "S"],
+        ["2012", "max", "-", "Mar", "Sun>=8", ["2", "0", "0"], "60", "D"],
+        ["2012", "max", "-", "Nov", "Sun>=1", ["2", "0", "0"], "0", "S"]
+    ],
+    "Hond": [
+        ["1987", "1988", "-", "May", "Sun>=1", ["0", "0", "0"], "60", "D"],
+        ["1987", "1988", "-", "Sep", "lastSun", ["0", "0", "0"], "0", "S"],
+        ["2006", "only", "-", "May", "Sun>=1", ["0", "0", "0"], "60", "D"],
+        ["2006", "only", "-", "Aug", "Mon>=1", ["0", "0", "0"], "0", "S"]
+    ],
+    "Nic": [
+        ["1979", "1980", "-", "Mar", "Sun>=16", ["0", "0", "0"], "60", "D"],
+        ["1979", "1980", "-", "Jun", "Mon>=23", ["0", "0", "0"], "0", "S"],
+        ["2005", "only", "-", "Apr", "10", ["0", "0", "0"], "60", "D"],
+        ["2005", "only", "-", "Oct", "Sun>=1", ["0", "0", "0"], "0", "S"],
+        ["2006", "only", "-", "Apr", "30", ["2", "0", "0"], "60", "D"],
+        ["2006", "only", "-", "Oct", "Sun>=1", ["1", "0", "0"], "0", "S"]
+    ],
+    "Arg": [
+        ["1930", "only", "-", "Dec", "1", ["0", "0", "0"], "60", "S"],
+        ["1931", "only", "-", "Apr", "1", ["0", "0", "0"], "0", "-"],
+        ["1931", "only", "-", "Oct", "15", ["0", "0", "0"], "60", "S"],
+        ["1932", "1940", "-", "Mar", "1", ["0", "0", "0"], "0", "-"],
+        ["1932", "1939", "-", "Nov", "1", ["0", "0", "0"], "60", "S"],
+        ["1940", "only", "-", "Jul", "1", ["0", "0", "0"], "60", "S"],
+        ["1941", "only", "-", "Jun", "15", ["0", "0", "0"], "0", "-"],
+        ["1941", "only", "-", "Oct", "15", ["0", "0", "0"], "60", "S"],
+        ["1943", "only", "-", "Aug", "1", ["0", "0", "0"], "0", "-"],
+        ["1943", "only", "-", "Oct", "15", ["0", "0", "0"], "60", "S"],
+        ["1946", "only", "-", "Mar", "1", ["0", "0", "0"], "0", "-"],
+        ["1946", "only", "-", "Oct", "1", ["0", "0", "0"], "60", "S"],
+        ["1963", "only", "-", "Oct", "1", ["0", "0", "0"], "0", "-"],
+        ["1963", "only", "-", "Dec", "15", ["0", "0", "0"], "60", "S"],
+        ["1964", "1966", "-", "Mar", "1", ["0", "0", "0"], "0", "-"],
+        ["1964", "1966", "-", "Oct", "15", ["0", "0", "0"], "60", "S"],
+        ["1967", "only", "-", "Apr", "2", ["0", "0", "0"], "0", "-"],
+        ["1967", "1968", "-", "Oct", "Sun>=1", ["0", "0", "0"], "60", "S"],
+        ["1968", "1969", "-", "Apr", "Sun>=1", ["0", "0", "0"], "0", "-"],
+        ["1974", "only", "-", "Jan", "23", ["0", "0", "0"], "60", "S"],
+        ["1974", "only", "-", "May", "1", ["0", "0", "0"], "0", "-"],
+        ["1988", "only", "-", "Dec", "1", ["0", "0", "0"], "60", "S"],
+        ["1989", "1993", "-", "Mar", "Sun>=1", ["0", "0", "0"], "0", "-"],
+        ["1989", "1992", "-", "Oct", "Sun>=15", ["0", "0", "0"], "60", "S"],
+        ["1999", "only", "-", "Oct", "Sun>=1", ["0", "0", "0"], "60", "S"],
+        ["2000", "only", "-", "Mar", "3", ["0", "0", "0"], "0", "-"],
+        ["2007", "only", "-", "Dec", "30", ["0", "0", "0"], "60", "S"],
+        ["2008", "2009", "-", "Mar", "Sun>=15", ["0", "0", "0"], "0", "-"],
+        ["2008", "only", "-", "Oct", "Sun>=15", ["0", "0", "0"], "60", "S"]
+    ],
+    "SanLuis": [
+        ["2008", "2009", "-", "Mar", "Sun>=8", ["0", "0", "0"], "0", "-"],
+        ["2007", "2008", "-", "Oct", "Sun>=8", ["0", "0", "0"], "60", "S"]
+    ],
+    "Brazil": [
+        ["1931", "only", "-", "Oct", "3", ["11", "0", "0"], "60", "S"],
+        ["1932", "1933", "-", "Apr", "1", ["0", "0", "0"], "0", "-"],
+        ["1932", "only", "-", "Oct", "3", ["0", "0", "0"], "60", "S"],
+        ["1949", "1952", "-", "Dec", "1", ["0", "0", "0"], "60", "S"],
+        ["1950", "only", "-", "Apr", "16", ["1", "0", "0"], "0", "-"],
+        ["1951", "1952", "-", "Apr", "1", ["0", "0", "0"], "0", "-"],
+        ["1953", "only", "-", "Mar", "1", ["0", "0", "0"], "0", "-"],
+        ["1963", "only", "-", "Dec", "9", ["0", "0", "0"], "60", "S"],
+        ["1964", "only", "-", "Mar", "1", ["0", "0", "0"], "0", "-"],
+        ["1965", "only", "-", "Jan", "31", ["0", "0", "0"], "60", "S"],
+        ["1965", "only", "-", "Mar", "31", ["0", "0", "0"], "0", "-"],
+        ["1965", "only", "-", "Dec", "1", ["0", "0", "0"], "60", "S"],
+        ["1966", "1968", "-", "Mar", "1", ["0", "0", "0"], "0", "-"],
+        ["1966", "1967", "-", "Nov", "1", ["0", "0", "0"], "60", "S"],
+        ["1985", "only", "-", "Nov", "2", ["0", "0", "0"], "60", "S"],
+        ["1986", "only", "-", "Mar", "15", ["0", "0", "0"], "0", "-"],
+        ["1986", "only", "-", "Oct", "25", ["0", "0", "0"], "60", "S"],
+        ["1987", "only", "-", "Feb", "14", ["0", "0", "0"], "0", "-"],
+        ["1987", "only", "-", "Oct", "25", ["0", "0", "0"], "60", "S"],
+        ["1988", "only", "-", "Feb", "7", ["0", "0", "0"], "0", "-"],
+        ["1988", "only", "-", "Oct", "16", ["0", "0", "0"], "60", "S"],
+        ["1989", "only", "-", "Jan", "29", ["0", "0", "0"], "0", "-"],
+        ["1989", "only", "-", "Oct", "15", ["0", "0", "0"], "60", "S"],
+        ["1990", "only", "-", "Feb", "11", ["0", "0", "0"], "0", "-"],
+        ["1990", "only", "-", "Oct", "21", ["0", "0", "0"], "60", "S"],
+        ["1991", "only", "-", "Feb", "17", ["0", "0", "0"], "0", "-"],
+        ["1991", "only", "-", "Oct", "20", ["0", "0", "0"], "60", "S"],
+        ["1992", "only", "-", "Feb", "9", ["0", "0", "0"], "0", "-"],
+        ["1992", "only", "-", "Oct", "25", ["0", "0", "0"], "60", "S"],
+        ["1993", "only", "-", "Jan", "31", ["0", "0", "0"], "0", "-"],
+        ["1993", "1995", "-", "Oct", "Sun>=11", ["0", "0", "0"], "60", "S"],
+        ["1994", "1995", "-", "Feb", "Sun>=15", ["0", "0", "0"], "0", "-"],
+        ["1996", "only", "-", "Feb", "11", ["0", "0", "0"], "0", "-"],
+        ["1996", "only", "-", "Oct", "6", ["0", "0", "0"], "60", "S"],
+        ["1997", "only", "-", "Feb", "16", ["0", "0", "0"], "0", "-"],
+        ["1997", "only", "-", "Oct", "6", ["0", "0", "0"], "60", "S"],
+        ["1998", "only", "-", "Mar", "1", ["0", "0", "0"], "0", "-"],
+        ["1998", "only", "-", "Oct", "11", ["0", "0", "0"], "60", "S"],
+        ["1999", "only", "-", "Feb", "21", ["0", "0", "0"], "0", "-"],
+        ["1999", "only", "-", "Oct", "3", ["0", "0", "0"], "60", "S"],
+        ["2000", "only", "-", "Feb", "27", ["0", "0", "0"], "0", "-"],
+        ["2000", "2001", "-", "Oct", "Sun>=8", ["0", "0", "0"], "60", "S"],
+        ["2001", "2006", "-", "Feb", "Sun>=15", ["0", "0", "0"], "0", "-"],
+        ["2002", "only", "-", "Nov", "3", ["0", "0", "0"], "60", "S"],
+        ["2003", "only", "-", "Oct", "19", ["0", "0", "0"], "60", "S"],
+        ["2004", "only", "-", "Nov", "2", ["0", "0", "0"], "60", "S"],
+        ["2005", "only", "-", "Oct", "16", ["0", "0", "0"], "60", "S"],
+        ["2006", "only", "-", "Nov", "5", ["0", "0", "0"], "60", "S"],
+        ["2007", "only", "-", "Feb", "25", ["0", "0", "0"], "0", "-"],
+        ["2007", "only", "-", "Oct", "Sun>=8", ["0", "0", "0"], "60", "S"],
+        ["2008", "max", "-", "Oct", "Sun>=15", ["0", "0", "0"], "60", "S"],
+        ["2008", "2011", "-", "Feb", "Sun>=15", ["0", "0", "0"], "0", "-"],
+        ["2012", "only", "-", "Feb", "Sun>=22", ["0", "0", "0"], "0", "-"],
+        ["2013", "2014", "-", "Feb", "Sun>=15", ["0", "0", "0"], "0", "-"],
+        ["2015", "only", "-", "Feb", "Sun>=22", ["0", "0", "0"], "0", "-"],
+        ["2016", "2022", "-", "Feb", "Sun>=15", ["0", "0", "0"], "0", "-"],
+        ["2023", "only", "-", "Feb", "Sun>=22", ["0", "0", "0"], "0", "-"],
+        ["2024", "2025", "-", "Feb", "Sun>=15", ["0", "0", "0"], "0", "-"],
+        ["2026", "only", "-", "Feb", "Sun>=22", ["0", "0", "0"], "0", "-"],
+        ["2027", "2033", "-", "Feb", "Sun>=15", ["0", "0", "0"], "0", "-"],
+        ["2034", "only", "-", "Feb", "Sun>=22", ["0", "0", "0"], "0", "-"],
+        ["2035", "2036", "-", "Feb", "Sun>=15", ["0", "0", "0"], "0", "-"],
+        ["2037", "only", "-", "Feb", "Sun>=22", ["0", "0", "0"], "0", "-"],
+        ["2038", "max", "-", "Feb", "Sun>=15", ["0", "0", "0"], "0", "-"]
+    ],
+    "Chile": [
+        ["1927", "1932", "-", "Sep", "1", ["0", "0", "0"], "60", "S"],
+        ["1928", "1932", "-", "Apr", "1", ["0", "0", "0"], "0", "-"],
+        ["1942", "only", "-", "Jun", "1", ["4", "0", "0", "u"], "0", "-"],
+        ["1942", "only", "-", "Aug", "1", ["5", "0", "0", "u"], "60", "S"],
+        ["1946", "only", "-", "Jul", "15", ["4", "0", "0", "u"], "60", "S"],
+        ["1946", "only", "-", "Sep", "1", ["3", "0", "0", "u"], "0", "-"],
+        ["1947", "only", "-", "Apr", "1", ["4", "0", "0", "u"], "0", "-"],
+        ["1968", "only", "-", "Nov", "3", ["4", "0", "0", "u"], "60", "S"],
+        ["1969", "only", "-", "Mar", "30", ["3", "0", "0", "u"], "0", "-"],
+        ["1969", "only", "-", "Nov", "23", ["4", "0", "0", "u"], "60", "S"],
+        ["1970", "only", "-", "Mar", "29", ["3", "0", "0", "u"], "0", "-"],
+        ["1971", "only", "-", "Mar", "14", ["3", "0", "0", "u"], "0", "-"],
+        ["1970", "1972", "-", "Oct", "Sun>=9", ["4", "0", "0", "u"], "60", "S"],
+        ["1972", "1986", "-", "Mar", "Sun>=9", ["3", "0", "0", "u"], "0", "-"],
+        ["1973", "only", "-", "Sep", "30", ["4", "0", "0", "u"], "60", "S"],
+        ["1974", "1987", "-", "Oct", "Sun>=9", ["4", "0", "0", "u"], "60", "S"],
+        ["1987", "only", "-", "Apr", "12", ["3", "0", "0", "u"], "0", "-"],
+        ["1988", "1989", "-", "Mar", "Sun>=9", ["3", "0", "0", "u"], "0", "-"],
+        ["1988", "only", "-", "Oct", "Sun>=1", ["4", "0", "0", "u"], "60", "S"],
+        ["1989", "only", "-", "Oct", "Sun>=9", ["4", "0", "0", "u"], "60", "S"],
+        ["1990", "only", "-", "Mar", "18", ["3", "0", "0", "u"], "0", "-"],
+        ["1990", "only", "-", "Sep", "16", ["4", "0", "0", "u"], "60", "S"],
+        ["1991", "1996", "-", "Mar", "Sun>=9", ["3", "0", "0", "u"], "0", "-"],
+        ["1991", "1997", "-", "Oct", "Sun>=9", ["4", "0", "0", "u"], "60", "S"],
+        ["1997", "only", "-", "Mar", "30", ["3", "0", "0", "u"], "0", "-"],
+        ["1998", "only", "-", "Mar", "Sun>=9", ["3", "0", "0", "u"], "0", "-"],
+        ["1998", "only", "-", "Sep", "27", ["4", "0", "0", "u"], "60", "S"],
+        ["1999", "only", "-", "Apr", "4", ["3", "0", "0", "u"], "0", "-"],
+        ["1999", "2010", "-", "Oct", "Sun>=9", ["4", "0", "0", "u"], "60", "S"],
+        ["2000", "2007", "-", "Mar", "Sun>=9", ["3", "0", "0", "u"], "0", "-"],
+        ["2008", "only", "-", "Mar", "30", ["3", "0", "0", "u"], "0", "-"],
+        ["2009", "only", "-", "Mar", "Sun>=9", ["3", "0", "0", "u"], "0", "-"],
+        ["2010", "only", "-", "Apr", "Sun>=1", ["3", "0", "0", "u"], "0", "-"],
+        ["2011", "only", "-", "May", "Sun>=2", ["3", "0", "0", "u"], "0", "-"],
+        ["2011", "only", "-", "Aug", "Sun>=16", ["4", "0", "0", "u"], "60", "S"],
+        ["2012", "max", "-", "Apr", "Sun>=23", ["3", "0", "0", "u"], "0", "-"],
+        ["2012", "max", "-", "Sep", "Sun>=2", ["4", "0", "0", "u"], "60", "S"]
+    ],
+    "CO": [
+        ["1992", "only", "-", "May", "3", ["0", "0", "0"], "60", "S"],
+        ["1993", "only", "-", "Apr", "4", ["0", "0", "0"], "0", "-"]
+    ],
+    "Falk": [
+        ["1937", "1938", "-", "Sep", "lastSun", ["0", "0", "0"], "60", "S"],
+        ["1938", "1942", "-", "Mar", "Sun>=19", ["0", "0", "0"], "0", "-"],
+        ["1939", "only", "-", "Oct", "1", ["0", "0", "0"], "60", "S"],
+        ["1940", "1942", "-", "Sep", "lastSun", ["0", "0", "0"], "60", "S"],
+        ["1943", "only", "-", "Jan", "1", ["0", "0", "0"], "0", "-"],
+        ["1983", "only", "-", "Sep", "lastSun", ["0", "0", "0"], "60", "S"],
+        ["1984", "1985", "-", "Apr", "lastSun", ["0", "0", "0"], "0", "-"],
+        ["1984", "only", "-", "Sep", "16", ["0", "0", "0"], "60", "S"],
+        ["1985", "2000", "-", "Sep", "Sun>=9", ["0", "0", "0"], "60", "S"],
+        ["1986", "2000", "-", "Apr", "Sun>=16", ["0", "0", "0"], "0", "-"],
+        ["2001", "2010", "-", "Apr", "Sun>=15", ["2", "0", "0"], "0", "-"],
+        ["2001", "2010", "-", "Sep", "Sun>=1", ["2", "0", "0"], "60", "S"]
+    ],
+    "Para": [
+        ["1975", "1988", "-", "Oct", "1", ["0", "0", "0"], "60", "S"],
+        ["1975", "1978", "-", "Mar", "1", ["0", "0", "0"], "0", "-"],
+        ["1979", "1991", "-", "Apr", "1", ["0", "0", "0"], "0", "-"],
+        ["1989", "only", "-", "Oct", "22", ["0", "0", "0"], "60", "S"],
+        ["1990", "only", "-", "Oct", "1", ["0", "0", "0"], "60", "S"],
+        ["1991", "only", "-", "Oct", "6", ["0", "0", "0"], "60", "S"],
+        ["1992", "only", "-", "Mar", "1", ["0", "0", "0"], "0", "-"],
+        ["1992", "only", "-", "Oct", "5", ["0", "0", "0"], "60", "S"],
+        ["1993", "only", "-", "Mar", "31", ["0", "0", "0"], "0", "-"],
+        ["1993", "1995", "-", "Oct", "1", ["0", "0", "0"], "60", "S"],
+        ["1994", "1995", "-", "Feb", "lastSun", ["0", "0", "0"], "0", "-"],
+        ["1996", "only", "-", "Mar", "1", ["0", "0", "0"], "0", "-"],
+        ["1996", "2001", "-", "Oct", "Sun>=1", ["0", "0", "0"], "60", "S"],
+        ["1997", "only", "-", "Feb", "lastSun", ["0", "0", "0"], "0", "-"],
+        ["1998", "2001", "-", "Mar", "Sun>=1", ["0", "0", "0"], "0", "-"],
+        ["2002", "2004", "-", "Apr", "Sun>=1", ["0", "0", "0"], "0", "-"],
+        ["2002", "2003", "-", "Sep", "Sun>=1", ["0", "0", "0"], "60", "S"],
+        ["2004", "2009", "-", "Oct", "Sun>=15", ["0", "0", "0"], "60", "S"],
+        ["2005", "2009", "-", "Mar", "Sun>=8", ["0", "0", "0"], "0", "-"],
+        ["2010", "max", "-", "Oct", "Sun>=1", ["0", "0", "0"], "60", "S"],
+        ["2010", "2012", "-", "Apr", "Sun>=8", ["0", "0", "0"], "0", "-"],
+        ["2013", "max", "-", "Mar", "Sun>=22", ["0", "0", "0"], "0", "-"]
+    ],
+    "Peru": [
+        ["1938", "only", "-", "Jan", "1", ["0", "0", "0"], "60", "S"],
+        ["1938", "only", "-", "Apr", "1", ["0", "0", "0"], "0", "-"],
+        ["1938", "1939", "-", "Sep", "lastSun", ["0", "0", "0"], "60", "S"],
+        ["1939", "1940", "-", "Mar", "Sun>=24", ["0", "0", "0"], "0", "-"],
+        ["1986", "1987", "-", "Jan", "1", ["0", "0", "0"], "60", "S"],
+        ["1986", "1987", "-", "Apr", "1", ["0", "0", "0"], "0", "-"],
+        ["1990", "only", "-", "Jan", "1", ["0", "0", "0"], "60", "S"],
+        ["1990", "only", "-", "Apr", "1", ["0", "0", "0"], "0", "-"],
+        ["1994", "only", "-", "Jan", "1", ["0", "0", "0"], "60", "S"],
+        ["1994", "only", "-", "Apr", "1", ["0", "0", "0"], "0", "-"]
+    ],
+    "Uruguay": [
+        ["1923", "only", "-", "Oct", "2", ["0", "0", "0"], "30", "HS"],
+        ["1924", "1926", "-", "Apr", "1", ["0", "0", "0"], "0", "-"],
+        ["1924", "1925", "-", "Oct", "1", ["0", "0", "0"], "30", "HS"],
+        ["1933", "1935", "-", "Oct", "lastSun", ["0", "0", "0"], "30", "HS"],
+        ["1934", "1936", "-", "Mar", "Sat>=25", ["23", "30", "0", "s"], "0", "-"],
+        ["1936", "only", "-", "Nov", "1", ["0", "0", "0"], "30", "HS"],
+        ["1937", "1941", "-", "Mar", "lastSun", ["0", "0", "0"], "0", "-"],
+        ["1937", "1940", "-", "Oct", "lastSun", ["0", "0", "0"], "30", "HS"],
+        ["1941", "only", "-", "Aug", "1", ["0", "0", "0"], "30", "HS"],
+        ["1942", "only", "-", "Jan", "1", ["0", "0", "0"], "0", "-"],
+        ["1942", "only", "-", "Dec", "14", ["0", "0", "0"], "60", "S"],
+        ["1943", "only", "-", "Mar", "14", ["0", "0", "0"], "0", "-"],
+        ["1959", "only", "-", "May", "24", ["0", "0", "0"], "60", "S"],
+        ["1959", "only", "-", "Nov", "15", ["0", "0", "0"], "0", "-"],
+        ["1960", "only", "-", "Jan", "17", ["0", "0", "0"], "60", "S"],
+        ["1960", "only", "-", "Mar", "6", ["0", "0", "0"], "0", "-"],
+        ["1965", "1967", "-", "Apr", "Sun>=1", ["0", "0", "0"], "60", "S"],
+        ["1965", "only", "-", "Sep", "26", ["0", "0", "0"], "0", "-"],
+        ["1966", "1967", "-", "Oct", "31", ["0", "0", "0"], "0", "-"],
+        ["1968", "1970", "-", "May", "27", ["0", "0", "0"], "30", "HS"],
+        ["1968", "1970", "-", "Dec", "2", ["0", "0", "0"], "0", "-"],
+        ["1972", "only", "-", "Apr", "24", ["0", "0", "0"], "60", "S"],
+        ["1972", "only", "-", "Aug", "15", ["0", "0", "0"], "0", "-"],
+        ["1974", "only", "-", "Mar", "10", ["0", "0", "0"], "30", "HS"],
+        ["1974", "only", "-", "Dec", "22", ["0", "0", "0"], "60", "S"],
+        ["1976", "only", "-", "Oct", "1", ["0", "0", "0"], "0", "-"],
+        ["1977", "only", "-", "Dec", "4", ["0", "0", "0"], "60", "S"],
+        ["1978", "only", "-", "Apr", "1", ["0", "0", "0"], "0", "-"],
+        ["1979", "only", "-", "Oct", "1", ["0", "0", "0"], "60", "S"],
+        ["1980", "only", "-", "May", "1", ["0", "0", "0"], "0", "-"],
+        ["1987", "only", "-", "Dec", "14", ["0", "0", "0"], "60", "S"],
+        ["1988", "only", "-", "Mar", "14", ["0", "0", "0"], "0", "-"],
+        ["1988", "only", "-", "Dec", "11", ["0", "0", "0"], "60", "S"],
+        ["1989", "only", "-", "Mar", "12", ["0", "0", "0"], "0", "-"],
+        ["1989", "only", "-", "Oct", "29", ["0", "0", "0"], "60", "S"],
+        ["1990", "1992", "-", "Mar", "Sun>=1", ["0", "0", "0"], "0", "-"],
+        ["1990", "1991", "-", "Oct", "Sun>=21", ["0", "0", "0"], "60", "S"],
+        ["1992", "only", "-", "Oct", "18", ["0", "0", "0"], "60", "S"],
+        ["1993", "only", "-", "Feb", "28", ["0", "0", "0"], "0", "-"],
+        ["2004", "only", "-", "Sep", "19", ["0", "0", "0"], "60", "S"],
+        ["2005", "only", "-", "Mar", "27", ["2", "0", "0"], "0", "-"],
+        ["2005", "only", "-", "Oct", "9", ["2", "0", "0"], "60", "S"],
+        ["2006", "only", "-", "Mar", "12", ["2", "0", "0"], "0", "-"],
+        ["2006", "max", "-", "Oct", "Sun>=1", ["2", "0", "0"], "60", "S"],
+        ["2007", "max", "-", "Mar", "Sun>=8", ["2", "0", "0"], "0", "-"]
+    ],
+    "SystemV": [
+        ["NaN", "1973", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["NaN", "1973", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1974", "only", "-", "Jan", "6", ["2", "0", "0"], "60", "D"],
+        ["1974", "only", "-", "Nov", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1975", "only", "-", "Feb", "23", ["2", "0", "0"], "60", "D"],
+        ["1975", "only", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"],
+        ["1976", "max", "-", "Apr", "lastSun", ["2", "0", "0"], "60", "D"],
+        ["1976", "max", "-", "Oct", "lastSun", ["2", "0", "0"], "0", "S"]
+    ]
+};
+exports.zones_titles = [
+    { "name": "(GMT) Casablanca", "other_zone": "Morocco Standard Time" },
+    { "name": "(GMT) Greenwich Mean Time : Dublin, Edinburgh, Lisbon, London", "other_zone": "GMT Standard Time" },
+    { "name": "(GMT) Monrovia, Reykjavik", "other_zone": "Greenwich Standard Time" },
+    { "name": "(GMT+01:00) Amsterdam, Berlin, Bern, Rome, Stockholm, Vienna", "other_zone": "W. Europe Standard Time" },
+    { "name": "(GMT+01:00) Belgrade, Bratislava, Budapest, Ljubljana, Prague", "other_zone": "Central Europe Standard Time" },
+    { "name": "(GMT+01:00) Brussels, Copenhagen, Madrid, Paris", "other_zone": "Romance Standard Time" },
+    { "name": "(GMT+01:00) Sarajevo, Skopje, Warsaw, Zagreb", "other_zone": "Central European Standard Time" },
+    { "name": "(GMT+01:00) West Central Africa", "other_zone": "W. Central Africa Standard Time" },
+    { "name": "(GMT+02:00) Amman", "other_zone": "Jordan Standard Time" },
+    { "name": "(GMT+02:00) Athens, Bucharest, Istanbul", "other_zone": "GTB Standard Time" },
+    { "name": "(GMT+02:00) Beirut", "other_zone": "Middle East Standard Time" },
+    { "name": "(GMT+02:00) Cairo", "other_zone": "Egypt Standard Time" },
+    { "name": "(GMT+02:00) Harare, Pretoria", "other_zone": "South Africa Standard Time" },
+    { "name": "(GMT+02:00) Helsinki, Kyiv, Riga, Sofia, Tallinn, Vilnius", "other_zone": "FLE Standard Time" },
+    { "name": "(GMT+02:00) Jerusalem", "other_zone": "Israel Standard Time" },
+    { "name": "(GMT+02:00) Minsk", "other_zone": "E. Europe Standard Time" },
+    { "name": "(GMT+02:00) Windhoek", "other_zone": "Namibia Standard Time" },
+    { "name": "(GMT+03:00) Baghdad", "other_zone": "Arabic Standard Time" },
+    { "name": "(GMT+03:00) Kuwait, Riyadh", "other_zone": "Arab Standard Time" },
+    { "name": "(GMT+03:00) Moscow, St. Petersburg, Volgograd", "other_zone": "Russian Standard Time" },
+    { "name": "(GMT+03:00) Nairobi", "other_zone": "E. Africa Standard Time" },
+    { "name": "(GMT+03:00) Tbilisi", "other_zone": "Georgian Standard Time" },
+    { "name": "(GMT+03:30) Tehran", "other_zone": "Iran Standard Time" },
+    { "name": "(GMT+04:00) Abu Dhabi, Muscat", "other_zone": "Arabian Standard Time" },
+    { "name": "(GMT+04:00) Baku", "other_zone": "Azerbaijan Standard Time" },
+    { "name": "(GMT+04:00) Port Louis", "other_zone": "Mauritius Standard Time" },
+    { "name": "(GMT+04:00) Yerevan", "other_zone": "Caucasus Standard Time" },
+    { "name": "(GMT+04:30) Kabul", "other_zone": "Afghanistan Standard Time" },
+    { "name": "(GMT+05:00) Ekaterinburg", "other_zone": "Ekaterinburg Standard Time" },
+    { "name": "(GMT+05:00) Islamabad, Karachi", "other_zone": "Pakistan Standard Time" },
+    { "name": "(GMT+05:00) Tashkent", "other_zone": "West Asia Standard Time" },
+    { "name": "(GMT+05:30) Chennai, Kolkata, Mumbai, New Delhi", "other_zone": "India Standard Time" },
+    { "name": "(GMT+05:30) Sri Jayawardenepura", "other_zone": "Sri Lanka Standard Time" },
+    { "name": "(GMT+05:45) Kathmandu", "other_zone": "Nepal Standard Time" },
+    { "name": "(GMT+06:00) Almaty, Novosibirsk", "other_zone": "N. Central Asia Standard Time" },
+    { "name": "(GMT+06:00) Astana, Dhaka", "other_zone": "Central Asia Standard Time" },
+    { "name": "(GMT+06:30) Yangon (Rangoon)", "other_zone": "Myanmar Standard Time" },
+    { "name": "(GMT+07:00) Bangkok, Hanoi, Jakarta", "other_zone": "SE Asia Standard Time" },
+    { "name": "(GMT+07:00) Krasnoyarsk", "other_zone": "North Asia Standard Time" },
+    { "name": "(GMT+08:00) Beijing, Chongqing, Hong Kong, Urumqi", "other_zone": "China Standard Time" },
+    { "name": "(GMT+08:00) Irkutsk, Ulaan Bataar", "other_zone": "North Asia East Standard Time" },
+    { "name": "(GMT+08:00) Kuala Lumpur, Singapore", "other_zone": "Singapore Standard Time" },
+    { "name": "(GMT+08:00) Perth", "other_zone": "W. Australia Standard Time" },
+    { "name": "(GMT+08:00) Taipei", "other_zone": "Taipei Standard Time" },
+    { "name": "(GMT+09:00) Osaka, Sapporo, Tokyo", "other_zone": "Tokyo Standard Time" },
+    { "name": "(GMT+09:00) Seoul", "other_zone": "Korea Standard Time" },
+    { "name": "(GMT+09:00) Yakutsk", "other_zone": "Yakutsk Standard Time" },
+    { "name": "(GMT+09:30) Adelaide", "other_zone": "Cen. Australia Standard Time" },
+    { "name": "(GMT+09:30) Darwin", "other_zone": "AUS Central Standard Time" },
+    { "name": "(GMT+10:00) Brisbane", "other_zone": "E. Australia Standard Time" },
+    { "name": "(GMT+10:00) Canberra, Melbourne, Sydney", "other_zone": "AUS Eastern Standard Time" },
+    { "name": "(GMT+10:00) Guam, Port Moresby", "other_zone": "West Pacific Standard Time" },
+    { "name": "(GMT+10:00) Hobart", "other_zone": "Tasmania Standard Time" },
+    { "name": "(GMT+10:00) Vladivostok", "other_zone": "Vladivostok Standard Time" },
+    { "name": "(GMT+11:00) Magadan, Solomon Is., New Caledonia", "other_zone": "Central Pacific Standard Time" },
+    { "name": "(GMT+12:00) Auckland, Wellington", "other_zone": "New Zealand Standard Time" },
+    { "name": "(GMT+12:00) Fiji, Kamchatka, Marshall Is.", "other_zone": "Fiji Standard Time" },
+    { "name": "(GMT+13:00) Nuku'alofa", "other_zone": "Tonga Standard Time" },
+    { "name": "(GMT-01:00) Azores", "other_zone": "Azores Standard Time" },
+    { "name": "(GMT-01:00) Cape Verde Is.", "other_zone": "Cape Verde Standard Time" },
+    { "name": "(GMT-03:00) Brasilia", "other_zone": "E. South America Standard Time" },
+    { "name": "(GMT-03:00) Buenos Aires", "other_zone": "Argentina Standard Time" },
+    { "name": "(GMT-03:00) Georgetown", "other_zone": "SA Eastern Standard Time" },
+    { "name": "(GMT-03:00) Greenland", "other_zone": "Greenland Standard Time" },
+    { "name": "(GMT-03:00) Montevideo", "other_zone": "Montevideo Standard Time" },
+    { "name": "(GMT-03:30) Newfoundland", "other_zone": "Newfoundland Standard Time" },
+    { "name": "(GMT-04:00) Atlantic Time (Canada)", "other_zone": "Atlantic Standard Time" },
+    { "name": "(GMT-04:00) La Paz", "other_zone": "SA Western Standard Time" },
+    { "name": "(GMT-04:00) Manaus", "other_zone": "Central Brazilian Standard Time" },
+    { "name": "(GMT-04:00) Santiago", "other_zone": "Pacific SA Standard Time" },
+    { "name": "(GMT-04:30) Caracas", "other_zone": "Venezuela Standard Time" },
+    { "name": "(GMT-05:00) Bogota, Lima, Quito, Rio Branco", "other_zone": "SA Pacific Standard Time" },
+    { "name": "(GMT-05:00) Eastern Time (US & Canada)", "other_zone": "Eastern Standard Time" },
+    { "name": "(GMT-05:00) Indiana (East)", "other_zone": "US Eastern Standard Time" },
+    { "name": "(GMT-06:00) Central America", "other_zone": "Central America Standard Time" },
+    { "name": "(GMT-06:00) Central Time (US & Canada)", "other_zone": "Central Standard Time" },
+    { "name": "(GMT-06:00) Guadalajara, Mexico City, Monterrey", "other_zone": "Central Standard Time (Mexico)" },
+    { "name": "(GMT-06:00) Saskatchewan", "other_zone": "Canada Central Standard Time" },
+    { "name": "(GMT-07:00) Arizona", "other_zone": "US Mountain Standard Time" },
+    { "name": "(GMT-07:00) Chihuahua, La Paz, Mazatlan", "other_zone": "Mountain Standard Time (Mexico)" },
+    { "name": "(GMT-07:00) Mountain Time (US & Canada)", "other_zone": "Mountain Standard Time" },
+    { "name": "(GMT-08:00) Pacific Time (US & Canada)", "other_zone": "Pacific Standard Time" },
+    { "name": "(GMT-08:00) Tijuana, Baja California", "other_zone": "Pacific Standard Time (Mexico)" },
+    { "name": "(GMT-09:00) Alaska", "other_zone": "Alaskan Standard Time" },
+    { "name": "(GMT-10:00) Hawaii", "other_zone": "Hawaiian Standard Time" },
+    { "name": "(GMT-11:00) Midway Island, Samoa", "other_zone": "Samoa Standard Time" },
+    { "name": "(GMT-12:00) International Date Line West", "other_zone": "Dateline Standard Time" }
+];
+exports.windows_zones = [
+    { "other_zone": "Dateline Standard Time", "zone": "Etc/GMT+12", "territory": "GMT+12" },
+    { "other_zone": "UTC-11", "zone": "Etc/GMT+11", "territory": "GMT+11" },
+    { "other_zone": "UTC-11", "zone": "Pacific/Pago_Pago", "territory": "Pago Pago" },
+    { "other_zone": "UTC-11", "zone": "Pacific/Niue", "territory": "Niue" },
+    { "other_zone": "UTC-11", "zone": "Pacific/Midway", "territory": "Midway" },
+    { "other_zone": "Hawaiian Standard Time", "zone": "Pacific/Honolulu", "territory": "Honolulu" },
+    { "other_zone": "Hawaiian Standard Time", "zone": "Pacific/Rarotonga", "territory": "Rarotonga" },
+    { "other_zone": "Hawaiian Standard Time", "zone": "Pacific/Tahiti", "territory": "Tahiti" },
+    { "other_zone": "Hawaiian Standard Time", "zone": "Pacific/Johnston", "territory": "Johnston" },
+    { "other_zone": "Hawaiian Standard Time", "zone": "Etc/GMT+10", "territory": "GMT+10" },
+    { "other_zone": "Alaskan Standard Time", "zone": "America/Anchorage", "territory": "Anchorage" },
+    { "other_zone": "Alaskan Standard Time", "zone": "America/Juneau", "territory": "Juneau" },
+    { "other_zone": "Alaskan Standard Time", "zone": "America/Nome", "territory": "Nome" },
+    { "other_zone": "Alaskan Standard Time", "zone": "America/Sitka", "territory": "Sitka" },
+    { "other_zone": "Alaskan Standard Time", "zone": "America/Yakutat", "territory": "Yakutat" },
+    { "other_zone": "Pacific Standard Time (Mexico)", "zone": "America/Santa_Isabel", "territory": "Santa Isabel" },
+    { "other_zone": "Pacific Standard Time", "zone": "America/Los_Angeles", "territory": "Los Angeles" },
+    { "other_zone": "Pacific Standard Time", "zone": "America/Vancouver", "territory": "Vancouver" },
+    { "other_zone": "Pacific Standard Time", "zone": "America/Dawson", "territory": "Dawson" },
+    { "other_zone": "Pacific Standard Time", "zone": "America/Whitehorse", "territory": "Whitehorse" },
+    { "other_zone": "Pacific Standard Time", "zone": "America/Tijuana", "territory": "Tijuana" },
+    { "other_zone": "US Mountain Standard Time", "zone": "America/Phoenix", "territory": "Phoenix" },
+    { "other_zone": "US Mountain Standard Time", "zone": "America/Dawson_Creek", "territory": "Dawson Creek" },
+    { "other_zone": "US Mountain Standard Time", "zone": "America/Creston", "territory": "Creston" },
+    { "other_zone": "US Mountain Standard Time", "zone": "America/Hermosillo", "territory": "Hermosillo" },
+    { "other_zone": "US Mountain Standard Time", "zone": "Etc/GMT+7", "territory": "GMT+7" },
+    { "other_zone": "Mountain Standard Time (Mexico)", "zone": "America/Chihuahua", "territory": "Chihuahua" },
+    { "other_zone": "Mountain Standard Time (Mexico)", "zone": "America/Mazatlan", "territory": "Mazatlan" },
+    { "other_zone": "Mountain Standard Time", "zone": "America/Denver", "territory": "Denver" },
+    { "other_zone": "Mountain Standard Time", "zone": "America/Edmonton", "territory": "Edmonton" },
+    { "other_zone": "Mountain Standard Time", "zone": "America/Cambridge_Bay", "territory": "Cambridge Bay" },
+    { "other_zone": "Mountain Standard Time", "zone": "America/Inuvik", "territory": "Inuvik" },
+    { "other_zone": "Mountain Standard Time", "zone": "America/Yellowknife", "territory": "Yellowknife" },
+    { "other_zone": "Mountain Standard Time", "zone": "America/Ojinaga", "territory": "Ojinaga" },
+    { "other_zone": "Mountain Standard Time", "zone": "America/Boise", "territory": "Boise" },
+    { "other_zone": "Mountain Standard Time", "zone": "America/Shiprock", "territory": "Shiprock" },
+    { "other_zone": "Central America Standard Time", "zone": "America/Guatemala", "territory": "Guatemala" },
+    { "other_zone": "Central America Standard Time", "zone": "America/Belize", "territory": "Belize" },
+    { "other_zone": "Central America Standard Time", "zone": "America/Costa_Rica", "territory": "Costa Rica" },
+    { "other_zone": "Central America Standard Time", "zone": "Pacific/Galapagos", "territory": "Galapagos" },
+    { "other_zone": "Central America Standard Time", "zone": "America/Tegucigalpa", "territory": "Tegucigalpa" },
+    { "other_zone": "Central America Standard Time", "zone": "America/Managua", "territory": "Managua" },
+    { "other_zone": "Central America Standard Time", "zone": "America/El_Salvador", "territory": "El Salvador" },
+    { "other_zone": "Central America Standard Time", "zone": "Etc/GMT+6", "territory": "GMT+6" },
+    { "other_zone": "Central Standard Time", "zone": "America/Chicago", "territory": "Chicago" },
+    { "other_zone": "Central Standard Time", "zone": "America/Winnipeg", "territory": "Winnipeg" },
+    { "other_zone": "Central Standard Time", "zone": "America/Rainy_River", "territory": "Rainy River" },
+    { "other_zone": "Central Standard Time", "zone": "America/Rankin_Inlet", "territory": "Rankin Inlet" },
+    { "other_zone": "Central Standard Time", "zone": "America/Resolute", "territory": "Resolute" },
+    { "other_zone": "Central Standard Time", "zone": "America/Matamoros", "territory": "Matamoros" },
+    { "other_zone": "Central Standard Time", "zone": "America/Indiana/Knox", "territory": "Indiana" },
+    { "other_zone": "Central Standard Time", "zone": "America/Indiana/Tell_City", "territory": "Indiana" },
+    { "other_zone": "Central Standard Time", "zone": "America/Menominee", "territory": "Menominee" },
+    { "other_zone": "Central Standard Time", "zone": "America/North_Dakota/Beulah", "territory": "North Dakota" },
+    { "other_zone": "Central Standard Time", "zone": "America/North_Dakota/Center", "territory": "North Dakota" },
+    { "other_zone": "Central Standard Time", "zone": "America/North_Dakota/New_Salem", "territory": "North Dakota" },
+    { "other_zone": "Central Standard Time (Mexico)", "zone": "America/Mexico_City", "territory": "Mexico City" },
+    { "other_zone": "Central Standard Time (Mexico)", "zone": "America/Bahia_Banderas", "territory": "Bahia Banderas" },
+    { "other_zone": "Central Standard Time (Mexico)", "zone": "America/Cancun", "territory": "Cancun" },
+    { "other_zone": "Central Standard Time (Mexico)", "zone": "America/Merida", "territory": "Merida" },
+    { "other_zone": "Central Standard Time (Mexico)", "zone": "America/Monterrey", "territory": "Monterrey" },
+    { "other_zone": "Canada Central Standard Time", "zone": "America/Regina", "territory": "Regina" },
+    { "other_zone": "Canada Central Standard Time", "zone": "America/Swift_Current", "territory": "Swift Current" },
+    { "other_zone": "SA Pacific Standard Time", "zone": "America/Bogota", "territory": "Bogota" },
+    { "other_zone": "SA Pacific Standard Time", "zone": "America/Coral_Harbour", "territory": "Coral Harbour" },
+    { "other_zone": "SA Pacific Standard Time", "zone": "America/Guayaquil", "territory": "Guayaquil" },
+    { "other_zone": "SA Pacific Standard Time", "zone": "America/Port-au-Prince", "territory": "Port-au-Prince" },
+    { "other_zone": "SA Pacific Standard Time", "zone": "America/Jamaica", "territory": "Jamaica" },
+    { "other_zone": "SA Pacific Standard Time", "zone": "America/Cayman", "territory": "Cayman" },
+    { "other_zone": "SA Pacific Standard Time", "zone": "America/Panama", "territory": "Panama" },
+    { "other_zone": "SA Pacific Standard Time", "zone": "America/Lima", "territory": "Lima" },
+    { "other_zone": "SA Pacific Standard Time", "zone": "Etc/GMT+5", "territory": "GMT+5" },
+    { "other_zone": "Eastern Standard Time", "zone": "America/New_York", "territory": "New York" },
+    { "other_zone": "Eastern Standard Time", "zone": "America/Nassau", "territory": "Nassau" },
+    { "other_zone": "Eastern Standard Time", "zone": "America/Toronto", "territory": "Toronto" },
+    { "other_zone": "Eastern Standard Time", "zone": "America/Iqaluit", "territory": "Iqaluit" },
+    { "other_zone": "Eastern Standard Time", "zone": "America/Montreal", "territory": "Montreal" },
+    { "other_zone": "Eastern Standard Time", "zone": "America/Nipigon", "territory": "Nipigon" },
+    { "other_zone": "Eastern Standard Time", "zone": "America/Pangnirtung", "territory": "Pangnirtung" },
+    { "other_zone": "Eastern Standard Time", "zone": "America/Thunder_Bay", "territory": "Thunder Bay" },
+    { "other_zone": "Eastern Standard Time", "zone": "America/Grand_Turk", "territory": "Grand Turk" },
+    { "other_zone": "Eastern Standard Time", "zone": "America/Detroit", "territory": "Detroit" },
+    { "other_zone": "Eastern Standard Time", "zone": "America/Indiana/Petersburg", "territory": "Indiana" },
+    { "other_zone": "Eastern Standard Time", "zone": "America/Indiana/Vincennes", "territory": "Indiana" },
+    { "other_zone": "Eastern Standard Time", "zone": "America/Indiana/Winamac", "territory": "Indiana" },
+    { "other_zone": "Eastern Standard Time", "zone": "America/Kentucky/Monticello", "territory": "Kentucky" },
+    { "other_zone": "Eastern Standard Time", "zone": "America/Louisville", "territory": "Louisville" },
+    { "other_zone": "US Eastern Standard Time", "zone": "America/Indianapolis", "territory": "Indianapolis" },
+    { "other_zone": "US Eastern Standard Time", "zone": "America/Indiana/Marengo", "territory": "Indiana" },
+    { "other_zone": "US Eastern Standard Time", "zone": "America/Indiana/Vevay", "territory": "Indiana" },
+    { "other_zone": "Venezuela Standard Time", "zone": "America/Caracas", "territory": "Caracas" },
+    { "other_zone": "Paraguay Standard Time", "zone": "America/Asuncion", "territory": "Asuncion" },
+    { "other_zone": "Atlantic Standard Time", "zone": "America/Halifax", "territory": "Halifax" },
+    { "other_zone": "Atlantic Standard Time", "zone": "Atlantic/Bermuda", "territory": "Bermuda" },
+    { "other_zone": "Atlantic Standard Time", "zone": "America/Glace_Bay", "territory": "Glace Bay" },
+    { "other_zone": "Atlantic Standard Time", "zone": "America/Goose_Bay", "territory": "Goose Bay" },
+    { "other_zone": "Atlantic Standard Time", "zone": "America/Moncton", "territory": "Moncton" },
+    { "other_zone": "Atlantic Standard Time", "zone": "America/Thule", "territory": "Thule" },
+    { "other_zone": "Central Brazilian Standard Time", "zone": "America/Cuiaba", "territory": "Cuiaba" },
+    { "other_zone": "Central Brazilian Standard Time", "zone": "America/Campo_Grande", "territory": "Campo Grande" },
+    { "other_zone": "SA Western Standard Time", "zone": "America/La_Paz", "territory": "La Paz" },
+    { "other_zone": "SA Western Standard Time", "zone": "America/Antigua", "territory": "Antigua" },
+    { "other_zone": "SA Western Standard Time", "zone": "America/Anguilla", "territory": "Anguilla" },
+    { "other_zone": "SA Western Standard Time", "zone": "America/Aruba", "territory": "Aruba" },
+    { "other_zone": "SA Western Standard Time", "zone": "America/Barbados", "territory": "Barbados" },
+    { "other_zone": "SA Western Standard Time", "zone": "America/St_Barthelemy", "territory": "St Barthelemy" },
+    { "other_zone": "SA Western Standard Time", "zone": "America/Kralendijk", "territory": "Kralendijk" },
+    { "other_zone": "SA Western Standard Time", "zone": "America/Manaus", "territory": "Manaus" },
+    { "other_zone": "SA Western Standard Time", "zone": "America/Boa_Vista", "territory": "Boa Vista" },
+    { "other_zone": "SA Western Standard Time", "zone": "America/Eirunepe", "territory": "Eirunepe" },
+    { "other_zone": "SA Western Standard Time", "zone": "America/Porto_Velho", "territory": "Porto Velho" },
+    { "other_zone": "SA Western Standard Time", "zone": "America/Rio_Branco", "territory": "Rio Branco" },
+    { "other_zone": "SA Western Standard Time", "zone": "America/Blanc-Sablon", "territory": "Blanc-Sablon" },
+    { "other_zone": "SA Western Standard Time", "zone": "America/Curacao", "territory": "Curacao" },
+    { "other_zone": "SA Western Standard Time", "zone": "America/Dominica", "territory": "Dominica" },
+    { "other_zone": "SA Western Standard Time", "zone": "America/Santo_Domingo", "territory": "Santo Domingo" },
+    { "other_zone": "SA Western Standard Time", "zone": "America/Grenada", "territory": "Grenada" },
+    { "other_zone": "SA Western Standard Time", "zone": "America/Guadeloupe", "territory": "Guadeloupe" },
+    { "other_zone": "SA Western Standard Time", "zone": "America/Guyana", "territory": "Guyana" },
+    { "other_zone": "SA Western Standard Time", "zone": "America/St_Kitts", "territory": "St Kitts" },
+    { "other_zone": "SA Western Standard Time", "zone": "America/St_Lucia", "territory": "St Lucia" },
+    { "other_zone": "SA Western Standard Time", "zone": "America/Marigot", "territory": "Marigot" },
+    { "other_zone": "SA Western Standard Time", "zone": "America/Martinique", "territory": "Martinique" },
+    { "other_zone": "SA Western Standard Time", "zone": "America/Montserrat", "territory": "Montserrat" },
+    { "other_zone": "SA Western Standard Time", "zone": "America/Puerto_Rico", "territory": "Puerto Rico" },
+    { "other_zone": "SA Western Standard Time", "zone": "America/Lower_Princes", "territory": "Lower Princes" },
+    { "other_zone": "SA Western Standard Time", "zone": "America/Port_of_Spain", "territory": "Port of Spain" },
+    { "other_zone": "SA Western Standard Time", "zone": "America/St_Vincent", "territory": "St Vincent" },
+    { "other_zone": "SA Western Standard Time", "zone": "America/Tortola", "territory": "Tortola" },
+    { "other_zone": "SA Western Standard Time", "zone": "America/St_Thomas", "territory": "St Thomas" },
+    { "other_zone": "SA Western Standard Time", "zone": "Etc/GMT+4", "territory": "GMT+4" },
+    { "other_zone": "Pacific SA Standard Time", "zone": "America/Santiago", "territory": "Santiago" },
+    { "other_zone": "Pacific SA Standard Time", "zone": "Antarctica/Palmer", "territory": "Palmer" },
+    { "other_zone": "Newfoundland Standard Time", "zone": "America/St_Johns", "territory": "St Johns" },
+    { "other_zone": "E. South America Standard Time", "zone": "America/Sao_Paulo", "territory": "Sao Paulo" },
+    { "other_zone": "E. South America Standard Time", "zone": "America/Araguaina", "territory": "Araguaina" },
+    { "other_zone": "Argentina Standard Time", "zone": "America/Buenos_Aires", "territory": "Buenos Aires" },
+    { "other_zone": "Argentina Standard Time", "zone": "America/Argentina/La_Rioja", "territory": "Argentina" },
+    { "other_zone": "Argentina Standard Time", "zone": "America/Argentina/Rio_Gallegos", "territory": "Argentina" },
+    { "other_zone": "Argentina Standard Time", "zone": "America/Argentina/Salta", "territory": "Argentina" },
+    { "other_zone": "Argentina Standard Time", "zone": "America/Argentina/San_Juan", "territory": "Argentina" },
+    { "other_zone": "Argentina Standard Time", "zone": "America/Argentina/San_Luis", "territory": "Argentina" },
+    { "other_zone": "Argentina Standard Time", "zone": "America/Argentina/Tucuman", "territory": "Argentina" },
+    { "other_zone": "Argentina Standard Time", "zone": "America/Argentina/Ushuaia", "territory": "Argentina" },
+    { "other_zone": "Argentina Standard Time", "zone": "America/Catamarca", "territory": "Catamarca" },
+    { "other_zone": "Argentina Standard Time", "zone": "America/Cordoba", "territory": "Cordoba" },
+    { "other_zone": "Argentina Standard Time", "zone": "America/Jujuy", "territory": "Jujuy" },
+    { "other_zone": "Argentina Standard Time", "zone": "America/Mendoza", "territory": "Mendoza" },
+    { "other_zone": "SA Eastern Standard Time", "zone": "America/Cayenne", "territory": "Cayenne" },
+    { "other_zone": "SA Eastern Standard Time", "zone": "Antarctica/Rothera", "territory": "Rothera" },
+    { "other_zone": "SA Eastern Standard Time", "zone": "America/Fortaleza", "territory": "Fortaleza" },
+    { "other_zone": "SA Eastern Standard Time", "zone": "America/Belem", "territory": "Belem" },
+    { "other_zone": "SA Eastern Standard Time", "zone": "America/Maceio", "territory": "Maceio" },
+    { "other_zone": "SA Eastern Standard Time", "zone": "America/Recife", "territory": "Recife" },
+    { "other_zone": "SA Eastern Standard Time", "zone": "America/Santarem", "territory": "Santarem" },
+    { "other_zone": "SA Eastern Standard Time", "zone": "Atlantic/Stanley", "territory": "Stanley" },
+    { "other_zone": "SA Eastern Standard Time", "zone": "America/Paramaribo", "territory": "Paramaribo" },
+    { "other_zone": "SA Eastern Standard Time", "zone": "Etc/GMT+3", "territory": "GMT+3" },
+    { "other_zone": "Greenland Standard Time", "zone": "America/Godthab", "territory": "Godthab" },
+    { "other_zone": "Montevideo Standard Time", "zone": "America/Montevideo", "territory": "Montevideo" },
+    { "other_zone": "Bahia Standard Time", "zone": "America/Bahia", "territory": "Bahia" },
+    { "other_zone": "UTC-02", "zone": "Etc/GMT+2", "territory": "GMT+2" },
+    { "other_zone": "UTC-02", "zone": "America/Noronha", "territory": "Noronha" },
+    { "other_zone": "UTC-02", "zone": "Atlantic/South_Georgia", "territory": "South Georgia" },
+    { "other_zone": "Azores Standard Time", "zone": "Atlantic/Azores", "territory": "Azores" },
+    { "other_zone": "Azores Standard Time", "zone": "America/Scoresbysund", "territory": "Scoresbysund" },
+    { "other_zone": "Cape Verde Standard Time", "zone": "Atlantic/Cape_Verde", "territory": "Cape Verde" },
+    { "other_zone": "Cape Verde Standard Time", "zone": "Etc/GMT+1", "territory": "GMT+1" },
+    { "other_zone": "Morocco Standard Time", "zone": "Africa/Casablanca", "territory": "Casablanca" },
+    { "other_zone": "UTC", "zone": "Etc/GMT", "territory": "GMT" },
+    { "other_zone": "UTC", "zone": "America/Danmarkshavn", "territory": "Danmarkshavn" },
+    { "other_zone": "GMT Standard Time", "zone": "Europe/London", "territory": "London" },
+    { "other_zone": "GMT Standard Time", "zone": "Atlantic/Canary", "territory": "Canary" },
+    { "other_zone": "GMT Standard Time", "zone": "Atlantic/Faeroe", "territory": "Faeroe" },
+    { "other_zone": "GMT Standard Time", "zone": "Europe/Guernsey", "territory": "Guernsey" },
+    { "other_zone": "GMT Standard Time", "zone": "Europe/Dublin", "territory": "Dublin" },
+    { "other_zone": "GMT Standard Time", "zone": "Europe/Isle_of_Man", "territory": "Isle of Man" },
+    { "other_zone": "GMT Standard Time", "zone": "Europe/Jersey", "territory": "Jersey" },
+    { "other_zone": "GMT Standard Time", "zone": "Europe/Lisbon", "territory": "Lisbon" },
+    { "other_zone": "GMT Standard Time", "zone": "Atlantic/Madeira", "territory": "Madeira" },
+    { "other_zone": "Greenwich Standard Time", "zone": "Atlantic/Reykjavik", "territory": "Reykjavik" },
+    { "other_zone": "Greenwich Standard Time", "zone": "Africa/Ouagadougou", "territory": "Ouagadougou" },
+    { "other_zone": "Greenwich Standard Time", "zone": "Africa/Abidjan", "territory": "Abidjan" },
+    { "other_zone": "Greenwich Standard Time", "zone": "Africa/El_Aaiun", "territory": "El Aaiun" },
+    { "other_zone": "Greenwich Standard Time", "zone": "Africa/Accra", "territory": "Accra" },
+    { "other_zone": "Greenwich Standard Time", "zone": "Africa/Banjul", "territory": "Banjul" },
+    { "other_zone": "Greenwich Standard Time", "zone": "Africa/Conakry", "territory": "Conakry" },
+    { "other_zone": "Greenwich Standard Time", "zone": "Africa/Bissau", "territory": "Bissau" },
+    { "other_zone": "Greenwich Standard Time", "zone": "Africa/Monrovia", "territory": "Monrovia" },
+    { "other_zone": "Greenwich Standard Time", "zone": "Africa/Bamako", "territory": "Bamako" },
+    { "other_zone": "Greenwich Standard Time", "zone": "Africa/Nouakchott", "territory": "Nouakchott" },
+    { "other_zone": "Greenwich Standard Time", "zone": "Atlantic/St_Helena", "territory": "St Helena" },
+    { "other_zone": "Greenwich Standard Time", "zone": "Africa/Freetown", "territory": "Freetown" },
+    { "other_zone": "Greenwich Standard Time", "zone": "Africa/Dakar", "territory": "Dakar" },
+    { "other_zone": "Greenwich Standard Time", "zone": "Africa/Sao_Tome", "territory": "Sao Tome" },
+    { "other_zone": "Greenwich Standard Time", "zone": "Africa/Lome", "territory": "Lome" },
+    { "other_zone": "W. Europe Standard Time", "zone": "Europe/Berlin", "territory": "Berlin" },
+    { "other_zone": "W. Europe Standard Time", "zone": "Europe/Andorra", "territory": "Andorra" },
+    { "other_zone": "W. Europe Standard Time", "zone": "Europe/Vienna", "territory": "Vienna" },
+    { "other_zone": "W. Europe Standard Time", "zone": "Europe/Zurich", "territory": "Zurich" },
+    { "other_zone": "W. Europe Standard Time", "zone": "Europe/Busingen", "territory": "Busingen" },
+    { "other_zone": "W. Europe Standard Time", "zone": "Europe/Gibraltar", "territory": "Gibraltar" },
+    { "other_zone": "W. Europe Standard Time", "zone": "Europe/Rome", "territory": "Rome" },
+    { "other_zone": "W. Europe Standard Time", "zone": "Europe/Vaduz", "territory": "Vaduz" },
+    { "other_zone": "W. Europe Standard Time", "zone": "Europe/Luxembourg", "territory": "Luxembourg" },
+    { "other_zone": "W. Europe Standard Time", "zone": "Africa/Tripoli", "territory": "Tripoli" },
+    { "other_zone": "W. Europe Standard Time", "zone": "Europe/Monaco", "territory": "Monaco" },
+    { "other_zone": "W. Europe Standard Time", "zone": "Europe/Malta", "territory": "Malta" },
+    { "other_zone": "W. Europe Standard Time", "zone": "Europe/Amsterdam", "territory": "Amsterdam" },
+    { "other_zone": "W. Europe Standard Time", "zone": "Europe/Oslo", "territory": "Oslo" },
+    { "other_zone": "W. Europe Standard Time", "zone": "Europe/Stockholm", "territory": "Stockholm" },
+    { "other_zone": "W. Europe Standard Time", "zone": "Arctic/Longyearbyen", "territory": "Longyearbyen" },
+    { "other_zone": "W. Europe Standard Time", "zone": "Europe/San_Marino", "territory": "San Marino" },
+    { "other_zone": "W. Europe Standard Time", "zone": "Europe/Vatican", "territory": "Vatican" },
+    { "other_zone": "Central Europe Standard Time", "zone": "Europe/Budapest", "territory": "Budapest" },
+    { "other_zone": "Central Europe Standard Time", "zone": "Europe/Tirane", "territory": "Tirane" },
+    { "other_zone": "Central Europe Standard Time", "zone": "Europe/Prague", "territory": "Prague" },
+    { "other_zone": "Central Europe Standard Time", "zone": "Europe/Podgorica", "territory": "Podgorica" },
+    { "other_zone": "Central Europe Standard Time", "zone": "Europe/Belgrade", "territory": "Belgrade" },
+    { "other_zone": "Central Europe Standard Time", "zone": "Europe/Ljubljana", "territory": "Ljubljana" },
+    { "other_zone": "Central Europe Standard Time", "zone": "Europe/Bratislava", "territory": "Bratislava" },
+    { "other_zone": "Romance Standard Time", "zone": "Europe/Paris", "territory": "Paris" },
+    { "other_zone": "Romance Standard Time", "zone": "Europe/Brussels", "territory": "Brussels" },
+    { "other_zone": "Romance Standard Time", "zone": "Europe/Copenhagen", "territory": "Copenhagen" },
+    { "other_zone": "Romance Standard Time", "zone": "Europe/Madrid", "territory": "Madrid" },
+    { "other_zone": "Romance Standard Time", "zone": "Africa/Ceuta", "territory": "Ceuta" },
+    { "other_zone": "Central European Standard Time", "zone": "Europe/Warsaw", "territory": "Warsaw" },
+    { "other_zone": "Central European Standard Time", "zone": "Europe/Sarajevo", "territory": "Sarajevo" },
+    { "other_zone": "Central European Standard Time", "zone": "Europe/Zagreb", "territory": "Zagreb" },
+    { "other_zone": "Central European Standard Time", "zone": "Europe/Skopje", "territory": "Skopje" },
+    { "other_zone": "W. Central Africa Standard Time", "zone": "Africa/Lagos", "territory": "Lagos" },
+    { "other_zone": "W. Central Africa Standard Time", "zone": "Africa/Luanda", "territory": "Luanda" },
+    { "other_zone": "W. Central Africa Standard Time", "zone": "Africa/Porto-Novo", "territory": "Porto-Novo" },
+    { "other_zone": "W. Central Africa Standard Time", "zone": "Africa/Kinshasa", "territory": "Kinshasa" },
+    { "other_zone": "W. Central Africa Standard Time", "zone": "Africa/Bangui", "territory": "Bangui" },
+    { "other_zone": "W. Central Africa Standard Time", "zone": "Africa/Brazzaville", "territory": "Brazzaville" },
+    { "other_zone": "W. Central Africa Standard Time", "zone": "Africa/Douala", "territory": "Douala" },
+    { "other_zone": "W. Central Africa Standard Time", "zone": "Africa/Algiers", "territory": "Algiers" },
+    { "other_zone": "W. Central Africa Standard Time", "zone": "Africa/Libreville", "territory": "Libreville" },
+    { "other_zone": "W. Central Africa Standard Time", "zone": "Africa/Malabo", "territory": "Malabo" },
+    { "other_zone": "W. Central Africa Standard Time", "zone": "Africa/Niamey", "territory": "Niamey" },
+    { "other_zone": "W. Central Africa Standard Time", "zone": "Africa/Ndjamena", "territory": "Ndjamena" },
+    { "other_zone": "W. Central Africa Standard Time", "zone": "Africa/Tunis", "territory": "Tunis" },
+    { "other_zone": "W. Central Africa Standard Time", "zone": "Etc/GMT-1", "territory": "GMT-1" },
+    { "other_zone": "Namibia Standard Time", "zone": "Africa/Windhoek", "territory": "Windhoek" },
+    { "other_zone": "GTB Standard Time", "zone": "Europe/Bucharest", "territory": "Bucharest" },
+    { "other_zone": "GTB Standard Time", "zone": "Europe/Athens", "territory": "Athens" },
+    { "other_zone": "GTB Standard Time", "zone": "Europe/Chisinau", "territory": "Chisinau" },
+    { "other_zone": "Middle East Standard Time", "zone": "Asia/Beirut", "territory": "Beirut" },
+    { "other_zone": "Egypt Standard Time", "zone": "Africa/Cairo", "territory": "Cairo" },
+    { "other_zone": "Egypt Standard Time", "zone": "Asia/Gaza", "territory": "Gaza" },
+    { "other_zone": "Egypt Standard Time", "zone": "Asia/Hebron", "territory": "Hebron" },
+    { "other_zone": "Syria Standard Time", "zone": "Asia/Damascus", "territory": "Damascus" },
+    { "other_zone": "E. Europe Standard Time", "zone": "Asia/Nicosia", "territory": "Nicosia" },
+    { "other_zone": "South Africa Standard Time", "zone": "Africa/Johannesburg", "territory": "Johannesburg" },
+    { "other_zone": "South Africa Standard Time", "zone": "Africa/Bujumbura", "territory": "Bujumbura" },
+    { "other_zone": "South Africa Standard Time", "zone": "Africa/Gaborone", "territory": "Gaborone" },
+    { "other_zone": "South Africa Standard Time", "zone": "Africa/Lubumbashi", "territory": "Lubumbashi" },
+    { "other_zone": "South Africa Standard Time", "zone": "Africa/Maseru", "territory": "Maseru" },
+    { "other_zone": "South Africa Standard Time", "zone": "Africa/Blantyre", "territory": "Blantyre" },
+    { "other_zone": "South Africa Standard Time", "zone": "Africa/Maputo", "territory": "Maputo" },
+    { "other_zone": "South Africa Standard Time", "zone": "Africa/Kigali", "territory": "Kigali" },
+    { "other_zone": "South Africa Standard Time", "zone": "Africa/Mbabane", "territory": "Mbabane" },
+    { "other_zone": "South Africa Standard Time", "zone": "Africa/Lusaka", "territory": "Lusaka" },
+    { "other_zone": "South Africa Standard Time", "zone": "Africa/Harare", "territory": "Harare" },
+    { "other_zone": "South Africa Standard Time", "zone": "Etc/GMT-2", "territory": "GMT-2" },
+    { "other_zone": "FLE Standard Time", "zone": "Europe/Kiev", "territory": "Kiev" },
+    { "other_zone": "FLE Standard Time", "zone": "Europe/Mariehamn", "territory": "Mariehamn" },
+    { "other_zone": "FLE Standard Time", "zone": "Europe/Sofia", "territory": "Sofia" },
+    { "other_zone": "FLE Standard Time", "zone": "Europe/Tallinn", "territory": "Tallinn" },
+    { "other_zone": "FLE Standard Time", "zone": "Europe/Helsinki", "territory": "Helsinki" },
+    { "other_zone": "FLE Standard Time", "zone": "Europe/Vilnius", "territory": "Vilnius" },
+    { "other_zone": "FLE Standard Time", "zone": "Europe/Riga", "territory": "Riga" },
+    { "other_zone": "FLE Standard Time", "zone": "Europe/Simferopol", "territory": "Simferopol" },
+    { "other_zone": "FLE Standard Time", "zone": "Europe/Uzhgorod", "territory": "Uzhgorod" },
+    { "other_zone": "FLE Standard Time", "zone": "Europe/Zaporozhye", "territory": "Zaporozhye" },
+    { "other_zone": "Turkey Standard Time", "zone": "Europe/Istanbul", "territory": "Istanbul" },
+    { "other_zone": "Israel Standard Time", "zone": "Asia/Jerusalem", "territory": "Jerusalem" },
+    { "other_zone": "Jordan Standard Time", "zone": "Asia/Amman", "territory": "Amman" },
+    { "other_zone": "Arabic Standard Time", "zone": "Asia/Baghdad", "territory": "Baghdad" },
+    { "other_zone": "Kaliningrad Standard Time", "zone": "Europe/Kaliningrad", "territory": "Kaliningrad" },
+    { "other_zone": "Kaliningrad Standard Time", "zone": "Europe/Minsk", "territory": "Minsk" },
+    { "other_zone": "Arab Standard Time", "zone": "Asia/Riyadh", "territory": "Riyadh" },
+    { "other_zone": "Arab Standard Time", "zone": "Asia/Bahrain", "territory": "Bahrain" },
+    { "other_zone": "Arab Standard Time", "zone": "Asia/Kuwait", "territory": "Kuwait" },
+    { "other_zone": "Arab Standard Time", "zone": "Asia/Qatar", "territory": "Qatar" },
+    { "other_zone": "Arab Standard Time", "zone": "Asia/Aden", "territory": "Aden" },
+    { "other_zone": "E. Africa Standard Time", "zone": "Africa/Nairobi", "territory": "Nairobi" },
+    { "other_zone": "E. Africa Standard Time", "zone": "Antarctica/Syowa", "territory": "Syowa" },
+    { "other_zone": "E. Africa Standard Time", "zone": "Africa/Djibouti", "territory": "Djibouti" },
+    { "other_zone": "E. Africa Standard Time", "zone": "Africa/Asmera", "territory": "Asmera" },
+    { "other_zone": "E. Africa Standard Time", "zone": "Africa/Addis_Ababa", "territory": "Addis Ababa" },
+    { "other_zone": "E. Africa Standard Time", "zone": "Indian/Comoro", "territory": "Comoro" },
+    { "other_zone": "E. Africa Standard Time", "zone": "Indian/Antananarivo", "territory": "Antananarivo" },
+    { "other_zone": "E. Africa Standard Time", "zone": "Africa/Khartoum", "territory": "Khartoum" },
+    { "other_zone": "E. Africa Standard Time", "zone": "Africa/Mogadishu", "territory": "Mogadishu" },
+    { "other_zone": "E. Africa Standard Time", "zone": "Africa/Juba", "territory": "Juba" },
+    { "other_zone": "E. Africa Standard Time", "zone": "Africa/Dar_es_Salaam", "territory": "Dar es Salaam" },
+    { "other_zone": "E. Africa Standard Time", "zone": "Africa/Kampala", "territory": "Kampala" },
+    { "other_zone": "E. Africa Standard Time", "zone": "Indian/Mayotte", "territory": "Mayotte" },
+    { "other_zone": "E. Africa Standard Time", "zone": "Etc/GMT-3", "territory": "GMT-3" },
+    { "other_zone": "Iran Standard Time", "zone": "Asia/Tehran", "territory": "Tehran" },
+    { "other_zone": "Arabian Standard Time", "zone": "Asia/Dubai", "territory": "Dubai" },
+    { "other_zone": "Arabian Standard Time", "zone": "Asia/Muscat", "territory": "Muscat" },
+    { "other_zone": "Arabian Standard Time", "zone": "Etc/GMT-4", "territory": "GMT-4" },
+    { "other_zone": "Azerbaijan Standard Time", "zone": "Asia/Baku", "territory": "Baku" },
+    { "other_zone": "Russian Standard Time", "zone": "Europe/Moscow", "territory": "Moscow" },
+    { "other_zone": "Russian Standard Time", "zone": "Europe/Samara", "territory": "Samara" },
+    { "other_zone": "Russian Standard Time", "zone": "Europe/Volgograd", "territory": "Volgograd" },
+    { "other_zone": "Mauritius Standard Time", "zone": "Indian/Mauritius", "territory": "Mauritius" },
+    { "other_zone": "Mauritius Standard Time", "zone": "Indian/Reunion", "territory": "Reunion" },
+    { "other_zone": "Mauritius Standard Time", "zone": "Indian/Mahe", "territory": "Mahe" },
+    { "other_zone": "Georgian Standard Time", "zone": "Asia/Tbilisi", "territory": "Tbilisi" },
+    { "other_zone": "Caucasus Standard Time", "zone": "Asia/Yerevan", "territory": "Yerevan" },
+    { "other_zone": "Afghanistan Standard Time", "zone": "Asia/Kabul", "territory": "Kabul" },
+    { "other_zone": "Pakistan Standard Time", "zone": "Asia/Karachi", "territory": "Karachi" },
+    { "other_zone": "West Asia Standard Time", "zone": "Asia/Tashkent", "territory": "Tashkent" },
+    { "other_zone": "West Asia Standard Time", "zone": "Antarctica/Mawson", "territory": "Mawson" },
+    { "other_zone": "West Asia Standard Time", "zone": "Asia/Oral", "territory": "Oral" },
+    { "other_zone": "West Asia Standard Time", "zone": "Asia/Aqtau", "territory": "Aqtau" },
+    { "other_zone": "West Asia Standard Time", "zone": "Asia/Aqtobe", "territory": "Aqtobe" },
+    { "other_zone": "West Asia Standard Time", "zone": "Indian/Maldives", "territory": "Maldives" },
+    { "other_zone": "West Asia Standard Time", "zone": "Indian/Kerguelen", "territory": "Kerguelen" },
+    { "other_zone": "West Asia Standard Time", "zone": "Asia/Dushanbe", "territory": "Dushanbe" },
+    { "other_zone": "West Asia Standard Time", "zone": "Asia/Ashgabat", "territory": "Ashgabat" },
+    { "other_zone": "West Asia Standard Time", "zone": "Asia/Samarkand", "territory": "Samarkand" },
+    { "other_zone": "West Asia Standard Time", "zone": "Etc/GMT-5", "territory": "GMT-5" },
+    { "other_zone": "India Standard Time", "zone": "Asia/Calcutta", "territory": "Calcutta" },
+    { "other_zone": "Sri Lanka Standard Time", "zone": "Asia/Colombo", "territory": "Colombo" },
+    { "other_zone": "Nepal Standard Time", "zone": "Asia/Katmandu", "territory": "Katmandu" },
+    { "other_zone": "Central Asia Standard Time", "zone": "Asia/Almaty", "territory": "Almaty" },
+    { "other_zone": "Central Asia Standard Time", "zone": "Antarctica/Vostok", "territory": "Vostok" },
+    { "other_zone": "Central Asia Standard Time", "zone": "Indian/Chagos", "territory": "Chagos" },
+    { "other_zone": "Central Asia Standard Time", "zone": "Asia/Bishkek", "territory": "Bishkek" },
+    { "other_zone": "Central Asia Standard Time", "zone": "Asia/Qyzylorda", "territory": "Qyzylorda" },
+    { "other_zone": "Central Asia Standard Time", "zone": "Etc/GMT-6", "territory": "GMT-6" },
+    { "other_zone": "Bangladesh Standard Time", "zone": "Asia/Dhaka", "territory": "Dhaka" },
+    { "other_zone": "Bangladesh Standard Time", "zone": "Asia/Thimphu", "territory": "Thimphu" },
+    { "other_zone": "Ekaterinburg Standard Time", "zone": "Asia/Yekaterinburg", "territory": "Yekaterinburg" },
+    { "other_zone": "Myanmar Standard Time", "zone": "Asia/Rangoon", "territory": "Rangoon" },
+    { "other_zone": "Myanmar Standard Time", "zone": "Indian/Cocos", "territory": "Cocos" },
+    { "other_zone": "SE Asia Standard Time", "zone": "Asia/Bangkok", "territory": "Bangkok" },
+    { "other_zone": "SE Asia Standard Time", "zone": "Antarctica/Davis", "territory": "Davis" },
+    { "other_zone": "SE Asia Standard Time", "zone": "Indian/Christmas", "territory": "Christmas" },
+    { "other_zone": "SE Asia Standard Time", "zone": "Asia/Jakarta", "territory": "Jakarta" },
+    { "other_zone": "SE Asia Standard Time", "zone": "Asia/Pontianak", "territory": "Pontianak" },
+    { "other_zone": "SE Asia Standard Time", "zone": "Asia/Phnom_Penh", "territory": "Phnom Penh" },
+    { "other_zone": "SE Asia Standard Time", "zone": "Asia/Vientiane", "territory": "Vientiane" },
+    { "other_zone": "SE Asia Standard Time", "zone": "Asia/Hovd", "territory": "Hovd" },
+    { "other_zone": "SE Asia Standard Time", "zone": "Asia/Saigon", "territory": "Saigon" },
+    { "other_zone": "SE Asia Standard Time", "zone": "Etc/GMT-7", "territory": "GMT-7" },
+    { "other_zone": "N. Central Asia Standard Time", "zone": "Asia/Novosibirsk", "territory": "Novosibirsk" },
+    { "other_zone": "N. Central Asia Standard Time", "zone": "Asia/Novokuznetsk", "territory": "Novokuznetsk" },
+    { "other_zone": "N. Central Asia Standard Time", "zone": "Asia/Omsk", "territory": "Omsk" },
+    { "other_zone": "China Standard Time", "zone": "Asia/Shanghai", "territory": "Shanghai" },
+    { "other_zone": "China Standard Time", "zone": "Asia/Chongqing", "territory": "Chongqing" },
+    { "other_zone": "China Standard Time", "zone": "Asia/Harbin", "territory": "Harbin" },
+    { "other_zone": "China Standard Time", "zone": "Asia/Kashgar", "territory": "Kashgar" },
+    { "other_zone": "China Standard Time", "zone": "Asia/Urumqi", "territory": "Urumqi" },
+    { "other_zone": "China Standard Time", "zone": "Asia/Hong_Kong", "territory": "Hong Kong" },
+    { "other_zone": "China Standard Time", "zone": "Asia/Macau", "territory": "Macau" },
+    { "other_zone": "North Asia Standard Time", "zone": "Asia/Krasnoyarsk", "territory": "Krasnoyarsk" },
+    { "other_zone": "Singapore Standard Time", "zone": "Asia/Singapore", "territory": "Singapore" },
+    { "other_zone": "Singapore Standard Time", "zone": "Asia/Brunei", "territory": "Brunei" },
+    { "other_zone": "Singapore Standard Time", "zone": "Asia/Makassar", "territory": "Makassar" },
+    { "other_zone": "Singapore Standard Time", "zone": "Asia/Kuala_Lumpur", "territory": "Kuala Lumpur" },
+    { "other_zone": "Singapore Standard Time", "zone": "Asia/Kuching", "territory": "Kuching" },
+    { "other_zone": "Singapore Standard Time", "zone": "Asia/Manila", "territory": "Manila" },
+    { "other_zone": "Singapore Standard Time", "zone": "Etc/GMT-8", "territory": "GMT-8" },
+    { "other_zone": "W. Australia Standard Time", "zone": "Australia/Perth", "territory": "Perth" },
+    { "other_zone": "W. Australia Standard Time", "zone": "Antarctica/Casey", "territory": "Casey" },
+    { "other_zone": "Taipei Standard Time", "zone": "Asia/Taipei", "territory": "Taipei" },
+    { "other_zone": "Ulaanbaatar Standard Time", "zone": "Asia/Ulaanbaatar", "territory": "Ulaanbaatar" },
+    { "other_zone": "Ulaanbaatar Standard Time", "zone": "Asia/Choibalsan", "territory": "Choibalsan" },
+    { "other_zone": "North Asia East Standard Time", "zone": "Asia/Irkutsk", "territory": "Irkutsk" },
+    { "other_zone": "Tokyo Standard Time", "zone": "Asia/Tokyo", "territory": "Tokyo" },
+    { "other_zone": "Tokyo Standard Time", "zone": "Asia/Jayapura", "territory": "Jayapura" },
+    { "other_zone": "Tokyo Standard Time", "zone": "Pacific/Palau", "territory": "Palau" },
+    { "other_zone": "Tokyo Standard Time", "zone": "Asia/Dili", "territory": "Dili" },
+    { "other_zone": "Tokyo Standard Time", "zone": "Etc/GMT-9", "territory": "GMT-9" },
+    { "other_zone": "Korea Standard Time", "zone": "Asia/Seoul", "territory": "Seoul" },
+    { "other_zone": "Korea Standard Time", "zone": "Asia/Pyongyang", "territory": "Pyongyang" },
+    { "other_zone": "Cen. Australia Standard Time", "zone": "Australia/Adelaide", "territory": "Adelaide" },
+    { "other_zone": "Cen. Australia Standard Time", "zone": "Australia/Broken_Hill", "territory": "Broken Hill" },
+    { "other_zone": "AUS Central Standard Time", "zone": "Australia/Darwin", "territory": "Darwin" },
+    { "other_zone": "E. Australia Standard Time", "zone": "Australia/Brisbane", "territory": "Brisbane" },
+    { "other_zone": "E. Australia Standard Time", "zone": "Australia/Lindeman", "territory": "Lindeman" },
+    { "other_zone": "AUS Eastern Standard Time", "zone": "Australia/Sydney", "territory": "Sydney" },
+    { "other_zone": "AUS Eastern Standard Time", "zone": "Australia/Melbourne", "territory": "Melbourne" },
+    { "other_zone": "West Pacific Standard Time", "zone": "Pacific/Port_Moresby", "territory": "Port Moresby" },
+    { "other_zone": "West Pacific Standard Time", "zone": "Antarctica/DumontDUrville", "territory": "DumontDUrville" },
+    { "other_zone": "West Pacific Standard Time", "zone": "Pacific/Truk", "territory": "Truk" },
+    { "other_zone": "West Pacific Standard Time", "zone": "Pacific/Guam", "territory": "Guam" },
+    { "other_zone": "West Pacific Standard Time", "zone": "Pacific/Saipan", "territory": "Saipan" },
+    { "other_zone": "West Pacific Standard Time", "zone": "Etc/GMT-10", "territory": "GMT-10" },
+    { "other_zone": "Tasmania Standard Time", "zone": "Australia/Hobart", "territory": "Hobart" },
+    { "other_zone": "Tasmania Standard Time", "zone": "Australia/Currie", "territory": "Currie" },
+    { "other_zone": "Yakutsk Standard Time", "zone": "Asia/Yakutsk", "territory": "Yakutsk" },
+    { "other_zone": "Yakutsk Standard Time", "zone": "Asia/Khandyga", "territory": "Khandyga" },
+    { "other_zone": "Central Pacific Standard Time", "zone": "Pacific/Guadalcanal", "territory": "Guadalcanal" },
+    { "other_zone": "Central Pacific Standard Time", "zone": "Antarctica/Macquarie", "territory": "Macquarie" },
+    { "other_zone": "Central Pacific Standard Time", "zone": "Pacific/Ponape", "territory": "Ponape" },
+    { "other_zone": "Central Pacific Standard Time", "zone": "Pacific/Kosrae", "territory": "Kosrae" },
+    { "other_zone": "Central Pacific Standard Time", "zone": "Pacific/Noumea", "territory": "Noumea" },
+    { "other_zone": "Central Pacific Standard Time", "zone": "Pacific/Efate", "territory": "Efate" },
+    { "other_zone": "Central Pacific Standard Time", "zone": "Etc/GMT-11", "territory": "GMT-11" },
+    { "other_zone": "Vladivostok Standard Time", "zone": "Asia/Vladivostok", "territory": "Vladivostok" },
+    { "other_zone": "Vladivostok Standard Time", "zone": "Asia/Sakhalin", "territory": "Sakhalin" },
+    { "other_zone": "Vladivostok Standard Time", "zone": "Asia/Ust-Nera", "territory": "Ust-Nera" },
+    { "other_zone": "New Zealand Standard Time", "zone": "Pacific/Auckland", "territory": "Auckland" },
+    { "other_zone": "New Zealand Standard Time", "zone": "Antarctica/South_Pole", "territory": "South Pole" },
+    { "other_zone": "New Zealand Standard Time", "zone": "Antarctica/McMurdo", "territory": "McMurdo" },
+    { "other_zone": "UTC+12", "zone": "Etc/GMT-12", "territory": "GMT-12" },
+    { "other_zone": "UTC+12", "zone": "Pacific/Tarawa", "territory": "Tarawa" },
+    { "other_zone": "UTC+12", "zone": "Pacific/Majuro", "territory": "Majuro" },
+    { "other_zone": "UTC+12", "zone": "Pacific/Kwajalein", "territory": "Kwajalein" },
+    { "other_zone": "UTC+12", "zone": "Pacific/Nauru", "territory": "Nauru" },
+    { "other_zone": "UTC+12", "zone": "Pacific/Funafuti", "territory": "Funafuti" },
+    { "other_zone": "UTC+12", "zone": "Pacific/Wake", "territory": "Wake" },
+    { "other_zone": "UTC+12", "zone": "Pacific/Wallis", "territory": "Wallis" },
+    { "other_zone": "Fiji Standard Time", "zone": "Pacific/Fiji", "territory": "Fiji" },
+    { "other_zone": "Magadan Standard Time", "zone": "Asia/Magadan", "territory": "Magadan" },
+    { "other_zone": "Magadan Standard Time", "zone": "Asia/Anadyr", "territory": "Anadyr" },
+    { "other_zone": "Magadan Standard Time", "zone": "Asia/Kamchatka", "territory": "Kamchatka" },
+    { "other_zone": "Tonga Standard Time", "zone": "Pacific/Tongatapu", "territory": "Tongatapu" },
+    { "other_zone": "Tonga Standard Time", "zone": "Pacific/Enderbury", "territory": "Enderbury" },
+    { "other_zone": "Tonga Standard Time", "zone": "Pacific/Fakaofo", "territory": "Fakaofo" },
+    { "other_zone": "Tonga Standard Time", "zone": "Etc/GMT-13", "territory": "GMT-13" },
+    { "other_zone": "Samoa Standard Time", "zone": "Pacific/Apia", "territory": "Apia" }
+];
+
+
+/***/ }),
+/* 382 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var Types_1 = __webpack_require__(38);
+var IntVal_1 = __webpack_require__(85);
+var Timezone_1 = __webpack_require__(380);
+var valueToTwoDigits = function (value) {
+    return ((value < 10) ? '0' : '') + value;
+};
+// ===================== Date ========================
+var days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+var dateRegExp = /^\/Date\((.*?)\)\/$/;
+var offsetRegExp = /[+-]\d*/;
+exports.dateToUTCString = function (date) {
+    var time = valueToTwoDigits(date.getUTCHours()) + ':' + valueToTwoDigits(date.getUTCMinutes()) + ':' + valueToTwoDigits(date.getUTCSeconds());
+    return days[date.getUTCDay()] + ', ' + valueToTwoDigits(date.getUTCDate()) + ' ' + months[date.getUTCMonth()] + ' ' + date.getUTCFullYear() + ' ' + time + ' GMT';
+};
+var parseMicrosoftFormatOffset = function (offset) {
+    var sign = offset.substr(0, 1) === "-" ? -1 : 1;
+    offset = offset.substring(1);
+    var result = (IntVal_1.intVal(offset.substr(0, 2)) * 60) + IntVal_1.intVal(offset.substring(2));
+    return sign * result;
+};
+exports.parseDate = function (value) {
+    if (Types_1.isDate(value)) {
+        return value;
+    }
+    if (value && value.indexOf("/D") === 0) {
+        var rDate = dateRegExp.exec(value);
+        if (rDate) {
+            var str = rDate[1];
+            var rTz = offsetRegExp.exec(str.substring(1));
+            var date = new Date(IntVal_1.intVal(str));
+            if (rTz) {
+                var tzoffset = parseMicrosoftFormatOffset(rTz[0]);
+                var timezone = new Timezone_1.Timezone();
+                date = timezone.apply(date, 0);
+                date = timezone.convert(date, 0, -1 * tzoffset);
+            }
+            return date;
+        }
+    }
+    return value;
+};
+
+
+/***/ }),
+/* 383 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ensureValueInRange = function (val, min, max) {
+    if (val <= min) {
+        return min;
+    }
+    if (val >= max) {
+        return max;
+    }
+    return val;
+};
+
+
+/***/ }),
+/* 384 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.isValueOutOfRange = function (value, min, max) {
+    return value < min || value > max;
+};
+
+
+/***/ }),
+/* 385 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var Average_1 = __webpack_require__(162);
+exports.stdDeviation = function (arr) {
+    var avg = Average_1.average(arr), sum = 0;
+    for (var i = 0; i < arr.length; i++) {
+        sum += Math.pow(arr[i] - avg, 2);
+    }
+    return Math.sqrt(sum / (arr.length - 1));
+};
+
+
+/***/ }),
+/* 386 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.capitalize = function (str) {
+    return "" + str.charAt(0).toUpperCase() + str.slice(1);
+};
+
+
+/***/ }),
+/* 387 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.pluralize = function (num, strOne, strTwo, strFive) {
+    strFive = strFive || strTwo;
+    if ((strTwo === strFive) && (num > 1)) {
+        return strTwo;
+    }
+    if ((num > 10) && (num < 20)) {
+        return strFive;
+    }
+    var d = num % 10;
+    if (d === 1) {
+        return strOne;
+    }
+    else if ((d < 5) && (d !== 0)) {
+        return strTwo;
+    }
+    else {
+        return strFive;
+    }
+};
+
+
+/***/ }),
+/* 388 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var Pad_1 = __webpack_require__(87);
+var Justify_1 = __webpack_require__(163);
+var IntVal_1 = __webpack_require__(85);
+// formatBaseX()
+var formatBaseX = function (value, base, prefixBaseX, leftJustify, minWidth, precision, zeroPad) {
+    // Note: casts negative numbers to positive ones
+    var number = value >>> 0;
+    var prefix = prefixBaseX && number && { '2': '0b', '8': '0', '10': '', '16': '0x' }[base] || '';
+    var result = prefix + Pad_1.pad(number.toString(base), precision || 0, '0', false);
+    return Justify_1.justify(result, prefix, leftJustify, minWidth, zeroPad);
+};
+// formatString()
+var formatString = function (value, leftJustify, minWidth, precision, zeroPad) {
+    if (precision != null) {
+        value = value.slice(0, precision);
+    }
+    return Justify_1.justify(value, '', leftJustify, minWidth, zeroPad);
+};
+exports.sprintf = function (format) {
+    var a = [];
+    for (var _i = 1; _i < arguments.length; _i++) {
+        a[_i - 1] = arguments[_i];
+    }
+    var regex = /%%|%(\d+\$)?([-+#0 ]*)(\*\d+\$|\*|\d+)?(\.(\*\d+\$|\*|\d+))?([scboxXuidfegEG])/g;
+    var i = 0;
+    // finalFormat()
+    var doFormat = function (substring, valueIndex, flags, minWidth, _, precision, type) {
+        if (substring == '%%')
+            return '%';
+        // parse flags
+        var leftJustify = false, positivePrefix = '', zeroPad = false, prefixBaseX = false;
+        for (var j = 0; flags && j < flags.length; j++)
+            switch (flags.charAt(j)) {
+                case ' ':
+                    positivePrefix = ' ';
+                    break;
+                case '+':
+                    positivePrefix = '+';
+                    break;
+                case '-':
+                    leftJustify = true;
+                    break;
+                case '0':
+                    zeroPad = true;
+                    break;
+                case '#':
+                    prefixBaseX = true;
+                    break;
+            }
+        // parameters may be null, undefined, empty-string or real valued
+        // we want to ignore null, undefined and empty-string values
+        if (!minWidth) {
+            minWidth = 0;
+        }
+        else if (minWidth == '*') {
+            minWidth = +a[i++];
+        }
+        else if (minWidth.charAt(0) == '*') {
+            minWidth = +a[minWidth.slice(1, -1)];
+        }
+        else {
+            minWidth = +minWidth;
+        }
+        // Note: undocumented perl feature:
+        if (minWidth < 0) {
+            minWidth = -minWidth;
+            leftJustify = true;
+        }
+        if (!isFinite(minWidth)) {
+            throw new Error('sprintf: (minimum-)width must be finite');
+        }
+        if (!precision) {
+            precision = 'fFeE'.indexOf(type) > -1 ? 6 : (type == 'd') ? 0 : void (0);
+        }
+        else if (precision == '*') {
+            precision = +a[i++];
+        }
+        else if (precision.charAt(0) == '*') {
+            precision = +a[precision.slice(1, -1)];
+        }
+        else {
+            precision = +precision;
+        }
+        // grab value using valueIndex if required?
+        var value = valueIndex ? a[valueIndex.slice(0, -1)] : a[i++];
+        switch (type) {
+            case 's': return formatString(String(value), leftJustify, minWidth, precision, zeroPad);
+            case 'c': return formatString(String.fromCharCode(+value), leftJustify, minWidth, precision, zeroPad);
+            case 'b': return formatBaseX(value, 2, prefixBaseX, leftJustify, minWidth, precision, zeroPad);
+            case 'o': return formatBaseX(value, 8, prefixBaseX, leftJustify, minWidth, precision, zeroPad);
+            case 'x': return formatBaseX(value, 16, prefixBaseX, leftJustify, minWidth, precision, zeroPad);
+            case 'X': return formatBaseX(value, 16, prefixBaseX, leftJustify, minWidth, precision, zeroPad).toUpperCase();
+            case 'u': return formatBaseX(value, 10, prefixBaseX, leftJustify, minWidth, precision, zeroPad);
+            case 'i':
+            case 'd': {
+                var number = IntVal_1.intVal(+value);
+                var prefix = number < 0 ? '-' : positivePrefix;
+                value = prefix + Pad_1.pad(String(Math.abs(number)), precision, '0', false);
+                return Justify_1.justify(value, prefix, leftJustify, minWidth, zeroPad);
+            }
+            case 'e':
+            case 'E':
+            case 'f':
+            case 'F':
+            case 'g':
+            case 'G':
+                {
+                    var number = +value;
+                    var prefix = number < 0 ? '-' : positivePrefix;
+                    var method = ['toExponential', 'toFixed', 'toPrecision']['efg'.indexOf(type.toLowerCase())];
+                    var textTransform = ['toString', 'toUpperCase']['eEfFgG'.indexOf(type) % 2];
+                    value = prefix + Math.abs(number)[method](precision);
+                    return Justify_1.justify(value, prefix, leftJustify, minWidth, zeroPad)[textTransform]();
+                }
+            default: return substring;
+        }
+    };
+    return format.replace(regex, doFormat);
+};
+
+
+/***/ }),
+/* 389 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.strRepeat = function (str, n) {
+    var result = "", t = str.toString();
+    while (--n >= 0) {
+        result += t;
+    }
+    return result;
+};
+
+
+/***/ }),
+/* 390 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.trim = function (value) {
+    return value.replace(/^\s*/, "").replace(/\s*$/, "");
+};
+
+
+/***/ }),
+/* 391 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var StrRepeat_1 = __webpack_require__(389);
+exports.strRepeat = StrRepeat_1.strRepeat;
+var Trim_1 = __webpack_require__(390);
+exports.trim = Trim_1.trim;
+var Pad_1 = __webpack_require__(87);
+exports.pad = Pad_1.pad;
+var Justify_1 = __webpack_require__(163);
+exports.justify = Justify_1.justify;
+var Capitalize_1 = __webpack_require__(386);
+exports.capitalize = Capitalize_1.capitalize;
+var Pluralize_1 = __webpack_require__(387);
+exports.pluralize = Pluralize_1.pluralize;
+var Sprintf_1 = __webpack_require__(388);
+exports.sprintf = Sprintf_1.sprintf;
+
+
+/***/ }),
+/* 392 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var Types_1 = __webpack_require__(38);
+exports.createChainedFunction = function () {
+    var funcs = [];
+    for (var _i = 0; _i < arguments.length; _i++) {
+        funcs[_i] = arguments[_i];
+    }
+    return funcs
+        .filter(function (f) { return (Types_1.isFunction(f)); })
+        .reduce(function (acc, f) {
+        if (typeof f !== 'function') {
+            throw new Error('Invalid Argument Type, must only provide functions, undefined, or null.');
+        }
+        if (acc === null) {
+            return f;
+        }
+        return function chainedFunction() {
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i] = arguments[_i];
+            }
+            acc.apply(this, args);
+            f.apply(this, args);
+        };
+    }, null);
+};
+
+
+/***/ }),
+/* 393 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var CreateChainedFunction_1 = __webpack_require__(392);
+exports.createChainedFunction = CreateChainedFunction_1.createChainedFunction;
+
+
+/***/ }),
+/* 394 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var onix_core_1 = __webpack_require__(27);
 onix_core_1.Intl.registerStrings('forms', {
     'ru-ru': {
         copy_to_clipboard: "Копировать строку в буфер обмена",
     }
 });
-var onix_core_2 = __webpack_require__(21);
+var onix_core_2 = __webpack_require__(27);
 exports.Intl = onix_core_2.Intl;
 
 
 /***/ }),
-/* 457 */
+/* 395 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var Selection_1 = __webpack_require__(458);
-var onix_core_1 = __webpack_require__(21);
+var Selection_1 = __webpack_require__(396);
+var onix_core_1 = __webpack_require__(27);
 var defaultMessage = 'Copy to clipboard: #{key}, Enter';
 function format(message) {
     var copyKey = (/mac os x/i.test(navigator.userAgent) ? '⌘' : 'Ctrl') + '+C';
@@ -24048,7 +30970,7 @@ exports.copy = copy;
 
 
 /***/ }),
-/* 458 */
+/* 396 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24096,7 +31018,7 @@ exports.Selection = Selection;
 
 
 /***/ }),
-/* 459 */
+/* 397 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24129,9 +31051,9 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(3);
-var classNames = __webpack_require__(9);
-var StyleConfig_1 = __webpack_require__(78);
+var React = __webpack_require__(1);
+var classNames = __webpack_require__(6);
+var StyleConfig_1 = __webpack_require__(58);
 var Col = (function (_super) {
     __extends(Col, _super);
     function Col(props, context) {
@@ -24170,7 +31092,7 @@ exports.Col = Col;
 
 
 /***/ }),
-/* 460 */
+/* 398 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24203,8 +31125,8 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(3);
-var classNames = __webpack_require__(9);
+var React = __webpack_require__(1);
+var classNames = __webpack_require__(6);
 var Row = (function (_super) {
     __extends(Row, _super);
     function Row(props, context) {
@@ -24223,7 +31145,7 @@ exports.Row = Row;
 
 
 /***/ }),
-/* 461 */
+/* 399 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24256,7 +31178,7 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(3);
+var React = __webpack_require__(1);
 function isTrivialHref(href) {
     return !href || href.trim() === '#';
 }
@@ -24308,7 +31230,7 @@ exports.SafeAnchor = SafeAnchor;
 
 
 /***/ }),
-/* 462 */
+/* 400 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24341,9 +31263,9 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(3);
-var classNames = __webpack_require__(9);
-var SafeAnchor_1 = __webpack_require__(461);
+var React = __webpack_require__(1);
+var classNames = __webpack_require__(6);
+var SafeAnchor_1 = __webpack_require__(399);
 var Button = (function (_super) {
     __extends(Button, _super);
     function Button(props, context) {
@@ -24387,7 +31309,7 @@ exports.Button = Button;
 
 
 /***/ }),
-/* 463 */
+/* 401 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24420,8 +31342,8 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(3);
-var classNames = __webpack_require__(9);
+var React = __webpack_require__(1);
+var classNames = __webpack_require__(6);
 var Checkbox = (function (_super) {
     __extends(Checkbox, _super);
     function Checkbox(props) {
@@ -24461,7 +31383,7 @@ exports.Checkbox = Checkbox;
 
 
 /***/ }),
-/* 464 */
+/* 402 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24494,10 +31416,10 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(3);
-var prop_types_1 = __webpack_require__(24);
-var classNames = __webpack_require__(9);
-var warning = __webpack_require__(88);
+var React = __webpack_require__(1);
+var prop_types_1 = __webpack_require__(18);
+var classNames = __webpack_require__(6);
+var warning = __webpack_require__(68);
 var ControlLabel = (function (_super) {
     __extends(ControlLabel, _super);
     function ControlLabel(props, context) {
@@ -24526,7 +31448,7 @@ exports.ControlLabel = ControlLabel;
 
 
 /***/ }),
-/* 465 */
+/* 403 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24559,8 +31481,8 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(3);
-var classNames = __webpack_require__(9);
+var React = __webpack_require__(1);
+var classNames = __webpack_require__(6);
 var Form = (function (_super) {
     __extends(Form, _super);
     function Form(props, context) {
@@ -24585,7 +31507,7 @@ exports.Form = Form;
 
 
 /***/ }),
-/* 466 */
+/* 404 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24618,10 +31540,10 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(3);
-var prop_types_1 = __webpack_require__(24);
-var classNames = __webpack_require__(9);
-var Icon_1 = __webpack_require__(119);
+var React = __webpack_require__(1);
+var prop_types_1 = __webpack_require__(18);
+var classNames = __webpack_require__(6);
+var Icon_1 = __webpack_require__(89);
 var FormControlFeedback = (function (_super) {
     __extends(FormControlFeedback, _super);
     function FormControlFeedback(props, context) {
@@ -24667,7 +31589,7 @@ exports.FormControlFeedback = FormControlFeedback;
 
 
 /***/ }),
-/* 467 */
+/* 405 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24700,8 +31622,8 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(3);
-var classNames = __webpack_require__(9);
+var React = __webpack_require__(1);
+var classNames = __webpack_require__(6);
 var FormControlStatic = (function (_super) {
     __extends(FormControlStatic, _super);
     function FormControlStatic(props) {
@@ -24718,7 +31640,7 @@ exports.FormControlStatic = FormControlStatic;
 
 
 /***/ }),
-/* 468 */
+/* 406 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24751,9 +31673,9 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(3);
-var prop_types_1 = __webpack_require__(24);
-var classNames = __webpack_require__(9);
+var React = __webpack_require__(1);
+var prop_types_1 = __webpack_require__(18);
+var classNames = __webpack_require__(6);
 var FormGroup = (function (_super) {
     __extends(FormGroup, _super);
     function FormGroup(props, context) {
@@ -24793,7 +31715,7 @@ exports.FormGroup = FormGroup;
 
 
 /***/ }),
-/* 469 */
+/* 407 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24826,8 +31748,8 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(3);
-var classNames = __webpack_require__(9);
+var React = __webpack_require__(1);
+var classNames = __webpack_require__(6);
 var HelpBlock = (function (_super) {
     __extends(HelpBlock, _super);
     function HelpBlock(props) {
@@ -24844,7 +31766,7 @@ exports.HelpBlock = HelpBlock;
 
 
 /***/ }),
-/* 470 */
+/* 408 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24877,8 +31799,8 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(3);
-var classNames = __webpack_require__(9);
+var React = __webpack_require__(1);
+var classNames = __webpack_require__(6);
 var InputGroupButton = (function (_super) {
     __extends(InputGroupButton, _super);
     function InputGroupButton(props) {
@@ -24894,7 +31816,7 @@ exports.InputGroupButton = InputGroupButton;
 
 
 /***/ }),
-/* 471 */
+/* 409 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24927,14 +31849,14 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(3);
-var classNames = __webpack_require__(9);
-var CopyToClipboard_1 = __webpack_require__(457);
-var Intl_1 = __webpack_require__(456);
-var InputGroup_1 = __webpack_require__(211);
-var InputGroupAddon_1 = __webpack_require__(212);
-var FormControl_1 = __webpack_require__(210);
-var StyleConfig_1 = __webpack_require__(78);
+var React = __webpack_require__(1);
+var classNames = __webpack_require__(6);
+var CopyToClipboard_1 = __webpack_require__(395);
+var Intl_1 = __webpack_require__(394);
+var InputGroup_1 = __webpack_require__(165);
+var InputGroupAddon_1 = __webpack_require__(166);
+var FormControl_1 = __webpack_require__(164);
+var StyleConfig_1 = __webpack_require__(58);
 var TextWithCopy = (function (_super) {
     __extends(TextWithCopy, _super);
     /**
@@ -24982,7 +31904,7 @@ exports.TextWithCopy = TextWithCopy;
 
 
 /***/ }),
-/* 472 */
+/* 410 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25015,7 +31937,7 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(3);
+var React = __webpack_require__(1);
 var ProgressCircle = (function (_super) {
     __extends(ProgressCircle, _super);
     function ProgressCircle(props, context) {
@@ -25097,7 +32019,7 @@ exports.ProgressCircle = ProgressCircle;
 
 
 /***/ }),
-/* 473 */
+/* 411 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25130,7 +32052,7 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(3);
+var React = __webpack_require__(1);
 var ProgressLine = (function (_super) {
     __extends(ProgressLine, _super);
     function ProgressLine(props, context) {
@@ -25177,7 +32099,7 @@ exports.ProgressLine = ProgressLine;
 
 
 /***/ }),
-/* 474 */
+/* 412 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25193,7 +32115,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(3);
+var React = __webpack_require__(1);
 var Handle = (function (_super) {
     __extends(Handle, _super);
     function Handle(props, context) {
@@ -25213,7 +32135,7 @@ exports.Handle = Handle;
 
 
 /***/ }),
-/* 475 */
+/* 413 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25227,8 +32149,8 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(3);
-var classNames = __webpack_require__(9);
+var React = __webpack_require__(1);
+var classNames = __webpack_require__(6);
 exports.Marks = function (_a) {
     var className = _a.className, vertical = _a.vertical, marks = _a.marks, included = _a.included, upperBound = _a.upperBound, lowerBound = _a.lowerBound, max = _a.max, min = _a.min;
     var marksKeys = Object.keys(marks);
@@ -25266,7 +32188,7 @@ exports.Marks = function (_a) {
 
 
 /***/ }),
-/* 476 */
+/* 414 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25290,12 +32212,12 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(3);
-var classNames = __webpack_require__(9);
-var EventUtils_1 = __webpack_require__(118);
-var index_1 = __webpack_require__(116);
-var SliderBase_1 = __webpack_require__(213);
-var Track_1 = __webpack_require__(214);
+var React = __webpack_require__(1);
+var classNames = __webpack_require__(6);
+var EventUtils_1 = __webpack_require__(88);
+var index_1 = __webpack_require__(86);
+var SliderBase_1 = __webpack_require__(167);
+var Track_1 = __webpack_require__(168);
 var Range = (function (_super) {
     __extends(Range, _super);
     function Range(props) {
@@ -25559,7 +32481,7 @@ exports.Range = Range;
 
 
 /***/ }),
-/* 477 */
+/* 415 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25583,11 +32505,11 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(3);
-var index_1 = __webpack_require__(116);
-var EventUtils_1 = __webpack_require__(118);
-var SliderBase_1 = __webpack_require__(213);
-var Track_1 = __webpack_require__(214);
+var React = __webpack_require__(1);
+var index_1 = __webpack_require__(86);
+var EventUtils_1 = __webpack_require__(88);
+var SliderBase_1 = __webpack_require__(167);
+var Track_1 = __webpack_require__(168);
 var Slider = (function (_super) {
     __extends(Slider, _super);
     function Slider(props) {
@@ -25688,15 +32610,15 @@ exports.Slider = Slider;
 
 
 /***/ }),
-/* 478 */
+/* 416 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(3);
-var classNames = __webpack_require__(9);
-var warning = __webpack_require__(88);
+var React = __webpack_require__(1);
+var classNames = __webpack_require__(6);
+var warning = __webpack_require__(68);
 var calcPoints = function (vertical, marks, dots, step, min, max) {
     warning(dots ? step > 0 : true, '`Slider[step]` should be a positive number in order to make Slider[dots] work.');
     var points = Object.keys(marks).map(parseFloat);
@@ -25728,7 +32650,7 @@ exports.Steps = function (_a) {
 
 
 /***/ }),
-/* 479 */
+/* 417 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25744,7 +32666,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var EventBaseObject_1 = __webpack_require__(480);
+var EventBaseObject_1 = __webpack_require__(418);
 var commonProps = [
     'altKey', 'bubbles', 'cancelable',
     'ctrlKey', 'currentTarget', 'eventPhase',
@@ -25985,7 +32907,7 @@ exports.DomEventObject = DomEventObject;
 
 
 /***/ }),
-/* 480 */
+/* 418 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -26055,13 +32977,13 @@ exports.EventBaseObject = EventBaseObject;
 
 
 /***/ }),
-/* 481 */
+/* 419 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var DomEventObject_1 = __webpack_require__(479);
+var DomEventObject_1 = __webpack_require__(417);
 function addEventListener(target, eventType, callback) {
     function wrapCallback(e) {
         var ne = new DomEventObject_1.DomEventObject(e);
@@ -26088,52 +33010,52 @@ exports.addEventListener = addEventListener;
 
 
 /***/ }),
-/* 482 */
+/* 420 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var Icon_1 = __webpack_require__(119);
+var Icon_1 = __webpack_require__(89);
 exports.Icon = Icon_1.Icon;
-var Row_1 = __webpack_require__(460);
+var Row_1 = __webpack_require__(398);
 exports.Row = Row_1.Row;
-var Col_1 = __webpack_require__(459);
+var Col_1 = __webpack_require__(397);
 exports.Col = Col_1.Col;
-var Button_1 = __webpack_require__(462);
+var Button_1 = __webpack_require__(400);
 exports.Button = Button_1.Button;
-var Form_1 = __webpack_require__(465);
+var Form_1 = __webpack_require__(403);
 exports.Form = Form_1.Form;
-var FormGroup_1 = __webpack_require__(468);
+var FormGroup_1 = __webpack_require__(406);
 exports.FormGroup = FormGroup_1.FormGroup;
-var ControlLabel_1 = __webpack_require__(464);
+var ControlLabel_1 = __webpack_require__(402);
 exports.ControlLabel = ControlLabel_1.ControlLabel;
-var FormControl_1 = __webpack_require__(210);
+var FormControl_1 = __webpack_require__(164);
 exports.FormControl = FormControl_1.FormControl;
-var HelpBlock_1 = __webpack_require__(469);
+var HelpBlock_1 = __webpack_require__(407);
 exports.HelpBlock = HelpBlock_1.HelpBlock;
-var Checkbox_1 = __webpack_require__(463);
+var Checkbox_1 = __webpack_require__(401);
 exports.Checkbox = Checkbox_1.Checkbox;
-var InputGroup_1 = __webpack_require__(211);
+var InputGroup_1 = __webpack_require__(165);
 exports.InputGroup = InputGroup_1.InputGroup;
-var InputGroupAddon_1 = __webpack_require__(212);
+var InputGroupAddon_1 = __webpack_require__(166);
 exports.InputGroupAddon = InputGroupAddon_1.InputGroupAddon;
-var InputGroupButton_1 = __webpack_require__(470);
+var InputGroupButton_1 = __webpack_require__(408);
 exports.InputGroupButton = InputGroupButton_1.InputGroupButton;
-var TextWithCopy_1 = __webpack_require__(471);
+var TextWithCopy_1 = __webpack_require__(409);
 exports.TextWithCopy = TextWithCopy_1.TextWithCopy;
-var Slider_1 = __webpack_require__(477);
+var Slider_1 = __webpack_require__(415);
 exports.Slider = Slider_1.Slider;
-var Range_1 = __webpack_require__(476);
+var Range_1 = __webpack_require__(414);
 exports.Range = Range_1.Range;
-var ProgressLine_1 = __webpack_require__(473);
+var ProgressLine_1 = __webpack_require__(411);
 exports.ProgressLine = ProgressLine_1.ProgressLine;
-var ProgressCircle_1 = __webpack_require__(472);
+var ProgressCircle_1 = __webpack_require__(410);
 exports.ProgressCircle = ProgressCircle_1.ProgressCircle;
 
 
 /***/ }),
-/* 483 */
+/* 421 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -26149,9 +33071,9 @@ exports.ProgressCircle = ProgressCircle_1.ProgressCircle;
 
 
 if (process.env.NODE_ENV !== 'production') {
-  var invariant = __webpack_require__(1);
-  var warning = __webpack_require__(2);
-  var ReactPropTypesSecret = __webpack_require__(121);
+  var invariant = __webpack_require__(2);
+  var warning = __webpack_require__(3);
+  var ReactPropTypesSecret = __webpack_require__(90);
   var loggedTypeFailures = {};
 }
 
@@ -26202,7 +33124,7 @@ module.exports = checkPropTypes;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 484 */
+/* 422 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -26217,9 +33139,9 @@ module.exports = checkPropTypes;
 
 
 
-var emptyFunction = __webpack_require__(12);
-var invariant = __webpack_require__(1);
-var ReactPropTypesSecret = __webpack_require__(121);
+var emptyFunction = __webpack_require__(11);
+var invariant = __webpack_require__(2);
+var ReactPropTypesSecret = __webpack_require__(90);
 
 module.exports = function() {
   function shim(props, propName, componentName, location, propFullName, secret) {
@@ -26268,28 +33190,28 @@ module.exports = function() {
 
 
 /***/ }),
-/* 485 */,
-/* 486 */,
-/* 487 */,
-/* 488 */,
-/* 489 */,
-/* 490 */,
-/* 491 */,
-/* 492 */,
-/* 493 */,
-/* 494 */,
-/* 495 */,
-/* 496 */,
-/* 497 */,
-/* 498 */,
-/* 499 */,
-/* 500 */,
-/* 501 */,
-/* 502 */,
-/* 503 */,
-/* 504 */,
-/* 505 */,
-/* 506 */
+/* 423 */,
+/* 424 */,
+/* 425 */,
+/* 426 */,
+/* 427 */,
+/* 428 */,
+/* 429 */,
+/* 430 */,
+/* 431 */,
+/* 432 */,
+/* 433 */,
+/* 434 */,
+/* 435 */,
+/* 436 */,
+/* 437 */,
+/* 438 */,
+/* 439 */,
+/* 440 */,
+/* 441 */,
+/* 442 */,
+/* 443 */,
+/* 444 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -26368,7 +33290,7 @@ var ARIADOMPropertyConfig = {
 module.exports = ARIADOMPropertyConfig;
 
 /***/ }),
-/* 507 */
+/* 445 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -26384,9 +33306,9 @@ module.exports = ARIADOMPropertyConfig;
 
 
 
-var ReactDOMComponentTree = __webpack_require__(11);
+var ReactDOMComponentTree = __webpack_require__(7);
 
-var focusNode = __webpack_require__(60);
+var focusNode = __webpack_require__(120);
 
 var AutoFocusUtils = {
   focusDOMComponent: function () {
@@ -26397,7 +33319,7 @@ var AutoFocusUtils = {
 module.exports = AutoFocusUtils;
 
 /***/ }),
-/* 508 */
+/* 446 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -26413,11 +33335,11 @@ module.exports = AutoFocusUtils;
 
 
 
-var EventPropagators = __webpack_require__(54);
-var ExecutionEnvironment = __webpack_require__(5);
-var FallbackCompositionState = __webpack_require__(514);
-var SyntheticCompositionEvent = __webpack_require__(557);
-var SyntheticInputEvent = __webpack_require__(560);
+var EventPropagators = __webpack_require__(41);
+var ExecutionEnvironment = __webpack_require__(8);
+var FallbackCompositionState = __webpack_require__(452);
+var SyntheticCompositionEvent = __webpack_require__(495);
+var SyntheticInputEvent = __webpack_require__(498);
 
 var END_KEYCODES = [9, 13, 27, 32]; // Tab, Return, Esc, Space
 var START_KEYCODE = 229;
@@ -26786,7 +33708,7 @@ var BeforeInputEventPlugin = {
 module.exports = BeforeInputEventPlugin;
 
 /***/ }),
-/* 509 */
+/* 447 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -26802,15 +33724,15 @@ module.exports = BeforeInputEventPlugin;
 
 
 
-var CSSProperty = __webpack_require__(223);
-var ExecutionEnvironment = __webpack_require__(5);
-var ReactInstrumentation = __webpack_require__(16);
+var CSSProperty = __webpack_require__(178);
+var ExecutionEnvironment = __webpack_require__(8);
+var ReactInstrumentation = __webpack_require__(12);
 
-var camelizeStyleName = __webpack_require__(150);
-var dangerousStyleValue = __webpack_require__(567);
-var hyphenateStyleName = __webpack_require__(154);
-var memoizeStringOnly = __webpack_require__(155);
-var warning = __webpack_require__(2);
+var camelizeStyleName = __webpack_require__(234);
+var dangerousStyleValue = __webpack_require__(505);
+var hyphenateStyleName = __webpack_require__(241);
+var memoizeStringOnly = __webpack_require__(244);
+var warning = __webpack_require__(3);
 
 var processStyleName = memoizeStringOnly(function (styleName) {
   return hyphenateStyleName(styleName);
@@ -27007,7 +33929,7 @@ module.exports = CSSPropertyOperations;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 510 */
+/* 448 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -27023,17 +33945,17 @@ module.exports = CSSPropertyOperations;
 
 
 
-var EventPluginHub = __webpack_require__(53);
-var EventPropagators = __webpack_require__(54);
-var ExecutionEnvironment = __webpack_require__(5);
-var ReactDOMComponentTree = __webpack_require__(11);
-var ReactUpdates = __webpack_require__(19);
-var SyntheticEvent = __webpack_require__(22);
+var EventPluginHub = __webpack_require__(40);
+var EventPropagators = __webpack_require__(41);
+var ExecutionEnvironment = __webpack_require__(8);
+var ReactDOMComponentTree = __webpack_require__(7);
+var ReactUpdates = __webpack_require__(13);
+var SyntheticEvent = __webpack_require__(15);
 
-var inputValueTracking = __webpack_require__(240);
-var getEventTarget = __webpack_require__(136);
-var isEventSupported = __webpack_require__(137);
-var isTextInputElement = __webpack_require__(242);
+var inputValueTracking = __webpack_require__(195);
+var getEventTarget = __webpack_require__(105);
+var isEventSupported = __webpack_require__(106);
+var isTextInputElement = __webpack_require__(197);
 
 var eventTypes = {
   change: {
@@ -27324,7 +34246,7 @@ var ChangeEventPlugin = {
 module.exports = ChangeEventPlugin;
 
 /***/ }),
-/* 511 */
+/* 449 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -27340,14 +34262,14 @@ module.exports = ChangeEventPlugin;
 
 
 
-var _prodInvariant = __webpack_require__(7);
+var _prodInvariant = __webpack_require__(4);
 
-var DOMLazyTree = __webpack_require__(40);
-var ExecutionEnvironment = __webpack_require__(5);
+var DOMLazyTree = __webpack_require__(28);
+var ExecutionEnvironment = __webpack_require__(8);
 
-var createNodesFromMarkup = __webpack_require__(152);
-var emptyFunction = __webpack_require__(12);
-var invariant = __webpack_require__(1);
+var createNodesFromMarkup = __webpack_require__(237);
+var emptyFunction = __webpack_require__(11);
+var invariant = __webpack_require__(2);
 
 var Danger = {
   /**
@@ -27376,7 +34298,7 @@ module.exports = Danger;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 512 */
+/* 450 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -27407,7 +34329,7 @@ var DefaultEventPluginOrder = ['ResponderEventPlugin', 'SimpleEventPlugin', 'Tap
 module.exports = DefaultEventPluginOrder;
 
 /***/ }),
-/* 513 */
+/* 451 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -27423,9 +34345,9 @@ module.exports = DefaultEventPluginOrder;
 
 
 
-var EventPropagators = __webpack_require__(54);
-var ReactDOMComponentTree = __webpack_require__(11);
-var SyntheticMouseEvent = __webpack_require__(82);
+var EventPropagators = __webpack_require__(41);
+var ReactDOMComponentTree = __webpack_require__(7);
+var SyntheticMouseEvent = __webpack_require__(62);
 
 var eventTypes = {
   mouseEnter: {
@@ -27510,7 +34432,7 @@ var EnterLeaveEventPlugin = {
 module.exports = EnterLeaveEventPlugin;
 
 /***/ }),
-/* 514 */
+/* 452 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -27526,11 +34448,11 @@ module.exports = EnterLeaveEventPlugin;
 
 
 
-var _assign = __webpack_require__(4);
+var _assign = __webpack_require__(5);
 
-var PooledClass = __webpack_require__(30);
+var PooledClass = __webpack_require__(23);
 
-var getTextContentAccessor = __webpack_require__(239);
+var getTextContentAccessor = __webpack_require__(194);
 
 /**
  * This helper class stores information about text content of a target node,
@@ -27610,7 +34532,7 @@ PooledClass.addPoolingTo(FallbackCompositionState);
 module.exports = FallbackCompositionState;
 
 /***/ }),
-/* 515 */
+/* 453 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -27626,7 +34548,7 @@ module.exports = FallbackCompositionState;
 
 
 
-var DOMProperty = __webpack_require__(25);
+var DOMProperty = __webpack_require__(19);
 
 var MUST_USE_PROPERTY = DOMProperty.injection.MUST_USE_PROPERTY;
 var HAS_BOOLEAN_VALUE = DOMProperty.injection.HAS_BOOLEAN_VALUE;
@@ -27851,7 +34773,7 @@ var HTMLDOMPropertyConfig = {
 module.exports = HTMLDOMPropertyConfig;
 
 /***/ }),
-/* 516 */
+/* 454 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -27867,13 +34789,13 @@ module.exports = HTMLDOMPropertyConfig;
 
 
 
-var ReactReconciler = __webpack_require__(41);
+var ReactReconciler = __webpack_require__(29);
 
-var instantiateReactComponent = __webpack_require__(241);
-var KeyEscapeUtils = __webpack_require__(128);
-var shouldUpdateReactComponent = __webpack_require__(138);
-var traverseAllChildren = __webpack_require__(244);
-var warning = __webpack_require__(2);
+var instantiateReactComponent = __webpack_require__(196);
+var KeyEscapeUtils = __webpack_require__(97);
+var shouldUpdateReactComponent = __webpack_require__(107);
+var traverseAllChildren = __webpack_require__(199);
+var warning = __webpack_require__(3);
 
 var ReactComponentTreeHook;
 
@@ -27883,7 +34805,7 @@ if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 't
   // https://github.com/facebook/react/issues/7240
   // Remove the inline requires when we don't need them anymore:
   // https://github.com/facebook/react/pull/7178
-  ReactComponentTreeHook = __webpack_require__(8);
+  ReactComponentTreeHook = __webpack_require__(10);
 }
 
 function instantiateChild(childInstances, child, name, selfDebugID) {
@@ -27891,7 +34813,7 @@ function instantiateChild(childInstances, child, name, selfDebugID) {
   var keyUnique = childInstances[name] === undefined;
   if (process.env.NODE_ENV !== 'production') {
     if (!ReactComponentTreeHook) {
-      ReactComponentTreeHook = __webpack_require__(8);
+      ReactComponentTreeHook = __webpack_require__(10);
     }
     if (!keyUnique) {
       process.env.NODE_ENV !== 'production' ? warning(false, 'flattenChildren(...): Encountered two children with the same key, ' + '`%s`. Child keys must be unique; when two children share a key, only ' + 'the first child will be used.%s', KeyEscapeUtils.unescape(name), ReactComponentTreeHook.getStackAddendumByID(selfDebugID)) : void 0;
@@ -28010,7 +34932,7 @@ module.exports = ReactChildReconciler;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 517 */
+/* 455 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -28026,8 +34948,8 @@ module.exports = ReactChildReconciler;
 
 
 
-var DOMChildrenOperations = __webpack_require__(125);
-var ReactDOMIDOperations = __webpack_require__(524);
+var DOMChildrenOperations = __webpack_require__(94);
+var ReactDOMIDOperations = __webpack_require__(462);
 
 /**
  * Abstracts away all functionality of the reconciler that requires knowledge of
@@ -28043,7 +34965,7 @@ var ReactComponentBrowserEnvironment = {
 module.exports = ReactComponentBrowserEnvironment;
 
 /***/ }),
-/* 518 */
+/* 456 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -28059,27 +34981,27 @@ module.exports = ReactComponentBrowserEnvironment;
 
 
 
-var _prodInvariant = __webpack_require__(7),
-    _assign = __webpack_require__(4);
+var _prodInvariant = __webpack_require__(4),
+    _assign = __webpack_require__(5);
 
-var React = __webpack_require__(17);
-var ReactComponentEnvironment = __webpack_require__(130);
-var ReactCurrentOwner = __webpack_require__(13);
-var ReactErrorUtils = __webpack_require__(131);
-var ReactInstanceMap = __webpack_require__(55);
-var ReactInstrumentation = __webpack_require__(16);
-var ReactNodeTypes = __webpack_require__(233);
-var ReactReconciler = __webpack_require__(41);
+var React = __webpack_require__(30);
+var ReactComponentEnvironment = __webpack_require__(99);
+var ReactCurrentOwner = __webpack_require__(14);
+var ReactErrorUtils = __webpack_require__(100);
+var ReactInstanceMap = __webpack_require__(42);
+var ReactInstrumentation = __webpack_require__(12);
+var ReactNodeTypes = __webpack_require__(188);
+var ReactReconciler = __webpack_require__(29);
 
 if (process.env.NODE_ENV !== 'production') {
-  var checkReactTypeSpec = __webpack_require__(566);
+  var checkReactTypeSpec = __webpack_require__(504);
 }
 
-var emptyObject = __webpack_require__(33);
-var invariant = __webpack_require__(1);
-var shallowEqual = __webpack_require__(34);
-var shouldUpdateReactComponent = __webpack_require__(138);
-var warning = __webpack_require__(2);
+var emptyObject = __webpack_require__(46);
+var invariant = __webpack_require__(2);
+var shallowEqual = __webpack_require__(70);
+var shouldUpdateReactComponent = __webpack_require__(107);
+var warning = __webpack_require__(3);
 
 var CompositeTypes = {
   ImpureClass: 0,
@@ -28949,7 +35871,7 @@ module.exports = ReactCompositeComponent;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 519 */
+/* 457 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -28967,17 +35889,17 @@ module.exports = ReactCompositeComponent;
 
 
 
-var ReactDOMComponentTree = __webpack_require__(11);
-var ReactDefaultInjection = __webpack_require__(536);
-var ReactMount = __webpack_require__(232);
-var ReactReconciler = __webpack_require__(41);
-var ReactUpdates = __webpack_require__(19);
-var ReactVersion = __webpack_require__(551);
+var ReactDOMComponentTree = __webpack_require__(7);
+var ReactDefaultInjection = __webpack_require__(474);
+var ReactMount = __webpack_require__(187);
+var ReactReconciler = __webpack_require__(29);
+var ReactUpdates = __webpack_require__(13);
+var ReactVersion = __webpack_require__(489);
 
-var findDOMNode = __webpack_require__(568);
-var getHostComponentFromComposite = __webpack_require__(238);
-var renderSubtreeIntoContainer = __webpack_require__(575);
-var warning = __webpack_require__(2);
+var findDOMNode = __webpack_require__(506);
+var getHostComponentFromComposite = __webpack_require__(193);
+var renderSubtreeIntoContainer = __webpack_require__(513);
+var warning = __webpack_require__(3);
 
 ReactDefaultInjection.inject();
 
@@ -29017,7 +35939,7 @@ if (typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ !== 'undefined' && typeof __REACT_DEVT
 }
 
 if (process.env.NODE_ENV !== 'production') {
-  var ExecutionEnvironment = __webpack_require__(5);
+  var ExecutionEnvironment = __webpack_require__(8);
   if (ExecutionEnvironment.canUseDOM && window.top === window.self) {
     // First check if devtools is not installed
     if (typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ === 'undefined') {
@@ -29052,10 +35974,10 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 if (process.env.NODE_ENV !== 'production') {
-  var ReactInstrumentation = __webpack_require__(16);
-  var ReactDOMUnknownPropertyHook = __webpack_require__(533);
-  var ReactDOMNullInputValuePropHook = __webpack_require__(527);
-  var ReactDOMInvalidARIAHook = __webpack_require__(526);
+  var ReactInstrumentation = __webpack_require__(12);
+  var ReactDOMUnknownPropertyHook = __webpack_require__(471);
+  var ReactDOMNullInputValuePropHook = __webpack_require__(465);
+  var ReactDOMInvalidARIAHook = __webpack_require__(464);
 
   ReactInstrumentation.debugTool.addHook(ReactDOMUnknownPropertyHook);
   ReactInstrumentation.debugTool.addHook(ReactDOMNullInputValuePropHook);
@@ -29066,7 +35988,7 @@ module.exports = ReactDOM;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 520 */
+/* 458 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -29084,36 +36006,36 @@ module.exports = ReactDOM;
 
 
 
-var _prodInvariant = __webpack_require__(7),
-    _assign = __webpack_require__(4);
+var _prodInvariant = __webpack_require__(4),
+    _assign = __webpack_require__(5);
 
-var AutoFocusUtils = __webpack_require__(507);
-var CSSPropertyOperations = __webpack_require__(509);
-var DOMLazyTree = __webpack_require__(40);
-var DOMNamespaces = __webpack_require__(126);
-var DOMProperty = __webpack_require__(25);
-var DOMPropertyOperations = __webpack_require__(225);
-var EventPluginHub = __webpack_require__(53);
-var EventPluginRegistry = __webpack_require__(80);
-var ReactBrowserEventEmitter = __webpack_require__(81);
-var ReactDOMComponentFlags = __webpack_require__(226);
-var ReactDOMComponentTree = __webpack_require__(11);
-var ReactDOMInput = __webpack_require__(525);
-var ReactDOMOption = __webpack_require__(528);
-var ReactDOMSelect = __webpack_require__(227);
-var ReactDOMTextarea = __webpack_require__(531);
-var ReactInstrumentation = __webpack_require__(16);
-var ReactMultiChild = __webpack_require__(544);
-var ReactServerRenderingTransaction = __webpack_require__(549);
+var AutoFocusUtils = __webpack_require__(445);
+var CSSPropertyOperations = __webpack_require__(447);
+var DOMLazyTree = __webpack_require__(28);
+var DOMNamespaces = __webpack_require__(95);
+var DOMProperty = __webpack_require__(19);
+var DOMPropertyOperations = __webpack_require__(180);
+var EventPluginHub = __webpack_require__(40);
+var EventPluginRegistry = __webpack_require__(60);
+var ReactBrowserEventEmitter = __webpack_require__(61);
+var ReactDOMComponentFlags = __webpack_require__(181);
+var ReactDOMComponentTree = __webpack_require__(7);
+var ReactDOMInput = __webpack_require__(463);
+var ReactDOMOption = __webpack_require__(466);
+var ReactDOMSelect = __webpack_require__(182);
+var ReactDOMTextarea = __webpack_require__(469);
+var ReactInstrumentation = __webpack_require__(12);
+var ReactMultiChild = __webpack_require__(482);
+var ReactServerRenderingTransaction = __webpack_require__(487);
 
-var emptyFunction = __webpack_require__(12);
-var escapeTextContentForBrowser = __webpack_require__(84);
-var invariant = __webpack_require__(1);
-var isEventSupported = __webpack_require__(137);
-var shallowEqual = __webpack_require__(34);
-var inputValueTracking = __webpack_require__(240);
-var validateDOMNesting = __webpack_require__(139);
-var warning = __webpack_require__(2);
+var emptyFunction = __webpack_require__(11);
+var escapeTextContentForBrowser = __webpack_require__(64);
+var invariant = __webpack_require__(2);
+var isEventSupported = __webpack_require__(106);
+var shallowEqual = __webpack_require__(70);
+var inputValueTracking = __webpack_require__(195);
+var validateDOMNesting = __webpack_require__(108);
+var warning = __webpack_require__(3);
 
 var Flags = ReactDOMComponentFlags;
 var deleteListener = EventPluginHub.deleteListener;
@@ -30082,7 +37004,7 @@ module.exports = ReactDOMComponent;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 521 */
+/* 459 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -30098,7 +37020,7 @@ module.exports = ReactDOMComponent;
 
 
 
-var validateDOMNesting = __webpack_require__(139);
+var validateDOMNesting = __webpack_require__(108);
 
 var DOC_NODE_TYPE = 9;
 
@@ -30121,7 +37043,7 @@ module.exports = ReactDOMContainerInfo;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 522 */
+/* 460 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -30137,10 +37059,10 @@ module.exports = ReactDOMContainerInfo;
 
 
 
-var _assign = __webpack_require__(4);
+var _assign = __webpack_require__(5);
 
-var DOMLazyTree = __webpack_require__(40);
-var ReactDOMComponentTree = __webpack_require__(11);
+var DOMLazyTree = __webpack_require__(28);
+var ReactDOMComponentTree = __webpack_require__(7);
 
 var ReactDOMEmptyComponent = function (instantiate) {
   // ReactCompositeComponent uses this:
@@ -30186,7 +37108,7 @@ _assign(ReactDOMEmptyComponent.prototype, {
 module.exports = ReactDOMEmptyComponent;
 
 /***/ }),
-/* 523 */
+/* 461 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -30210,7 +37132,7 @@ var ReactDOMFeatureFlags = {
 module.exports = ReactDOMFeatureFlags;
 
 /***/ }),
-/* 524 */
+/* 462 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -30226,8 +37148,8 @@ module.exports = ReactDOMFeatureFlags;
 
 
 
-var DOMChildrenOperations = __webpack_require__(125);
-var ReactDOMComponentTree = __webpack_require__(11);
+var DOMChildrenOperations = __webpack_require__(94);
+var ReactDOMComponentTree = __webpack_require__(7);
 
 /**
  * Operations used to process updates to DOM nodes.
@@ -30248,7 +37170,7 @@ var ReactDOMIDOperations = {
 module.exports = ReactDOMIDOperations;
 
 /***/ }),
-/* 525 */
+/* 463 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -30264,16 +37186,16 @@ module.exports = ReactDOMIDOperations;
 
 
 
-var _prodInvariant = __webpack_require__(7),
-    _assign = __webpack_require__(4);
+var _prodInvariant = __webpack_require__(4),
+    _assign = __webpack_require__(5);
 
-var DOMPropertyOperations = __webpack_require__(225);
-var LinkedValueUtils = __webpack_require__(129);
-var ReactDOMComponentTree = __webpack_require__(11);
-var ReactUpdates = __webpack_require__(19);
+var DOMPropertyOperations = __webpack_require__(180);
+var LinkedValueUtils = __webpack_require__(98);
+var ReactDOMComponentTree = __webpack_require__(7);
+var ReactUpdates = __webpack_require__(13);
 
-var invariant = __webpack_require__(1);
-var warning = __webpack_require__(2);
+var invariant = __webpack_require__(2);
+var warning = __webpack_require__(3);
 
 var didWarnValueLink = false;
 var didWarnCheckedLink = false;
@@ -30541,7 +37463,7 @@ module.exports = ReactDOMInput;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 526 */
+/* 464 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -30557,10 +37479,10 @@ module.exports = ReactDOMInput;
 
 
 
-var DOMProperty = __webpack_require__(25);
-var ReactComponentTreeHook = __webpack_require__(8);
+var DOMProperty = __webpack_require__(19);
+var ReactComponentTreeHook = __webpack_require__(10);
 
-var warning = __webpack_require__(2);
+var warning = __webpack_require__(3);
 
 var warnedProperties = {};
 var rARIA = new RegExp('^(aria)-[' + DOMProperty.ATTRIBUTE_NAME_CHAR + ']*$');
@@ -30640,7 +37562,7 @@ module.exports = ReactDOMInvalidARIAHook;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 527 */
+/* 465 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -30656,9 +37578,9 @@ module.exports = ReactDOMInvalidARIAHook;
 
 
 
-var ReactComponentTreeHook = __webpack_require__(8);
+var ReactComponentTreeHook = __webpack_require__(10);
 
-var warning = __webpack_require__(2);
+var warning = __webpack_require__(3);
 
 var didWarnValueNull = false;
 
@@ -30689,7 +37611,7 @@ module.exports = ReactDOMNullInputValuePropHook;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 528 */
+/* 466 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -30705,13 +37627,13 @@ module.exports = ReactDOMNullInputValuePropHook;
 
 
 
-var _assign = __webpack_require__(4);
+var _assign = __webpack_require__(5);
 
-var React = __webpack_require__(17);
-var ReactDOMComponentTree = __webpack_require__(11);
-var ReactDOMSelect = __webpack_require__(227);
+var React = __webpack_require__(30);
+var ReactDOMComponentTree = __webpack_require__(7);
+var ReactDOMSelect = __webpack_require__(182);
 
-var warning = __webpack_require__(2);
+var warning = __webpack_require__(3);
 var didWarnInvalidOptionChildren = false;
 
 function flattenChildren(children) {
@@ -30817,7 +37739,7 @@ module.exports = ReactDOMOption;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 529 */
+/* 467 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -30833,10 +37755,10 @@ module.exports = ReactDOMOption;
 
 
 
-var ExecutionEnvironment = __webpack_require__(5);
+var ExecutionEnvironment = __webpack_require__(8);
 
-var getNodeForCharacterOffset = __webpack_require__(572);
-var getTextContentAccessor = __webpack_require__(239);
+var getNodeForCharacterOffset = __webpack_require__(510);
+var getTextContentAccessor = __webpack_require__(194);
 
 /**
  * While `isCollapsed` is available on the Selection object and `collapsed`
@@ -31034,7 +37956,7 @@ var ReactDOMSelection = {
 module.exports = ReactDOMSelection;
 
 /***/ }),
-/* 530 */
+/* 468 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -31050,16 +37972,16 @@ module.exports = ReactDOMSelection;
 
 
 
-var _prodInvariant = __webpack_require__(7),
-    _assign = __webpack_require__(4);
+var _prodInvariant = __webpack_require__(4),
+    _assign = __webpack_require__(5);
 
-var DOMChildrenOperations = __webpack_require__(125);
-var DOMLazyTree = __webpack_require__(40);
-var ReactDOMComponentTree = __webpack_require__(11);
+var DOMChildrenOperations = __webpack_require__(94);
+var DOMLazyTree = __webpack_require__(28);
+var ReactDOMComponentTree = __webpack_require__(7);
 
-var escapeTextContentForBrowser = __webpack_require__(84);
-var invariant = __webpack_require__(1);
-var validateDOMNesting = __webpack_require__(139);
+var escapeTextContentForBrowser = __webpack_require__(64);
+var invariant = __webpack_require__(2);
+var validateDOMNesting = __webpack_require__(108);
 
 /**
  * Text nodes violate a couple assumptions that React makes about components:
@@ -31202,7 +38124,7 @@ module.exports = ReactDOMTextComponent;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 531 */
+/* 469 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -31218,15 +38140,15 @@ module.exports = ReactDOMTextComponent;
 
 
 
-var _prodInvariant = __webpack_require__(7),
-    _assign = __webpack_require__(4);
+var _prodInvariant = __webpack_require__(4),
+    _assign = __webpack_require__(5);
 
-var LinkedValueUtils = __webpack_require__(129);
-var ReactDOMComponentTree = __webpack_require__(11);
-var ReactUpdates = __webpack_require__(19);
+var LinkedValueUtils = __webpack_require__(98);
+var ReactDOMComponentTree = __webpack_require__(7);
+var ReactUpdates = __webpack_require__(13);
 
-var invariant = __webpack_require__(1);
-var warning = __webpack_require__(2);
+var invariant = __webpack_require__(2);
+var warning = __webpack_require__(3);
 
 var didWarnValueLink = false;
 var didWarnValDefaultVal = false;
@@ -31368,7 +38290,7 @@ module.exports = ReactDOMTextarea;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 532 */
+/* 470 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -31384,9 +38306,9 @@ module.exports = ReactDOMTextarea;
 
 
 
-var _prodInvariant = __webpack_require__(7);
+var _prodInvariant = __webpack_require__(4);
 
-var invariant = __webpack_require__(1);
+var invariant = __webpack_require__(2);
 
 /**
  * Return the lowest common ancestor of A and B, or null if they are in
@@ -31510,7 +38432,7 @@ module.exports = {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 533 */
+/* 471 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -31526,11 +38448,11 @@ module.exports = {
 
 
 
-var DOMProperty = __webpack_require__(25);
-var EventPluginRegistry = __webpack_require__(80);
-var ReactComponentTreeHook = __webpack_require__(8);
+var DOMProperty = __webpack_require__(19);
+var EventPluginRegistry = __webpack_require__(60);
+var ReactComponentTreeHook = __webpack_require__(10);
 
-var warning = __webpack_require__(2);
+var warning = __webpack_require__(3);
 
 if (process.env.NODE_ENV !== 'production') {
   var reactProps = {
@@ -31628,7 +38550,7 @@ module.exports = ReactDOMUnknownPropertyHook;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 534 */
+/* 472 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -31645,13 +38567,13 @@ module.exports = ReactDOMUnknownPropertyHook;
 
 
 
-var ReactInvalidSetStateWarningHook = __webpack_require__(542);
-var ReactHostOperationHistoryHook = __webpack_require__(540);
-var ReactComponentTreeHook = __webpack_require__(8);
-var ExecutionEnvironment = __webpack_require__(5);
+var ReactInvalidSetStateWarningHook = __webpack_require__(480);
+var ReactHostOperationHistoryHook = __webpack_require__(478);
+var ReactComponentTreeHook = __webpack_require__(10);
+var ExecutionEnvironment = __webpack_require__(8);
 
-var performanceNow = __webpack_require__(156);
-var warning = __webpack_require__(2);
+var performanceNow = __webpack_require__(246);
+var warning = __webpack_require__(3);
 
 var hooks = [];
 var didHookThrowForEvent = {};
@@ -31995,7 +38917,7 @@ module.exports = ReactDebugTool;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 535 */
+/* 473 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -32011,12 +38933,12 @@ module.exports = ReactDebugTool;
 
 
 
-var _assign = __webpack_require__(4);
+var _assign = __webpack_require__(5);
 
-var ReactUpdates = __webpack_require__(19);
-var Transaction = __webpack_require__(83);
+var ReactUpdates = __webpack_require__(13);
+var Transaction = __webpack_require__(63);
 
-var emptyFunction = __webpack_require__(12);
+var emptyFunction = __webpack_require__(11);
 
 var RESET_BATCHED_UPDATES = {
   initialize: emptyFunction,
@@ -32068,7 +38990,7 @@ var ReactDefaultBatchingStrategy = {
 module.exports = ReactDefaultBatchingStrategy;
 
 /***/ }),
-/* 536 */
+/* 474 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -32084,25 +39006,25 @@ module.exports = ReactDefaultBatchingStrategy;
 
 
 
-var ARIADOMPropertyConfig = __webpack_require__(506);
-var BeforeInputEventPlugin = __webpack_require__(508);
-var ChangeEventPlugin = __webpack_require__(510);
-var DefaultEventPluginOrder = __webpack_require__(512);
-var EnterLeaveEventPlugin = __webpack_require__(513);
-var HTMLDOMPropertyConfig = __webpack_require__(515);
-var ReactComponentBrowserEnvironment = __webpack_require__(517);
-var ReactDOMComponent = __webpack_require__(520);
-var ReactDOMComponentTree = __webpack_require__(11);
-var ReactDOMEmptyComponent = __webpack_require__(522);
-var ReactDOMTreeTraversal = __webpack_require__(532);
-var ReactDOMTextComponent = __webpack_require__(530);
-var ReactDefaultBatchingStrategy = __webpack_require__(535);
-var ReactEventListener = __webpack_require__(539);
-var ReactInjection = __webpack_require__(541);
-var ReactReconcileTransaction = __webpack_require__(547);
-var SVGDOMPropertyConfig = __webpack_require__(552);
-var SelectEventPlugin = __webpack_require__(553);
-var SimpleEventPlugin = __webpack_require__(554);
+var ARIADOMPropertyConfig = __webpack_require__(444);
+var BeforeInputEventPlugin = __webpack_require__(446);
+var ChangeEventPlugin = __webpack_require__(448);
+var DefaultEventPluginOrder = __webpack_require__(450);
+var EnterLeaveEventPlugin = __webpack_require__(451);
+var HTMLDOMPropertyConfig = __webpack_require__(453);
+var ReactComponentBrowserEnvironment = __webpack_require__(455);
+var ReactDOMComponent = __webpack_require__(458);
+var ReactDOMComponentTree = __webpack_require__(7);
+var ReactDOMEmptyComponent = __webpack_require__(460);
+var ReactDOMTreeTraversal = __webpack_require__(470);
+var ReactDOMTextComponent = __webpack_require__(468);
+var ReactDefaultBatchingStrategy = __webpack_require__(473);
+var ReactEventListener = __webpack_require__(477);
+var ReactInjection = __webpack_require__(479);
+var ReactReconcileTransaction = __webpack_require__(485);
+var SVGDOMPropertyConfig = __webpack_require__(490);
+var SelectEventPlugin = __webpack_require__(491);
+var SimpleEventPlugin = __webpack_require__(492);
 
 var alreadyInjected = false;
 
@@ -32159,7 +39081,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 537 */
+/* 475 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -32184,7 +39106,7 @@ var REACT_ELEMENT_TYPE = typeof Symbol === 'function' && Symbol['for'] && Symbol
 module.exports = REACT_ELEMENT_TYPE;
 
 /***/ }),
-/* 538 */
+/* 476 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -32200,7 +39122,7 @@ module.exports = REACT_ELEMENT_TYPE;
 
 
 
-var EventPluginHub = __webpack_require__(53);
+var EventPluginHub = __webpack_require__(40);
 
 function runEventQueueInBatch(events) {
   EventPluginHub.enqueueEvents(events);
@@ -32221,7 +39143,7 @@ var ReactEventEmitterMixin = {
 module.exports = ReactEventEmitterMixin;
 
 /***/ }),
-/* 539 */
+/* 477 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -32237,16 +39159,16 @@ module.exports = ReactEventEmitterMixin;
 
 
 
-var _assign = __webpack_require__(4);
+var _assign = __webpack_require__(5);
 
-var EventListener = __webpack_require__(59);
-var ExecutionEnvironment = __webpack_require__(5);
-var PooledClass = __webpack_require__(30);
-var ReactDOMComponentTree = __webpack_require__(11);
-var ReactUpdates = __webpack_require__(19);
+var EventListener = __webpack_require__(119);
+var ExecutionEnvironment = __webpack_require__(8);
+var PooledClass = __webpack_require__(23);
+var ReactDOMComponentTree = __webpack_require__(7);
+var ReactUpdates = __webpack_require__(13);
 
-var getEventTarget = __webpack_require__(136);
-var getUnboundedScrollPosition = __webpack_require__(153);
+var getEventTarget = __webpack_require__(105);
+var getUnboundedScrollPosition = __webpack_require__(239);
 
 /**
  * Find the deepest React component completely containing the root of the
@@ -32381,7 +39303,7 @@ var ReactEventListener = {
 module.exports = ReactEventListener;
 
 /***/ }),
-/* 540 */
+/* 478 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -32420,7 +39342,7 @@ var ReactHostOperationHistoryHook = {
 module.exports = ReactHostOperationHistoryHook;
 
 /***/ }),
-/* 541 */
+/* 479 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -32436,14 +39358,14 @@ module.exports = ReactHostOperationHistoryHook;
 
 
 
-var DOMProperty = __webpack_require__(25);
-var EventPluginHub = __webpack_require__(53);
-var EventPluginUtils = __webpack_require__(127);
-var ReactComponentEnvironment = __webpack_require__(130);
-var ReactEmptyComponent = __webpack_require__(228);
-var ReactBrowserEventEmitter = __webpack_require__(81);
-var ReactHostComponent = __webpack_require__(230);
-var ReactUpdates = __webpack_require__(19);
+var DOMProperty = __webpack_require__(19);
+var EventPluginHub = __webpack_require__(40);
+var EventPluginUtils = __webpack_require__(96);
+var ReactComponentEnvironment = __webpack_require__(99);
+var ReactEmptyComponent = __webpack_require__(183);
+var ReactBrowserEventEmitter = __webpack_require__(61);
+var ReactHostComponent = __webpack_require__(185);
+var ReactUpdates = __webpack_require__(13);
 
 var ReactInjection = {
   Component: ReactComponentEnvironment.injection,
@@ -32459,7 +39381,7 @@ var ReactInjection = {
 module.exports = ReactInjection;
 
 /***/ }),
-/* 542 */
+/* 480 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -32476,7 +39398,7 @@ module.exports = ReactInjection;
 
 
 
-var warning = __webpack_require__(2);
+var warning = __webpack_require__(3);
 
 if (process.env.NODE_ENV !== 'production') {
   var processingChildContext = false;
@@ -32502,7 +39424,7 @@ module.exports = ReactInvalidSetStateWarningHook;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 543 */
+/* 481 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -32518,7 +39440,7 @@ module.exports = ReactInvalidSetStateWarningHook;
 
 
 
-var adler32 = __webpack_require__(565);
+var adler32 = __webpack_require__(503);
 
 var TAG_END = /\/?>/;
 var COMMENT_START = /^<\!\-\-/;
@@ -32557,7 +39479,7 @@ var ReactMarkupChecksum = {
 module.exports = ReactMarkupChecksum;
 
 /***/ }),
-/* 544 */
+/* 482 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -32573,19 +39495,19 @@ module.exports = ReactMarkupChecksum;
 
 
 
-var _prodInvariant = __webpack_require__(7);
+var _prodInvariant = __webpack_require__(4);
 
-var ReactComponentEnvironment = __webpack_require__(130);
-var ReactInstanceMap = __webpack_require__(55);
-var ReactInstrumentation = __webpack_require__(16);
+var ReactComponentEnvironment = __webpack_require__(99);
+var ReactInstanceMap = __webpack_require__(42);
+var ReactInstrumentation = __webpack_require__(12);
 
-var ReactCurrentOwner = __webpack_require__(13);
-var ReactReconciler = __webpack_require__(41);
-var ReactChildReconciler = __webpack_require__(516);
+var ReactCurrentOwner = __webpack_require__(14);
+var ReactReconciler = __webpack_require__(29);
+var ReactChildReconciler = __webpack_require__(454);
 
-var emptyFunction = __webpack_require__(12);
-var flattenChildren = __webpack_require__(569);
-var invariant = __webpack_require__(1);
+var emptyFunction = __webpack_require__(11);
+var flattenChildren = __webpack_require__(507);
+var invariant = __webpack_require__(2);
 
 /**
  * Make an update for markup to be rendered and inserted at a supplied index.
@@ -33009,7 +39931,7 @@ module.exports = ReactMultiChild;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 545 */
+/* 483 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -33026,9 +39948,9 @@ module.exports = ReactMultiChild;
 
 
 
-var _prodInvariant = __webpack_require__(7);
+var _prodInvariant = __webpack_require__(4);
 
-var invariant = __webpack_require__(1);
+var invariant = __webpack_require__(2);
 
 /**
  * @param {?object} object
@@ -33108,7 +40030,7 @@ module.exports = ReactOwner;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 546 */
+/* 484 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -33139,7 +40061,7 @@ module.exports = ReactPropTypeLocationNames;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 547 */
+/* 485 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -33155,15 +40077,15 @@ module.exports = ReactPropTypeLocationNames;
 
 
 
-var _assign = __webpack_require__(4);
+var _assign = __webpack_require__(5);
 
-var CallbackQueue = __webpack_require__(224);
-var PooledClass = __webpack_require__(30);
-var ReactBrowserEventEmitter = __webpack_require__(81);
-var ReactInputSelection = __webpack_require__(231);
-var ReactInstrumentation = __webpack_require__(16);
-var Transaction = __webpack_require__(83);
-var ReactUpdateQueue = __webpack_require__(132);
+var CallbackQueue = __webpack_require__(179);
+var PooledClass = __webpack_require__(23);
+var ReactBrowserEventEmitter = __webpack_require__(61);
+var ReactInputSelection = __webpack_require__(186);
+var ReactInstrumentation = __webpack_require__(12);
+var Transaction = __webpack_require__(63);
+var ReactUpdateQueue = __webpack_require__(101);
 
 /**
  * Ensures that, when possible, the selection range (currently selected text
@@ -33323,7 +40245,7 @@ module.exports = ReactReconcileTransaction;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 548 */
+/* 486 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -33340,7 +40262,7 @@ module.exports = ReactReconcileTransaction;
 
 
 
-var ReactOwner = __webpack_require__(545);
+var ReactOwner = __webpack_require__(483);
 
 var ReactRef = {};
 
@@ -33417,7 +40339,7 @@ ReactRef.detachRefs = function (instance, element) {
 module.exports = ReactRef;
 
 /***/ }),
-/* 549 */
+/* 487 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -33433,12 +40355,12 @@ module.exports = ReactRef;
 
 
 
-var _assign = __webpack_require__(4);
+var _assign = __webpack_require__(5);
 
-var PooledClass = __webpack_require__(30);
-var Transaction = __webpack_require__(83);
-var ReactInstrumentation = __webpack_require__(16);
-var ReactServerUpdateQueue = __webpack_require__(550);
+var PooledClass = __webpack_require__(23);
+var Transaction = __webpack_require__(63);
+var ReactInstrumentation = __webpack_require__(12);
+var ReactServerUpdateQueue = __webpack_require__(488);
 
 /**
  * Executed within the scope of the `Transaction` instance. Consider these as
@@ -33513,7 +40435,7 @@ module.exports = ReactServerRenderingTransaction;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 550 */
+/* 488 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -33532,9 +40454,9 @@ module.exports = ReactServerRenderingTransaction;
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var ReactUpdateQueue = __webpack_require__(132);
+var ReactUpdateQueue = __webpack_require__(101);
 
-var warning = __webpack_require__(2);
+var warning = __webpack_require__(3);
 
 function warnNoop(publicInstance, callerName) {
   if (process.env.NODE_ENV !== 'production') {
@@ -33658,7 +40580,7 @@ module.exports = ReactServerUpdateQueue;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 551 */
+/* 489 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -33677,7 +40599,7 @@ module.exports = ReactServerUpdateQueue;
 module.exports = '15.6.1';
 
 /***/ }),
-/* 552 */
+/* 490 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -33984,7 +40906,7 @@ Object.keys(ATTRS).forEach(function (key) {
 module.exports = SVGDOMPropertyConfig;
 
 /***/ }),
-/* 553 */
+/* 491 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -34000,15 +40922,15 @@ module.exports = SVGDOMPropertyConfig;
 
 
 
-var EventPropagators = __webpack_require__(54);
-var ExecutionEnvironment = __webpack_require__(5);
-var ReactDOMComponentTree = __webpack_require__(11);
-var ReactInputSelection = __webpack_require__(231);
-var SyntheticEvent = __webpack_require__(22);
+var EventPropagators = __webpack_require__(41);
+var ExecutionEnvironment = __webpack_require__(8);
+var ReactDOMComponentTree = __webpack_require__(7);
+var ReactInputSelection = __webpack_require__(186);
+var SyntheticEvent = __webpack_require__(15);
 
-var getActiveElement = __webpack_require__(61);
-var isTextInputElement = __webpack_require__(242);
-var shallowEqual = __webpack_require__(34);
+var getActiveElement = __webpack_require__(121);
+var isTextInputElement = __webpack_require__(197);
+var shallowEqual = __webpack_require__(70);
 
 var skipSelectionChangeEvent = ExecutionEnvironment.canUseDOM && 'documentMode' in document && document.documentMode <= 11;
 
@@ -34177,7 +41099,7 @@ var SelectEventPlugin = {
 module.exports = SelectEventPlugin;
 
 /***/ }),
-/* 554 */
+/* 492 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -34194,26 +41116,26 @@ module.exports = SelectEventPlugin;
 
 
 
-var _prodInvariant = __webpack_require__(7);
+var _prodInvariant = __webpack_require__(4);
 
-var EventListener = __webpack_require__(59);
-var EventPropagators = __webpack_require__(54);
-var ReactDOMComponentTree = __webpack_require__(11);
-var SyntheticAnimationEvent = __webpack_require__(555);
-var SyntheticClipboardEvent = __webpack_require__(556);
-var SyntheticEvent = __webpack_require__(22);
-var SyntheticFocusEvent = __webpack_require__(559);
-var SyntheticKeyboardEvent = __webpack_require__(561);
-var SyntheticMouseEvent = __webpack_require__(82);
-var SyntheticDragEvent = __webpack_require__(558);
-var SyntheticTouchEvent = __webpack_require__(562);
-var SyntheticTransitionEvent = __webpack_require__(563);
-var SyntheticUIEvent = __webpack_require__(56);
-var SyntheticWheelEvent = __webpack_require__(564);
+var EventListener = __webpack_require__(119);
+var EventPropagators = __webpack_require__(41);
+var ReactDOMComponentTree = __webpack_require__(7);
+var SyntheticAnimationEvent = __webpack_require__(493);
+var SyntheticClipboardEvent = __webpack_require__(494);
+var SyntheticEvent = __webpack_require__(15);
+var SyntheticFocusEvent = __webpack_require__(497);
+var SyntheticKeyboardEvent = __webpack_require__(499);
+var SyntheticMouseEvent = __webpack_require__(62);
+var SyntheticDragEvent = __webpack_require__(496);
+var SyntheticTouchEvent = __webpack_require__(500);
+var SyntheticTransitionEvent = __webpack_require__(501);
+var SyntheticUIEvent = __webpack_require__(43);
+var SyntheticWheelEvent = __webpack_require__(502);
 
-var emptyFunction = __webpack_require__(12);
-var getEventCharCode = __webpack_require__(134);
-var invariant = __webpack_require__(1);
+var emptyFunction = __webpack_require__(11);
+var getEventCharCode = __webpack_require__(103);
+var invariant = __webpack_require__(2);
 
 /**
  * Turns
@@ -34409,7 +41331,7 @@ module.exports = SimpleEventPlugin;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 555 */
+/* 493 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -34425,7 +41347,7 @@ module.exports = SimpleEventPlugin;
 
 
 
-var SyntheticEvent = __webpack_require__(22);
+var SyntheticEvent = __webpack_require__(15);
 
 /**
  * @interface Event
@@ -34453,7 +41375,7 @@ SyntheticEvent.augmentClass(SyntheticAnimationEvent, AnimationEventInterface);
 module.exports = SyntheticAnimationEvent;
 
 /***/ }),
-/* 556 */
+/* 494 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -34469,7 +41391,7 @@ module.exports = SyntheticAnimationEvent;
 
 
 
-var SyntheticEvent = __webpack_require__(22);
+var SyntheticEvent = __webpack_require__(15);
 
 /**
  * @interface Event
@@ -34496,7 +41418,7 @@ SyntheticEvent.augmentClass(SyntheticClipboardEvent, ClipboardEventInterface);
 module.exports = SyntheticClipboardEvent;
 
 /***/ }),
-/* 557 */
+/* 495 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -34512,7 +41434,7 @@ module.exports = SyntheticClipboardEvent;
 
 
 
-var SyntheticEvent = __webpack_require__(22);
+var SyntheticEvent = __webpack_require__(15);
 
 /**
  * @interface Event
@@ -34537,7 +41459,7 @@ SyntheticEvent.augmentClass(SyntheticCompositionEvent, CompositionEventInterface
 module.exports = SyntheticCompositionEvent;
 
 /***/ }),
-/* 558 */
+/* 496 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -34553,7 +41475,7 @@ module.exports = SyntheticCompositionEvent;
 
 
 
-var SyntheticMouseEvent = __webpack_require__(82);
+var SyntheticMouseEvent = __webpack_require__(62);
 
 /**
  * @interface DragEvent
@@ -34578,7 +41500,7 @@ SyntheticMouseEvent.augmentClass(SyntheticDragEvent, DragEventInterface);
 module.exports = SyntheticDragEvent;
 
 /***/ }),
-/* 559 */
+/* 497 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -34594,7 +41516,7 @@ module.exports = SyntheticDragEvent;
 
 
 
-var SyntheticUIEvent = __webpack_require__(56);
+var SyntheticUIEvent = __webpack_require__(43);
 
 /**
  * @interface FocusEvent
@@ -34619,7 +41541,7 @@ SyntheticUIEvent.augmentClass(SyntheticFocusEvent, FocusEventInterface);
 module.exports = SyntheticFocusEvent;
 
 /***/ }),
-/* 560 */
+/* 498 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -34635,7 +41557,7 @@ module.exports = SyntheticFocusEvent;
 
 
 
-var SyntheticEvent = __webpack_require__(22);
+var SyntheticEvent = __webpack_require__(15);
 
 /**
  * @interface Event
@@ -34661,7 +41583,7 @@ SyntheticEvent.augmentClass(SyntheticInputEvent, InputEventInterface);
 module.exports = SyntheticInputEvent;
 
 /***/ }),
-/* 561 */
+/* 499 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -34677,11 +41599,11 @@ module.exports = SyntheticInputEvent;
 
 
 
-var SyntheticUIEvent = __webpack_require__(56);
+var SyntheticUIEvent = __webpack_require__(43);
 
-var getEventCharCode = __webpack_require__(134);
-var getEventKey = __webpack_require__(570);
-var getEventModifierState = __webpack_require__(135);
+var getEventCharCode = __webpack_require__(103);
+var getEventKey = __webpack_require__(508);
+var getEventModifierState = __webpack_require__(104);
 
 /**
  * @interface KeyboardEvent
@@ -34750,7 +41672,7 @@ SyntheticUIEvent.augmentClass(SyntheticKeyboardEvent, KeyboardEventInterface);
 module.exports = SyntheticKeyboardEvent;
 
 /***/ }),
-/* 562 */
+/* 500 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -34766,9 +41688,9 @@ module.exports = SyntheticKeyboardEvent;
 
 
 
-var SyntheticUIEvent = __webpack_require__(56);
+var SyntheticUIEvent = __webpack_require__(43);
 
-var getEventModifierState = __webpack_require__(135);
+var getEventModifierState = __webpack_require__(104);
 
 /**
  * @interface TouchEvent
@@ -34800,7 +41722,7 @@ SyntheticUIEvent.augmentClass(SyntheticTouchEvent, TouchEventInterface);
 module.exports = SyntheticTouchEvent;
 
 /***/ }),
-/* 563 */
+/* 501 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -34816,7 +41738,7 @@ module.exports = SyntheticTouchEvent;
 
 
 
-var SyntheticEvent = __webpack_require__(22);
+var SyntheticEvent = __webpack_require__(15);
 
 /**
  * @interface Event
@@ -34844,7 +41766,7 @@ SyntheticEvent.augmentClass(SyntheticTransitionEvent, TransitionEventInterface);
 module.exports = SyntheticTransitionEvent;
 
 /***/ }),
-/* 564 */
+/* 502 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -34860,7 +41782,7 @@ module.exports = SyntheticTransitionEvent;
 
 
 
-var SyntheticMouseEvent = __webpack_require__(82);
+var SyntheticMouseEvent = __webpack_require__(62);
 
 /**
  * @interface WheelEvent
@@ -34900,7 +41822,7 @@ SyntheticMouseEvent.augmentClass(SyntheticWheelEvent, WheelEventInterface);
 module.exports = SyntheticWheelEvent;
 
 /***/ }),
-/* 565 */
+/* 503 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -34949,7 +41871,7 @@ function adler32(data) {
 module.exports = adler32;
 
 /***/ }),
-/* 566 */
+/* 504 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -34965,13 +41887,13 @@ module.exports = adler32;
 
 
 
-var _prodInvariant = __webpack_require__(7);
+var _prodInvariant = __webpack_require__(4);
 
-var ReactPropTypeLocationNames = __webpack_require__(546);
-var ReactPropTypesSecret = __webpack_require__(234);
+var ReactPropTypeLocationNames = __webpack_require__(484);
+var ReactPropTypesSecret = __webpack_require__(189);
 
-var invariant = __webpack_require__(1);
-var warning = __webpack_require__(2);
+var invariant = __webpack_require__(2);
+var warning = __webpack_require__(3);
 
 var ReactComponentTreeHook;
 
@@ -34981,7 +41903,7 @@ if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 't
   // https://github.com/facebook/react/issues/7240
   // Remove the inline requires when we don't need them anymore:
   // https://github.com/facebook/react/pull/7178
-  ReactComponentTreeHook = __webpack_require__(8);
+  ReactComponentTreeHook = __webpack_require__(10);
 }
 
 var loggedTypeFailures = {};
@@ -35023,7 +41945,7 @@ function checkReactTypeSpec(typeSpecs, values, location, componentName, element,
 
         if (process.env.NODE_ENV !== 'production') {
           if (!ReactComponentTreeHook) {
-            ReactComponentTreeHook = __webpack_require__(8);
+            ReactComponentTreeHook = __webpack_require__(10);
           }
           if (debugID !== null) {
             componentStackInfo = ReactComponentTreeHook.getStackAddendumByID(debugID);
@@ -35042,7 +41964,7 @@ module.exports = checkReactTypeSpec;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 567 */
+/* 505 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -35058,8 +41980,8 @@ module.exports = checkReactTypeSpec;
 
 
 
-var CSSProperty = __webpack_require__(223);
-var warning = __webpack_require__(2);
+var CSSProperty = __webpack_require__(178);
+var warning = __webpack_require__(3);
 
 var isUnitlessNumber = CSSProperty.isUnitlessNumber;
 var styleWarnings = {};
@@ -35127,7 +42049,7 @@ module.exports = dangerousStyleValue;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 568 */
+/* 506 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -35143,15 +42065,15 @@ module.exports = dangerousStyleValue;
 
 
 
-var _prodInvariant = __webpack_require__(7);
+var _prodInvariant = __webpack_require__(4);
 
-var ReactCurrentOwner = __webpack_require__(13);
-var ReactDOMComponentTree = __webpack_require__(11);
-var ReactInstanceMap = __webpack_require__(55);
+var ReactCurrentOwner = __webpack_require__(14);
+var ReactDOMComponentTree = __webpack_require__(7);
+var ReactInstanceMap = __webpack_require__(42);
 
-var getHostComponentFromComposite = __webpack_require__(238);
-var invariant = __webpack_require__(1);
-var warning = __webpack_require__(2);
+var getHostComponentFromComposite = __webpack_require__(193);
+var invariant = __webpack_require__(2);
+var warning = __webpack_require__(3);
 
 /**
  * Returns the DOM node rendered by this element.
@@ -35193,7 +42115,7 @@ module.exports = findDOMNode;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 569 */
+/* 507 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -35210,9 +42132,9 @@ module.exports = findDOMNode;
 
 
 
-var KeyEscapeUtils = __webpack_require__(128);
-var traverseAllChildren = __webpack_require__(244);
-var warning = __webpack_require__(2);
+var KeyEscapeUtils = __webpack_require__(97);
+var traverseAllChildren = __webpack_require__(199);
+var warning = __webpack_require__(3);
 
 var ReactComponentTreeHook;
 
@@ -35222,7 +42144,7 @@ if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 't
   // https://github.com/facebook/react/issues/7240
   // Remove the inline requires when we don't need them anymore:
   // https://github.com/facebook/react/pull/7178
-  ReactComponentTreeHook = __webpack_require__(8);
+  ReactComponentTreeHook = __webpack_require__(10);
 }
 
 /**
@@ -35238,7 +42160,7 @@ function flattenSingleChildIntoContext(traverseContext, child, name, selfDebugID
     var keyUnique = result[name] === undefined;
     if (process.env.NODE_ENV !== 'production') {
       if (!ReactComponentTreeHook) {
-        ReactComponentTreeHook = __webpack_require__(8);
+        ReactComponentTreeHook = __webpack_require__(10);
       }
       if (!keyUnique) {
         process.env.NODE_ENV !== 'production' ? warning(false, 'flattenChildren(...): Encountered two children with the same key, ' + '`%s`. Child keys must be unique; when two children share a key, only ' + 'the first child will be used.%s', KeyEscapeUtils.unescape(name), ReactComponentTreeHook.getStackAddendumByID(selfDebugID)) : void 0;
@@ -35275,7 +42197,7 @@ module.exports = flattenChildren;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 570 */
+/* 508 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -35291,7 +42213,7 @@ module.exports = flattenChildren;
 
 
 
-var getEventCharCode = __webpack_require__(134);
+var getEventCharCode = __webpack_require__(103);
 
 /**
  * Normalization of deprecated HTML5 `key` values
@@ -35392,7 +42314,7 @@ function getEventKey(nativeEvent) {
 module.exports = getEventKey;
 
 /***/ }),
-/* 571 */
+/* 509 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -35438,7 +42360,7 @@ function getIteratorFn(maybeIterable) {
 module.exports = getIteratorFn;
 
 /***/ }),
-/* 572 */
+/* 510 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -35517,7 +42439,7 @@ function getNodeForCharacterOffset(root, offset) {
 module.exports = getNodeForCharacterOffset;
 
 /***/ }),
-/* 573 */
+/* 511 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -35533,7 +42455,7 @@ module.exports = getNodeForCharacterOffset;
 
 
 
-var ExecutionEnvironment = __webpack_require__(5);
+var ExecutionEnvironment = __webpack_require__(8);
 
 /**
  * Generate a mapping of standard vendor prefixes using the defined style property and event name.
@@ -35623,7 +42545,7 @@ function getVendorPrefixedEventName(eventName) {
 module.exports = getVendorPrefixedEventName;
 
 /***/ }),
-/* 574 */
+/* 512 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -35639,7 +42561,7 @@ module.exports = getVendorPrefixedEventName;
 
 
 
-var escapeTextContentForBrowser = __webpack_require__(84);
+var escapeTextContentForBrowser = __webpack_require__(64);
 
 /**
  * Escapes attribute value to prevent scripting attacks.
@@ -35654,7 +42576,7 @@ function quoteAttributeValueForBrowser(value) {
 module.exports = quoteAttributeValueForBrowser;
 
 /***/ }),
-/* 575 */
+/* 513 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -35670,12 +42592,12 @@ module.exports = quoteAttributeValueForBrowser;
 
 
 
-var ReactMount = __webpack_require__(232);
+var ReactMount = __webpack_require__(187);
 
 module.exports = ReactMount.renderSubtreeIntoContainer;
 
 /***/ }),
-/* 576 */
+/* 514 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -35739,7 +42661,7 @@ var KeyEscapeUtils = {
 module.exports = KeyEscapeUtils;
 
 /***/ }),
-/* 577 */
+/* 515 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -35756,9 +42678,9 @@ module.exports = KeyEscapeUtils;
 
 
 
-var _prodInvariant = __webpack_require__(42);
+var _prodInvariant = __webpack_require__(31);
 
-var invariant = __webpack_require__(1);
+var invariant = __webpack_require__(2);
 
 /**
  * Static poolers. Several custom versions for each potential number of
@@ -35857,7 +42779,7 @@ module.exports = PooledClass;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 578 */
+/* 516 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -35873,11 +42795,11 @@ module.exports = PooledClass;
 
 
 
-var PooledClass = __webpack_require__(577);
-var ReactElement = __webpack_require__(31);
+var PooledClass = __webpack_require__(515);
+var ReactElement = __webpack_require__(24);
 
-var emptyFunction = __webpack_require__(12);
-var traverseAllChildren = __webpack_require__(587);
+var emptyFunction = __webpack_require__(11);
+var traverseAllChildren = __webpack_require__(526);
 
 var twoArgumentPooler = PooledClass.twoArgumentPooler;
 var fourArgumentPooler = PooledClass.fourArgumentPooler;
@@ -36053,7 +42975,7 @@ var ReactChildren = {
 module.exports = ReactChildren;
 
 /***/ }),
-/* 579 */
+/* 517 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -36069,7 +42991,7 @@ module.exports = ReactChildren;
 
 
 
-var ReactElement = __webpack_require__(31);
+var ReactElement = __webpack_require__(24);
 
 /**
  * Create a factory that creates HTML tag elements.
@@ -36078,7 +43000,7 @@ var ReactElement = __webpack_require__(31);
  */
 var createDOMFactory = ReactElement.createFactory;
 if (process.env.NODE_ENV !== 'production') {
-  var ReactElementValidator = __webpack_require__(247);
+  var ReactElementValidator = __webpack_require__(202);
   createDOMFactory = ReactElementValidator.createFactory;
 }
 
@@ -36228,7 +43150,7 @@ module.exports = ReactDOMFactories;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 580 */
+/* 518 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -36259,7 +43181,7 @@ module.exports = ReactPropTypeLocationNames;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 581 */
+/* 519 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -36275,15 +43197,15 @@ module.exports = ReactPropTypeLocationNames;
 
 
 
-var _require = __webpack_require__(31),
+var _require = __webpack_require__(24),
     isValidElement = _require.isValidElement;
 
-var factory = __webpack_require__(120);
+var factory = __webpack_require__(169);
 
 module.exports = factory(isValidElement);
 
 /***/ }),
-/* 582 */
+/* 520 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -36305,7 +43227,7 @@ var ReactPropTypesSecret = 'SECRET_DO_NOT_PASS_THIS_OR_YOU_WILL_BE_FIRED';
 module.exports = ReactPropTypesSecret;
 
 /***/ }),
-/* 583 */
+/* 521 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -36324,7 +43246,7 @@ module.exports = ReactPropTypesSecret;
 module.exports = '15.6.1';
 
 /***/ }),
-/* 584 */
+/* 522 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -36340,13 +43262,13 @@ module.exports = '15.6.1';
 
 
 
-var _prodInvariant = __webpack_require__(42);
+var _prodInvariant = __webpack_require__(31);
 
-var ReactPropTypeLocationNames = __webpack_require__(580);
-var ReactPropTypesSecret = __webpack_require__(582);
+var ReactPropTypeLocationNames = __webpack_require__(518);
+var ReactPropTypesSecret = __webpack_require__(520);
 
-var invariant = __webpack_require__(1);
-var warning = __webpack_require__(2);
+var invariant = __webpack_require__(2);
+var warning = __webpack_require__(3);
 
 var ReactComponentTreeHook;
 
@@ -36356,7 +43278,7 @@ if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 't
   // https://github.com/facebook/react/issues/7240
   // Remove the inline requires when we don't need them anymore:
   // https://github.com/facebook/react/pull/7178
-  ReactComponentTreeHook = __webpack_require__(8);
+  ReactComponentTreeHook = __webpack_require__(10);
 }
 
 var loggedTypeFailures = {};
@@ -36398,7 +43320,7 @@ function checkReactTypeSpec(typeSpecs, values, location, componentName, element,
 
         if (process.env.NODE_ENV !== 'production') {
           if (!ReactComponentTreeHook) {
-            ReactComponentTreeHook = __webpack_require__(8);
+            ReactComponentTreeHook = __webpack_require__(10);
           }
           if (debugID !== null) {
             componentStackInfo = ReactComponentTreeHook.getStackAddendumByID(debugID);
@@ -36417,7 +43339,7 @@ module.exports = checkReactTypeSpec;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 585 */
+/* 523 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -36433,19 +43355,45 @@ module.exports = checkReactTypeSpec;
 
 
 
-var _require = __webpack_require__(245),
+var _require = __webpack_require__(200),
     Component = _require.Component;
 
-var _require2 = __webpack_require__(31),
+var _require2 = __webpack_require__(24),
     isValidElement = _require2.isValidElement;
 
-var ReactNoopUpdateQueue = __webpack_require__(248);
-var factory = __webpack_require__(262);
+var ReactNoopUpdateQueue = __webpack_require__(203);
+var factory = __webpack_require__(216);
 
 module.exports = factory(Component, isValidElement, ReactNoopUpdateQueue);
 
 /***/ }),
-/* 586 */
+/* 524 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/**
+ * Copyright 2013-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * 
+ */
+
+
+
+var nextDebugID = 1;
+
+function getNextDebugID() {
+  return nextDebugID++;
+}
+
+module.exports = getNextDebugID;
+
+/***/ }),
+/* 525 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -36460,11 +43408,11 @@ module.exports = factory(Component, isValidElement, ReactNoopUpdateQueue);
  */
 
 
-var _prodInvariant = __webpack_require__(42);
+var _prodInvariant = __webpack_require__(31);
 
-var ReactElement = __webpack_require__(31);
+var ReactElement = __webpack_require__(24);
 
-var invariant = __webpack_require__(1);
+var invariant = __webpack_require__(2);
 
 /**
  * Returns the first child in a collection of children and verifies that there
@@ -36489,7 +43437,7 @@ module.exports = onlyChild;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 587 */
+/* 526 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -36505,15 +43453,15 @@ module.exports = onlyChild;
 
 
 
-var _prodInvariant = __webpack_require__(42);
+var _prodInvariant = __webpack_require__(31);
 
-var ReactCurrentOwner = __webpack_require__(13);
-var REACT_ELEMENT_TYPE = __webpack_require__(246);
+var ReactCurrentOwner = __webpack_require__(14);
+var REACT_ELEMENT_TYPE = __webpack_require__(201);
 
-var getIteratorFn = __webpack_require__(249);
-var invariant = __webpack_require__(1);
-var KeyEscapeUtils = __webpack_require__(576);
-var warning = __webpack_require__(2);
+var getIteratorFn = __webpack_require__(204);
+var invariant = __webpack_require__(2);
+var KeyEscapeUtils = __webpack_require__(514);
+var warning = __webpack_require__(3);
 
 var SEPARATOR = '.';
 var SUBSEPARATOR = ':';
@@ -36671,24 +43619,24 @@ module.exports = traverseAllChildren;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 588 */,
-/* 589 */
+/* 527 */,
+/* 528 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-module.exports = __webpack_require__(592);
+module.exports = __webpack_require__(531);
 
 
 /***/ }),
-/* 590 */
+/* 529 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var encode = __webpack_require__(251);
-var alphabet = __webpack_require__(87);
+var encode = __webpack_require__(205);
+var alphabet = __webpack_require__(67);
 
 // Ignore all milliseconds before a certain time to reduce the size of the date entropy without sacrificing uniqueness.
 // This number should be updated every year or so to keep the generated id short.
@@ -36736,12 +43684,12 @@ module.exports = build;
 
 
 /***/ }),
-/* 591 */
+/* 530 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-var alphabet = __webpack_require__(87);
+var alphabet = __webpack_require__(67);
 
 /**
  * Decode the id to get the version and worker
@@ -36760,23 +43708,23 @@ module.exports = decode;
 
 
 /***/ }),
-/* 592 */
+/* 531 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var alphabet = __webpack_require__(87);
-var encode = __webpack_require__(251);
-var decode = __webpack_require__(591);
-var build = __webpack_require__(590);
-var isValid = __webpack_require__(593);
+var alphabet = __webpack_require__(67);
+var encode = __webpack_require__(205);
+var decode = __webpack_require__(530);
+var build = __webpack_require__(529);
+var isValid = __webpack_require__(532);
 
 // if you are using cluster or multiple servers use this to make each instance
 // has a unique value for worker
 // Note: I don't know if this is automatically set when using third
 // party cluster solutions such as pm2.
-var clusterWorkerId = __webpack_require__(596) || 0;
+var clusterWorkerId = __webpack_require__(535) || 0;
 
 /**
  * Set the seed.
@@ -36832,12 +43780,12 @@ module.exports.isValid = isValid;
 
 
 /***/ }),
-/* 593 */
+/* 532 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-var alphabet = __webpack_require__(87);
+var alphabet = __webpack_require__(67);
 
 function isShortId(id) {
     if (!id || typeof id !== 'string' || id.length < 6 ) {
@@ -36858,7 +43806,7 @@ module.exports = isShortId;
 
 
 /***/ }),
-/* 594 */
+/* 533 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -36879,7 +43827,7 @@ module.exports = randomByte;
 
 
 /***/ }),
-/* 595 */
+/* 534 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -36911,7 +43859,7 @@ module.exports = {
 
 
 /***/ }),
-/* 596 */
+/* 535 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -36921,16 +43869,16 @@ module.exports = 0;
 
 
 /***/ }),
-/* 597 */,
-/* 598 */,
-/* 599 */,
-/* 600 */,
-/* 601 */,
-/* 602 */
+/* 536 */,
+/* 537 */,
+/* 538 */,
+/* 539 */,
+/* 540 */,
+/* 541 */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(3);
-module.exports = __webpack_require__(32);
+__webpack_require__(1);
+module.exports = __webpack_require__(16);
 
 
 /***/ })
