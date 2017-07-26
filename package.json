@@ -26,7 +26,7 @@
   "homepage": "https://github.com/DrNixx/onix-chess-ctrls#readme",
   "dependencies": {
     "onix-app": "^1.0.1",
-    "onix-board": "^1.0.7",
+    "onix-board": "^1.0.8",
     "onix-chess": "^1.0.5",
     "onix-core": "^1.1.20",
     "onix-ui": "^1.0.19",
