@@ -1,6 +1,6 @@
-# Onix UI [![npm][npm-badge]][npm]
+# Chess controls [![npm][npm-badge]][npm]
 
-Unix UI components.
+Chess related controls
 
 ## Copyright & License
 
