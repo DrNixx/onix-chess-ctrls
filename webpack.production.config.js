@@ -7,7 +7,7 @@ module.exports = {
 
     output: {
         libraryTarget: "umd",
-        library: "onix_chess_ctrls",
+        library: "onix",
         filename: "./onix-chess-ctrls.js",
     },
 

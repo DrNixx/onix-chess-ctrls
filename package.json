@@ -1,6 +1,6 @@
 {
   "name": "onix-chess-ctrls",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Chess related controls",
   "main": "built/index.js",
   "scripts": {
@@ -25,11 +25,11 @@
   },
   "homepage": "https://github.com/DrNixx/onix-chess-ctrls#readme",
   "dependencies": {
-    "onix-app": "^1.0.0",
-    "onix-board": "^1.0.6",
-    "onix-chess": "^1.0.4",
+    "onix-app": "^1.0.1",
+    "onix-board": "^1.0.7",
+    "onix-chess": "^1.0.5",
     "onix-core": "^1.1.20",
-    "onix-ui": "^1.0.18",
+    "onix-ui": "^1.0.19",
     "react": "^15.6.1",
     "react-dom": "^15.6.1"
   },

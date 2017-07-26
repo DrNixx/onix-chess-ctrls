@@ -11,7 +11,7 @@ module.exports = {
 
     output: {
         libraryTarget: "umd",
-        library: "OnixChessCtrls",
+        library: "onix",
         path: path.join(__dirname, "public"),
 		filename: "chess-ctrls.[name].js"
     },
