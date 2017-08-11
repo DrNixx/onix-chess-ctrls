@@ -1,9 +1,8 @@
 import * as React from 'react';
 import { Intl } from 'onix-core';
-import { FenEmptyBoard, FenStandartStart } from 'onix-chess';
-import { OpeningPosition } from 'onix-board';
+import { FenEmptyBoard, FenStandartStart, OpeningPosition } from 'onix-chess';
 import { FormControl } from 'onix-ui';
-import { registerStrings } from '../Intl';
+import { Intl as IntlCtrl } from '../Intl';
 
 export interface StartPosSelectorProps {
     fen?: string,
@@ -17,14 +16,14 @@ export class StartPosSelector extends React.Component<StartPosSelectorProps, {}>
      */
     constructor(props: StartPosSelectorProps) {
         super(props);
-        registerStrings();
+        IntlCtrl.register();
     }
 
     private onChange = (e) => {
         let fen: string = e.target.value; 
 
         if (fen === "---") {
-            fen = window.prompt(Intl.t("builder", "paste_fen_prompt"), "");
+            fen = window.prompt(Intl.t("chess-ctrls", "paste_fen_prompt"), "");
         }
 
         if (this.props.onChange) {
@@ -43,7 +42,7 @@ export class StartPosSelector extends React.Component<StartPosSelectorProps, {}>
             }
 
             return (
-                <optgroup label={Intl.t("builder", "popular_opening")}>
+                <optgroup label={Intl.t("chess-ctrls", "popular_opening")}>
                     {openings}
                 </optgroup>
             );

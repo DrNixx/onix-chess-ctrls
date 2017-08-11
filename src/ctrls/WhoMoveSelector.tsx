@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Intl } from 'onix-core';
+import { Intl as IntlChess } from 'onix-chess';
 import { FormControl, FormControlProps } from 'onix-ui';
 
 export interface WhoMoveSelectorProps extends FormControlProps {
@@ -17,6 +18,8 @@ export class WhoMoveSelector extends React.Component<WhoMoveSelectorProps, {}> {
      */
     constructor(props: WhoMoveSelectorProps) {
         super(props);
+
+        IntlChess.register();
     }
 
     private onChange = (e) => {

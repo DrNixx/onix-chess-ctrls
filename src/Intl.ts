@@ -1,35 +1,37 @@
 import { Intl as IntlCore } from 'onix-core';
-import { registerStrings as chessIntl } from 'onix-chess';
+import { Intl as ChessIntl } from 'onix-chess';
 
-var intlInitialized = false;
+export class Intl {
+    private static intlInitialized = false;
 
-export function registerStrings() {
-    if (!intlInitialized) {
-        
-        chessIntl();
+    public static register() {
+        if (!Intl.intlInitialized) {
+            
+            ChessIntl.register();
 
-        IntlCore.registerStrings('chess-ctrls', {
-            'ru-ru': {
-                set_board: "Установить позицию",
-                position_label: "-- Позиция --",        
-                std_fen: "Стартовая позиция",
-                empty_fen: "Пустая доска",
-                get_fen: "Загрузить FEN",
-                paste_fen_prompt: "Скопируйте сюда собственный FEN",
-                popular_opening: "Популярные дебюты",
-            },
+            IntlCore.registerStrings('chess-ctrls', {
+                'ru-ru': {
+                    set_board: "Установить позицию",
+                    position_label: "-- Позиция --",        
+                    std_fen: "Стартовая позиция",
+                    empty_fen: "Пустая доска",
+                    get_fen: "Загрузить FEN",
+                    paste_fen_prompt: "Скопируйте сюда собственный FEN",
+                    popular_opening: "Популярные дебюты",
+                },
 
-            'en-us': {
-                set_board: "Set the board",
-                position_label: "-- Position --",
-                std_fen: "Standart start",
-                empty_fen: "Empty board",
-                get_fen: "Custom position",
-                paste_fen_prompt: "Paste FEN position",
-                popular_opening: "Popular openings"
-            }
-        });
+                'en-us': {
+                    set_board: "Set the board",
+                    position_label: "-- Position --",
+                    std_fen: "Standart start",
+                    empty_fen: "Empty board",
+                    get_fen: "Custom position",
+                    paste_fen_prompt: "Paste FEN position",
+                    popular_opening: "Popular openings"
+                }
+            });
 
-        intlInitialized = true;
-    }
+            Intl.intlInitialized = true;
+        }
+    }    
 }
