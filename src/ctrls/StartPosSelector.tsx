@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { Intl } from 'onix-core';
-import { FenEmptyBoard, FenStandartStart, OpeningPosition } from 'onix-chess';
+import { FenEmptyBoard, FenStandartStart, IOpeningPosition } from 'onix-chess';
 import { FormControl } from 'onix-ui';
 import { Intl as IntlCtrl } from '../Intl';
 
 export interface StartPosSelectorProps {
     fen?: string,
-    openingsPos: OpeningPosition[],
+    openingsPos: IOpeningPosition[],
     onChange?: (fen: string) => void,
 }
 
