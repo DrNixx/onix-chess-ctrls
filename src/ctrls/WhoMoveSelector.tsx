@@ -1,4 +1,5 @@
 import * as React from 'react';
+import toSafeInteger = require('lodash/toSafeInteger');
 import { Intl } from 'onix-core';
 import { Intl as IntlCtrls } from 'onix-chess';
 import { FormControl, FormControlProps } from 'onix-ui';
@@ -24,7 +25,7 @@ export class WhoMoveSelector extends React.Component<WhoMoveSelectorProps, {}> {
 
     private onChange = (e) => {
         const { onChangeTurn } = this.props;
-        const color: number = e.target.value; 
+        const color: number = toSafeInteger(e.target.value); 
 
         if (onChangeTurn) {
             onChangeTurn(color);
