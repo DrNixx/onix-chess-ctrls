@@ -1,5 +1,5 @@
+import toSafeInteger from 'lodash-es/toSafeInteger';
 import * as React from 'react';
-import toSafeInteger = require('lodash/toSafeInteger');
 import { Intl } from 'onix-core';
 import { Intl as IntlCtrls } from 'onix-chess';
 import { FormControl, FormControlProps } from 'onix-ui';
