@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { Intl } from 'onix-core';
 import { FenEmptyBoard, FenStandartStart, IOpeningPosition } from 'onix-chess';
-import { FormControl } from 'onix-ui';
+import { FormControl, FormControlProps } from 'react-bootstrap';
 import { Intl as IntlCtrl } from '../Intl';
 
-export interface StartPosSelectorProps {
+export interface StartPosSelectorProps extends FormControlProps {
     fen?: string,
     openingsPos: IOpeningPosition[],
-    onChange?: (fen: string) => void,
+    onChangeFen?: (fen: string) => void,
 }
 
 export class StartPosSelector extends React.Component<StartPosSelectorProps, {}> {
@@ -27,7 +27,7 @@ export class StartPosSelector extends React.Component<StartPosSelectorProps, {}>
         }
 
         if (this.props.onChange) {
-            this.props.onChange(fen);
+            this.props.onChangeFen(fen);
         }
     }
 
@@ -57,7 +57,7 @@ export class StartPosSelector extends React.Component<StartPosSelectorProps, {}>
         fen = fen || "";
         
         return (
-            <FormControl componentClass="select" scale="small" onChange={this.onChange} value={fen}>
+            <FormControl as="select" size="sm" onChange={this.onChange} value={fen}>
                 <optgroup label={Intl.t("chess-ctrls", "set_board")}>
                     <option value="">{Intl.t("chess-ctrls", "position_label")}</option>
                     <option value={FenStandartStart}>{Intl.t("chess-ctrls", "std_fen")}</option>

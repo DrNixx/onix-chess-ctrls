@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { BoardSize } from 'onix-board';
-import { FormControl, FormControlProps } from 'onix-ui';
+import { FormControl, FormControlProps } from 'react-bootstrap';
 
 export interface SizeSelectorProps extends FormControlProps {
     defaultSize?: BoardSize;
@@ -31,7 +31,7 @@ export class SizeSelector extends React.Component<SizeSelectorProps, {}> {
     render() {
         const { defaultSize } = this.props;
         return (
-            <FormControl componentClass="select" scale="small" onChange={this.onChange} defaultValue={defaultSize.toString()}>
+            <FormControl as="select" size="sm" onChange={this.onChange} defaultValue={defaultSize.toString()}>
                 <option value="1">200x200</option>
                 <option value="2">280x280</option>
                 <option value="3">360x360</option>

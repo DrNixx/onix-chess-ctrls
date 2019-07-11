@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { FormControl, FormControlProps } from 'onix-ui';
+import { FormControl, FormControlProps } from 'react-bootstrap';
 
 export interface SquareSelectorProps extends FormControlProps {
     defaultSquare?: string;
@@ -8,7 +8,7 @@ export interface SquareSelectorProps extends FormControlProps {
 
 export class SquareSelector extends React.Component<SquareSelectorProps, {}> {
     public static defaultProps: SquareSelectorProps = {
-        defaultValue: 'color-blue',
+        defaultSquare: 'color-blue',
     }
 
     /**
@@ -30,7 +30,7 @@ export class SquareSelector extends React.Component<SquareSelectorProps, {}> {
     render() {
         const { defaultSquare } = this.props;
         return (
-            <FormControl componentClass="select" scale="small" onChange={this.onChange} defaultValue={defaultSquare}>
+            <FormControl as="select" size="sm" onChange={this.onChange} defaultValue={defaultSquare}>
                 <option value="blue-marble">Blue-marble</option>
                     <option value="cedar">Cedar</option>
                     <option value="color-blue">Color blue</option>

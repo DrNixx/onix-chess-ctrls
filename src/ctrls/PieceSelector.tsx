@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { FormControl, FormControlProps } from 'onix-ui';
+import { FormControl, FormControlProps } from 'react-bootstrap';
 
 export interface PieceSelectorProps extends FormControlProps {
     defaultPiece?: string;
@@ -31,20 +31,20 @@ export class PieceSelector extends React.Component<PieceSelectorProps, {}> {
         const { defaultPiece } = this.props;
 
         return (
-            <FormControl componentClass="select" scale="small" onChange={this.onChange} defaultValue={defaultPiece}>
+            <FormControl as="select" size="sm" onChange={this.onChange} defaultValue={defaultPiece}>
                 <option value="alpha">Alpha</option>
-                    <option value="beholder">Beholder</option>
-                    <option value="cases">Cases</option>
-                    <option value="cats">Cats</option>
-                    <option value="condal">Condal</option>
-                    <option value="gk">Gk</option>
-                    <option value="leipzig">Leipzig</option>
-                    <option value="magnetic">Magnetic</option>
-                    <option value="maya">Maya</option>
-                    <option value="merida">Merida</option>
-                    <option value="modern">Modern</option>
-                    <option value="smart">Smart</option>
-                    <option value="wooden">Wooden</option>
+                <option value="beholder">Beholder</option>
+                <option value="cases">Cases</option>
+                <option value="cats">Cats</option>
+                <option value="condal">Condal</option>
+                <option value="gk">Gk</option>
+                <option value="leipzig">Leipzig</option>
+                <option value="magnetic">Magnetic</option>
+                <option value="maya">Maya</option>
+                <option value="merida">Merida</option>
+                <option value="modern">Modern</option>
+                <option value="smart">Smart</option>
+                <option value="wooden">Wooden</option>
             </FormControl>
         );
     }

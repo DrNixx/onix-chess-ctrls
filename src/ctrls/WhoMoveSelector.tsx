@@ -2,7 +2,7 @@ import toSafeInteger from 'lodash-es/toSafeInteger';
 import * as React from 'react';
 import { Intl } from 'onix-core';
 import { Intl as IntlCtrls } from 'onix-chess';
-import { FormControl, FormControlProps } from 'onix-ui';
+import { FormControl, FormControlProps } from 'react-bootstrap';
 
 export interface WhoMoveSelectorProps extends FormControlProps {
     defaultTurn?: number;
@@ -35,7 +35,7 @@ export class WhoMoveSelector extends React.Component<WhoMoveSelectorProps, {}> {
     render() {
         const { defaultTurn } = this.props;
         return (
-            <FormControl componentClass="select" scale="small" onChange={this.onChange} defaultValue={defaultTurn.toString()}>
+            <FormControl as="select" size="sm" onChange={this.onChange} defaultValue={defaultTurn.toString()}>
                 <option value="0">{Intl.t("chess", "white_move")}</option>
                 <option value="1">{Intl.t("chess", "black_move")}</option>
             </FormControl>
