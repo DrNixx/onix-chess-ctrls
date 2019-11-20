@@ -1,15 +1,14 @@
 import * as React from 'react';
-import { BoardSize } from 'onix-board';
 import { FormControl, FormControlProps } from 'react-bootstrap';
 
 export interface SizeSelectorProps extends FormControlProps {
-    defaultSize?: BoardSize;
-    onChangeSize?: (size: BoardSize) => void;
+    defaultSize?: number;
+    onChangeSize?: (size: number) => void;
 }
 
 export class SizeSelector extends React.Component<SizeSelectorProps, {}> {
     public static defaultProps: SizeSelectorProps = {
-        defaultSize: BoardSize.Normal,
+        defaultSize: 4,
     }
 
     /**
@@ -21,7 +20,7 @@ export class SizeSelector extends React.Component<SizeSelectorProps, {}> {
 
     private onChange = (e) => {
         const { onChangeSize } = this.props;
-        const size: BoardSize = e.target.value; 
+        const size: number = e.target.value; 
 
         if (onChangeSize) {
             onChangeSize(size);
