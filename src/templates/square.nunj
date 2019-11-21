@@ -1,0 +1,22 @@
+{% extends "./ext/base.nunj" %}
+{% from "parts/piecesBoard.nunj" import piecesBoard %}
+{% block title %}Squares example {{ super() }}{% endblock title %}
+
+{% block content %}
+	<form>
+        <div class="form-group">
+            <label for="squareExample">Select square</label>
+            <div id="control"></div>
+        </div>
+    </form>
+    <script src="assets/js/chess-ctrls.tests.js"></script>
+    <script>
+        var props = {};
+        onixtest.SquareSelectorTest({
+            id: 'squareExample',
+            onChangeSquare: (s) => {
+                console.log(s);
+            }
+        }, document.getElementById("control"));            
+    </script>
+{% endblock content %}

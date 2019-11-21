@@ -1,14 +1,17 @@
 import * as React from 'react';
 import { FormControl, FormControlProps } from 'react-bootstrap';
 
+const boardsData = require('onix-board-assets/dist/assets/boards/boards.json');
+
 export interface SquareSelectorProps extends FormControlProps {
-    defaultSquare?: string;
+    defaultValue?: string;
     onChangeSquare?: (square: string) => void;
 }
 
 export class SquareSelector extends React.Component<SquareSelectorProps, {}> {
     public static defaultProps: SquareSelectorProps = {
-        defaultSquare: 'color-blue',
+        defaultValue: 'color-blue',
+        size: 'sm'
     }
 
     /**
@@ -25,26 +28,22 @@ export class SquareSelector extends React.Component<SquareSelectorProps, {}> {
         if (onChangeSquare) {
             onChangeSquare(square);
         }
-    }
+    };
+
+    private getSquares = () => {
+        let result = [];
+        boardsData.boardFiles.forEach(element => {
+            result.push(<option key={element.code} value={element.code}>{element.name}</option>);
+        });
+
+        return result;
+    };
 
     render() {
-        const { defaultSquare } = this.props;
+        const { defaultValue, onChangeSquare, size, ...otherProps } = this.props;
         return (
-            <FormControl as="select" size="sm" onChange={this.onChange} defaultValue={defaultSquare}>
-                <option value="blue-marble">Blue-marble</option>
-                    <option value="cedar">Cedar</option>
-                    <option value="color-blue">Color blue</option>
-                    <option value="color-brown">Color brown</option>
-                    <option value="color-gray">Color gray</option>
-                    <option value="color-green">Color green</option>
-                    <option value="elm">Elm</option>
-                    <option value="granite">Granite</option>
-                    <option value="green-marble">Green-marble</option>
-                    <option value="red-marble">Red-marble</option>
-                    <option value="red-wood">Red-wood</option>
-                    <option value="rust-metal">Rust-metal</option>
-                    <option value="tan-marble">Tan-marble</option>
-                    <option value="walnut">Walnut</option>
+            <FormControl as="select" size={size} onChange={this.onChange} defaultValue={defaultValue}>
+                {this.getSquares()}
             </FormControl>
         );
     }

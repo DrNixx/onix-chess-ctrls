@@ -1,0 +1,22 @@
+{% extends "./ext/base.nunj" %}
+{% from "parts/piecesBoard.nunj" import piecesBoard %}
+{% block title %}Pieces example {{ super() }}{% endblock title %}
+
+{% block content %}
+    <form>
+        <div class="form-group">
+            <label for="pieceExample">Select piece</label>
+            <div id="control"></div>
+        </div>
+    </form>
+	<script src="assets/js/chess-ctrls.tests.js"></script>
+    <script>
+        var props = {};
+        onixtext.PieceSelectorTest({
+            id: 'pieceExample',
+            onChangePiece: (p) => {
+                console.log(p);
+            }
+        }, document.getElementById("control"));            
+    </script>
+{% endblock content %}

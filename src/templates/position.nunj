@@ -1,0 +1,12 @@
+{% extends "./ext/base.nunj" %}
+{% from "parts/piecesBoard.nunj" import piecesBoard %}
+{% block title %}Position example {{ super() }}{% endblock title %}
+
+{% block content %}
+	<p><div id="control"></div></p>
+    <script src="js/chess-ctrls.tests.js"></script>
+    <script>
+        var props = {};
+        onix.PositionSelectorTest({openingsPos: null}, document.getElementById("control"));            
+    </script>
+{% endblock content %}

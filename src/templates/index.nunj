@@ -1,0 +1,10 @@
+{% extends "./ext/base.nunj" %}
+{% from "parts/piecesBoard.nunj" import piecesBoard %}
+{% block title %}Index {{ super() }}{% endblock title %}
+
+{% block content %}
+	<p><a href="piece.html">Piece selector</a></p>
+    <p><a href="square.html">Square selector</a></p>
+    <p><a href="position.html">Position selector</a></p>
+    <p><a href="whomove.html">Who move selector</a></p>
+{% endblock content %}

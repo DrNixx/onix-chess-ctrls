@@ -1,14 +1,17 @@
 import * as React from 'react';
 import { FormControl, FormControlProps } from 'react-bootstrap';
 
+const boardsData = require('onix-board-assets/dist/assets/pieces/pieces.json');
+
 export interface PieceSelectorProps extends FormControlProps {
-    defaultPiece?: string;
+    defaultValue?: string;
     onChangePiece?: (piece: string) => void;
 }
 
 export class PieceSelector extends React.Component<PieceSelectorProps, {}> {
     public static defaultProps: PieceSelectorProps = {
-        defaultPiece: 'merida',
+        defaultValue: 'merida',
+        size: 'sm'
     }
 
     /**
@@ -25,26 +28,24 @@ export class PieceSelector extends React.Component<PieceSelectorProps, {}> {
         if (onChangePiece) {
             onChangePiece(piece);
         }
-    }
+    };
+
+    private getPieces = () => {
+        let result = [];
+        boardsData.pieceFaces.forEach(element => {
+            result.push(
+                <option key={element.code} value={element.code}>{element.name}</option>
+            );
+        });
+
+        return result;
+    };
 
     render() {
-        const { defaultPiece } = this.props;
-
+        const { defaultValue, onChangePiece, size, ...otherProps } = this.props;
         return (
-            <FormControl as="select" size="sm" onChange={this.onChange} defaultValue={defaultPiece}>
-                <option value="alpha">Alpha</option>
-                <option value="beholder">Beholder</option>
-                <option value="cases">Cases</option>
-                <option value="cats">Cats</option>
-                <option value="condal">Condal</option>
-                <option value="gk">Gk</option>
-                <option value="leipzig">Leipzig</option>
-                <option value="magnetic">Magnetic</option>
-                <option value="maya">Maya</option>
-                <option value="merida">Merida</option>
-                <option value="modern">Modern</option>
-                <option value="smart">Smart</option>
-                <option value="wooden">Wooden</option>
+            <FormControl as="select" size={size} onChange={this.onChange} defaultValue={defaultValue} {...otherProps}>
+                {this.getPieces()}
             </FormControl>
         );
     }
