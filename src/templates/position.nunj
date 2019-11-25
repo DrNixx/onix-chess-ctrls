@@ -4,9 +4,14 @@
 
 {% block content %}
 	<p><div id="control"></div></p>
-    <script src="js/chess-ctrls.tests.js"></script>
+    <script src="assets/js/chess-ctrls.tests.js"></script>
     <script>
         var props = {};
-        onix.PositionSelectorTest({openingsPos: null}, document.getElementById("control"));            
+        onixtest.PositionSelectorTest({
+            openingsPos: null,
+            onChangeFen: (fen) => {
+                console.log(fen);
+            },
+        }, document.getElementById("control"));            
     </script>
 {% endblock content %}

@@ -2,13 +2,14 @@ import * as React from 'react';
 import { FormControl, FormControlProps } from 'react-bootstrap';
 
 export interface SizeSelectorProps extends FormControlProps {
-    defaultSize?: number;
+    defaultValue?: number;
     onChangeSize?: (size: number) => void;
 }
 
 export class SizeSelector extends React.Component<SizeSelectorProps, {}> {
     public static defaultProps: SizeSelectorProps = {
-        defaultSize: 4,
+        defaultValue: 4,
+        size: 'sm',
     }
 
     /**
@@ -28,9 +29,10 @@ export class SizeSelector extends React.Component<SizeSelectorProps, {}> {
     }
 
     render() {
-        const { defaultSize } = this.props;
+        const { defaultValue, onChangeSize, size, ...otherProps } = this.props;
+
         return (
-            <FormControl as="select" size="sm" onChange={this.onChange} defaultValue={defaultSize.toString()}>
+            <FormControl as="select" size={size} onChange={this.onChange} defaultValue={defaultValue.toString()} {...otherProps}>
                 <option value="1">200x200</option>
                 <option value="2">280x280</option>
                 <option value="3">360x360</option>

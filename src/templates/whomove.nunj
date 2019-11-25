@@ -4,10 +4,10 @@
 
 {% block content %}
 	<p><div id="control"></div></p>
-        <script src="js/chess-ctrls.tests.js"></script>
+        <script src="assets/js/chess-ctrls.tests.js"></script>
         <script>
             var props = {};
-            onix.WhoMoveSelectorTest({
+            onixtest.WhoMoveSelectorTest({
                 onChangeTurn: (n) => {
                     console.log(n);
                 }

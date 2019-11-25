@@ -3,6 +3,7 @@ import * as React from 'react';
 import { Intl } from 'onix-core';
 import { Intl as IntlCtrls } from 'onix-chess';
 import { FormControl, FormControlProps } from 'react-bootstrap';
+import { Color } from 'onix-chess';
 
 export interface WhoMoveSelectorProps extends FormControlProps {
     defaultTurn?: number;
@@ -11,7 +12,8 @@ export interface WhoMoveSelectorProps extends FormControlProps {
 
 export class WhoMoveSelector extends React.Component<WhoMoveSelectorProps, {}> {
     public static defaultProps: WhoMoveSelectorProps = {
-        defaultTurn: 0,
+        defaultTurn: Color.White,
+        size: 'sm',
     }
 
     /**
@@ -33,11 +35,11 @@ export class WhoMoveSelector extends React.Component<WhoMoveSelectorProps, {}> {
     }
 
     render() {
-        const { defaultTurn } = this.props;
+        const { defaultTurn, onChangeTurn, size, ...otherProps } = this.props;
         return (
-            <FormControl as="select" size="sm" onChange={this.onChange} defaultValue={defaultTurn.toString()}>
-                <option value="0">{Intl.t("chess", "white_move")}</option>
-                <option value="1">{Intl.t("chess", "black_move")}</option>
+            <FormControl as="select" size={size} onChange={this.onChange} defaultValue={defaultTurn.toString()} {...otherProps}>
+                <option value={Color.White.toString()}>{Intl.t("chess", "white_move")}</option>
+                <option value={Color.Black.toString()}>{Intl.t("chess", "black_move")}</option>
             </FormControl>
         );
     }

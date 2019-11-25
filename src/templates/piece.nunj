@@ -12,7 +12,7 @@
 	<script src="assets/js/chess-ctrls.tests.js"></script>
     <script>
         var props = {};
-        onixtext.PieceSelectorTest({
+        onixtest.PieceSelectorTest({
             id: 'pieceExample',
             onChangePiece: (p) => {
                 console.log(p);

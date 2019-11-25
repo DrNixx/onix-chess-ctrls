@@ -11,6 +11,12 @@ export interface StartPosSelectorProps extends FormControlProps {
 }
 
 export class StartPosSelector extends React.Component<StartPosSelectorProps, {}> {
+    public static defaultProps: StartPosSelectorProps = {
+        fen: FenStandartStart,
+        openingsPos: null,
+        size: 'sm',
+    }
+
     /**
      * constructor
      */
@@ -20,16 +26,17 @@ export class StartPosSelector extends React.Component<StartPosSelectorProps, {}>
     }
 
     private onChange = (e) => {
+        const { onChangeFen } = this.props;
         let fen: string = e.target.value; 
 
         if (fen === "---") {
             fen = window.prompt(Intl.t("chess-ctrls", "paste_fen_prompt"), "");
         }
 
-        if (this.props.onChange) {
-            this.props.onChangeFen(fen);
+        if (onChangeFen) {
+            onChangeFen(fen);
         }
-    }
+    };
 
     private getOpenings = (openingsPos) => {
         if (openingsPos && openingsPos.length) {
@@ -53,11 +60,11 @@ export class StartPosSelector extends React.Component<StartPosSelectorProps, {}>
     }
     
     render() {
-        let { fen, openingsPos } = this.props;
+        let { fen, openingsPos, onChangeFen, size, ...otherProps } = this.props;
         fen = fen || "";
         
         return (
-            <FormControl as="select" size="sm" onChange={this.onChange} value={fen}>
+            <FormControl as="select" size={size} onChange={this.onChange} defaultValue={fen} {...otherProps}>
                 <optgroup label={Intl.t("chess-ctrls", "set_board")}>
                     <option value="">{Intl.t("chess-ctrls", "position_label")}</option>
                     <option value={FenStandartStart}>{Intl.t("chess-ctrls", "std_fen")}</option>
