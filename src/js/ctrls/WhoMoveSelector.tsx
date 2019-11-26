@@ -1,4 +1,3 @@
-import toSafeInteger from 'lodash-es/toSafeInteger';
 import * as React from 'react';
 import { Intl } from 'onix-core';
 import { Intl as IntlCtrls } from '../Intl';
