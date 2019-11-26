@@ -37,7 +37,7 @@ export class WhoMoveSelector extends React.Component<WhoMoveSelectorProps, {}> {
     render() {
         const { defaultValue, onChangeTurn, size, ...otherProps } = this.props;
         return (
-            <FormControl as="select" size={size} onChange={this.onChange} defaultValue={defaultValue} {...otherProps}>
+            <FormControl as="select" size={size} onChange={this.onChange} defaultValue={defaultValue.toString()} {...otherProps}>
                 <option value="white">{Intl.t("chess-ctrls", "white_move")}</option>
                 <option value="black">{Intl.t("chess-ctrls", "black_move")}</option>
             </FormControl>
