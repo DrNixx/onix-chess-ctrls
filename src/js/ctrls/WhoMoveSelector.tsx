@@ -7,7 +7,7 @@ import { Color } from 'chessground/types';
 
 export interface WhoMoveSelectorProps extends FormControlProps {
     defaultTurn?: Color;
-    onChangeTurn?: (color: number) => void;
+    onChangeTurn?: (color: Color) => void;
 }
 
 export class WhoMoveSelector extends React.Component<WhoMoveSelectorProps, {}> {
@@ -27,7 +27,7 @@ export class WhoMoveSelector extends React.Component<WhoMoveSelectorProps, {}> {
 
     private onChange = (e) => {
         const { onChangeTurn } = this.props;
-        const color: number = toSafeInteger(e.target.value); 
+        const color: Color = e.target.value; 
 
         if (onChangeTurn) {
             onChangeTurn(color);
