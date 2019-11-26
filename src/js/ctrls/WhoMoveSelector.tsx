@@ -6,13 +6,13 @@ import { FormControl, FormControlProps } from 'react-bootstrap';
 import { Color } from 'chessground/types';
 
 export interface WhoMoveSelectorProps extends FormControlProps {
-    defaultTurn?: Color;
+    defaultValue?: Color;
     onChangeTurn?: (color: Color) => void;
 }
 
 export class WhoMoveSelector extends React.Component<WhoMoveSelectorProps, {}> {
     public static defaultProps: WhoMoveSelectorProps = {
-        defaultTurn: 'white',
+        defaultValue: 'white',
         size: 'sm',
     }
 
@@ -35,9 +35,9 @@ export class WhoMoveSelector extends React.Component<WhoMoveSelectorProps, {}> {
     }
 
     render() {
-        const { defaultTurn, onChangeTurn, size, ...otherProps } = this.props;
+        const { defaultValue, onChangeTurn, size, ...otherProps } = this.props;
         return (
-            <FormControl as="select" size={size} onChange={this.onChange} defaultValue={defaultTurn} {...otherProps}>
+            <FormControl as="select" size={size} onChange={this.onChange} defaultValue={defaultValue} {...otherProps}>
                 <option value="white">{Intl.t("chess-ctrls", "white_move")}</option>
                 <option value="black">{Intl.t("chess-ctrls", "black_move")}</option>
             </FormControl>
