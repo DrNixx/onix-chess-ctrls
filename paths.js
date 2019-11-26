@@ -1,12 +1,13 @@
 const { PRODUCTION } = require('./config');
 const base = PRODUCTION ? 'dist' : 'public';
 const assets = base + (PRODUCTION ? '' : '/assets');
+const js = PRODUCTION ? base : assets + '/js';
 
 module.exports = {
 	build: {
 		html: base + '/',
 		assets: assets + '/',
-		scripts: assets + '/js/',
+		scripts: js + '/',
 	},
 	src: {
 		scripts: './src/js/index.ts',

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { FormControl, FormControlProps } from 'react-bootstrap';
 
-const boardsData = require('onix-board-assets/dist/assets/boards/boards.json');
+const boardsData = require('onix-board-assets/dist/js/boards.json');
 
 export interface SquareSelectorProps extends FormControlProps {
     defaultValue?: string;

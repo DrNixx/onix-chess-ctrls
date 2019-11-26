@@ -1,0 +1,17 @@
+{% extends "./ext/base.nunj" %}
+{% from "parts/piecesBoard.nunj" import piecesBoard %}
+{% block title %}Board size example {{ super() }}{% endblock title %}
+
+{% block content %}
+	<p><div id="control"></div></p>
+        <script src="assets/js/chess-ctrls.tests.js"></script>
+        <script>
+            var props = {};
+            onixtest.SizeSelectorTest({
+                onChangeSize: (n) => {
+                    console.log(n);
+                }
+            }, document.getElementById("control"));    
+            console.log()        
+        </script>
+{% endblock content %}

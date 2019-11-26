@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { FormControl, FormControlProps } from 'react-bootstrap';
 
-const boardsData = require('onix-board-assets/dist/assets/pieces/pieces.json');
+const boardsData = require('onix-board-assets/dist/js/pieces.json');
 
 export interface PieceSelectorProps extends FormControlProps {
     defaultValue?: string;

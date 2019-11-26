@@ -7,4 +7,5 @@
     <p><a href="square.html">Square selector</a></p>
     <p><a href="position.html">Position selector</a></p>
     <p><a href="whomove.html">Who move selector</a></p>
+    <p><a href="size.html">Size selector</a></p>
 {% endblock content %}
