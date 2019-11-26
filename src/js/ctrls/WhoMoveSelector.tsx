@@ -1,18 +1,18 @@
 import toSafeInteger from 'lodash-es/toSafeInteger';
 import * as React from 'react';
 import { Intl } from 'onix-core';
-import { Intl as IntlCtrls } from 'onix-chess';
+import { Intl as IntlCtrls } from '../Intl';
 import { FormControl, FormControlProps } from 'react-bootstrap';
-import { Color } from 'onix-chess';
+import { Color } from 'chessground/types';
 
 export interface WhoMoveSelectorProps extends FormControlProps {
-    defaultTurn?: number;
+    defaultTurn?: Color;
     onChangeTurn?: (color: number) => void;
 }
 
 export class WhoMoveSelector extends React.Component<WhoMoveSelectorProps, {}> {
     public static defaultProps: WhoMoveSelectorProps = {
-        defaultTurn: Color.White,
+        defaultTurn: 'white',
         size: 'sm',
     }
 
@@ -37,9 +37,9 @@ export class WhoMoveSelector extends React.Component<WhoMoveSelectorProps, {}> {
     render() {
         const { defaultTurn, onChangeTurn, size, ...otherProps } = this.props;
         return (
-            <FormControl as="select" size={size} onChange={this.onChange} defaultValue={defaultTurn.toString()} {...otherProps}>
-                <option value={Color.White.toString()}>{Intl.t("chess", "white_move")}</option>
-                <option value={Color.Black.toString()}>{Intl.t("chess", "black_move")}</option>
+            <FormControl as="select" size={size} onChange={this.onChange} defaultValue={defaultTurn} {...otherProps}>
+                <option value="white">{Intl.t("chess-ctrls", "white_move")}</option>
+                <option value="black">{Intl.t("chess-ctrls", "black_move")}</option>
             </FormControl>
         );
     }

@@ -30,6 +30,7 @@
   },
   "homepage": "https://github.com/DrNixx/onix-chess-ctrls#readme",
   "dependencies": {
+    "chessground": "^7.6.10",
     "lodash-es": "^4.17.15",
     "onix-board-assets": "^3.4.24",
     "onix-chess": "^1.3.21",

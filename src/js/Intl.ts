@@ -1,5 +1,4 @@
 import { Intl as IntlCore } from 'onix-core';
-import { Intl as ChessIntl } from 'onix-chess';
 
 export class Intl {
     private static intlInitialized = false;
@@ -7,10 +6,12 @@ export class Intl {
     public static register() {
         if (!Intl.intlInitialized) {
             
-            ChessIntl.register();
+            IntlCore.register();
 
             IntlCore.registerStrings('chess-ctrls', {
                 'ru-ru': {
+                    white_move: "Ход белых",
+                    black_move: "Ход черных",
                     set_board: "Установить позицию",
                     position_label: "-- Позиция --",        
                     std_fen: "Стартовая позиция",
@@ -21,6 +22,8 @@ export class Intl {
                 },
 
                 'en-us': {
+                    white_move: "White move",
+                    black_move: "Black move",
                     set_board: "Set the board",
                     position_label: "-- Position --",
                     std_fen: "Standart start",
