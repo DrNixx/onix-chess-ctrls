@@ -19,6 +19,7 @@ export class Intl {
                     get_fen: "Загрузить FEN",
                     paste_fen_prompt: "Скопируйте сюда собственный FEN",
                     popular_opening: "Популярные дебюты",
+                    copy_to_clipboard: "Копировать в буфер обмена",
                 },
 
                 'en-us': {
@@ -30,7 +31,8 @@ export class Intl {
                     empty_fen: "Empty board",
                     get_fen: "Custom position",
                     paste_fen_prompt: "Paste FEN position",
-                    popular_opening: "Popular openings"
+                    popular_opening: "Popular openings",
+                    copy_to_clipboard: "Copy to clipboard",
                 }
             });
 
