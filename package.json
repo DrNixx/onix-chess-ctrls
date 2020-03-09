@@ -1,6 +1,6 @@
 {
   "name": "onix-chess-ctrls",
-  "version": "1.7.31",
+  "version": "1.7.32",
   "description": "Chess related controls",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
