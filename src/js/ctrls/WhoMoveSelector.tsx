@@ -2,17 +2,17 @@ import * as React from 'react';
 import { Intl } from 'onix-core';
 import { Intl as IntlCtrls } from '../Intl';
 import { FormControl, FormControlProps } from 'react-bootstrap';
-import { Color } from 'chessground/types';
+import { ColorName } from 'onix-chess';
 
 export interface WhoMoveSelectorProps extends FormControlProps {
-    defaultValue?: Color;
-    onChangeTurn?: (color: Color) => void;
+    defaultValue?: ColorName;
+    onChangeTurn?: (color: ColorName) => void;
 }
 
 export class WhoMoveSelector extends React.Component<WhoMoveSelectorProps, {}> {
     public static defaultProps: WhoMoveSelectorProps = {
-        defaultValue: 'white',
-        size: 'sm',
+        defaultValue: "white",
+        size: "sm",
     }
 
     /**
@@ -26,7 +26,7 @@ export class WhoMoveSelector extends React.Component<WhoMoveSelectorProps, {}> {
 
     private onChange = (e) => {
         const { onChangeTurn } = this.props;
-        const color: Color = e.target.value; 
+        const color: ColorName = e.target.value; 
 
         if (onChangeTurn) {
             onChangeTurn(color);
