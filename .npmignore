@@ -1,7 +1,10 @@
 /.vscode
+/.github
+/.babelrc
 /gulp-tasks
 /node_modules
 /public
+/test
 /src/templates
 /src/test
 /.browserslistrc

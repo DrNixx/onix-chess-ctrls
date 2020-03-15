@@ -6,7 +6,8 @@ import { InputGroup, FormControl, FormControlProps, Button } from 'react-bootstr
 
 export interface TextWithCopyProps extends FormControlProps {
     value?: string,
-    placeholder?: string
+    placeholder?: string,
+    icon?: string,
 }
 
 export interface TextWithCopyState {
@@ -14,6 +15,10 @@ export interface TextWithCopyState {
 }
 
 export class TextWithCopy extends React.Component<TextWithCopyProps, TextWithCopyState> {
+    public static defaultProps: TextWithCopyProps = {
+        icon: 'fa fa-copy',
+    }
+
     /**
      * constructor
      */
@@ -23,11 +28,11 @@ export class TextWithCopy extends React.Component<TextWithCopyProps, TextWithCop
         Intl.register();
 
         this.state = { 
-            className: null,
+            className: "",
         };
     }
 
-    private onCopy = (e) => {
+    private onCopy = () => {
         if (copy(this.props.value)) {
             this.setSuccess();
         }
@@ -44,12 +49,12 @@ export class TextWithCopy extends React.Component<TextWithCopyProps, TextWithCop
 
     private setPrimary = () => {
         this.setState({ 
-            className: null,
+            className: "",
         });
     }
 
     render() {
-        let { id, size, placeholder, readOnly, ...elementProps } = this.props;
+        let { id, size, placeholder, readOnly, icon, ...elementProps } = this.props;
 
         return (
             <InputGroup size={size}>
@@ -64,7 +69,7 @@ export class TextWithCopy extends React.Component<TextWithCopyProps, TextWithCop
                         variant="primary" 
                         tabIndex={-1}
                         onClick={this.onCopy} 
-                        title={IntlCore.t("chess-ctrls", "copy_to_clipboard")}><i className="xi-copy"></i></Button>
+                        title={IntlCore.t("chess-ctrls", "copy_to_clipboard")}><i className={icon}></i></Button>
                 </InputGroup.Append>
             </InputGroup>
         );

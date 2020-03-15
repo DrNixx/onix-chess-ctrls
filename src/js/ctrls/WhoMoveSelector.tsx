@@ -24,9 +24,9 @@ export class WhoMoveSelector extends React.Component<WhoMoveSelectorProps, {}> {
         IntlCtrls.register();
     }
 
-    private onChange = (e) => {
+    private onChange = (e: React.FormEvent<HTMLSelectElement>) => {
         const { onChangeTurn } = this.props;
-        const color: ColorName = e.target.value; 
+        const color: ColorName = e.currentTarget.value as ColorName; 
 
         if (onChangeTurn) {
             onChangeTurn(color);
@@ -36,7 +36,7 @@ export class WhoMoveSelector extends React.Component<WhoMoveSelectorProps, {}> {
     render() {
         const { defaultValue, onChangeTurn, size, ...otherProps } = this.props;
         return (
-            <FormControl as="select" size={size} onChange={this.onChange} defaultValue={defaultValue.toString()} {...otherProps}>
+            <FormControl as="select" size={size} onChange={this.onChange} defaultValue={defaultValue!.toString()} {...otherProps}>
                 <option value="white">{Intl.t("chess-ctrls", "white_move")}</option>
                 <option value="black">{Intl.t("chess-ctrls", "black_move")}</option>
             </FormControl>

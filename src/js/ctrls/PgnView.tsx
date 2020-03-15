@@ -15,8 +15,6 @@ export class PgnView extends React.Component<PgnViewProps, PgnViewState> {
     public static defaultProps: PgnViewProps = {
         pgn: "*",
         readOnly: true,
-        onChange: (pgn) => { },
-        onSend: (pgn) => { },
     }
 
     constructor(props: PgnViewProps) {
@@ -27,9 +25,9 @@ export class PgnView extends React.Component<PgnViewProps, PgnViewState> {
         };
     }
 
-    private onChange = (e) => {
+    private onChange = (e: React.FormEvent<HTMLTextAreaElement>) => {
         const { onChange } = this.props;
-        const pgn: string = e.target.value; 
+        const pgn: string = e.currentTarget.value; 
 
         this.setState({
             ...this.state,

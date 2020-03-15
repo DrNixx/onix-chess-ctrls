@@ -6,20 +6,27 @@ export interface CopyToClipboardProps {
 
 var defaultMessage = 'Copy to clipboard: #{key}, Enter';
 
-function format(message) {
+function format(message: string) {
     var copyKey = (/mac os x/i.test(navigator.userAgent) ? '⌘' : 'Ctrl') + '+C';
     return message.replace(/#{\s*key\s*}/g, copyKey);
 }
 
-export function copy(text: string, options?: CopyToClipboardProps): boolean {
-    var message, reselectPrevious, range, selection, mark, success = false;
-    if (!options) { options = {}; }
-    
-    try {
-        reselectPrevious = Selection.toggle();
+export function copy(text?: string, options?: CopyToClipboardProps): boolean {
+    if (!text) {
+        return false;
+    }
 
+    let message, range, selection, mark, success = false;
+    if (!options) { options = {}; }
+
+    const reselectPrevious = Selection.toggle();
+
+    try {
         range = document.createRange();
         selection = document.getSelection();
+        if (selection === null) {
+            throw new Error('copy command was unsuccessful');
+        }
 
         mark = document.createElement('span');
         mark.textContent = text;
@@ -51,16 +58,21 @@ export function copy(text: string, options?: CopyToClipboardProps): boolean {
         success = true;
     } catch (err) {
         try {
-            window['clipboardData'].setData('text', text);
-            success = true;
+            const clipboardData = (window as { [key: string]: any })["clipboardData"] as any;
+            if (clipboardData) {
+                clipboardData.setData('text', text);
+                success = true;
+            }
         } catch (err) {
-            message = format('message' in options ? options.message : defaultMessage);
+            message = format('message' in options ? options.message! : defaultMessage);
             window.prompt(message, text);
         }
     } finally {
         if (selection) {
             if (typeof selection.removeRange == 'function') {
-                selection.removeRange(range);
+                if (range) {
+                    selection.removeRange(range);
+                }
             } else {
                 selection.removeAllRanges();
             }

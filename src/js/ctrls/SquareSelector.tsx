@@ -21,18 +21,18 @@ export class SquareSelector extends React.Component<SquareSelectorProps, {}> {
         super(props);
     }
 
-    private onChange = (e) => {
+    private onChange = (e: React.FormEvent<HTMLSelectElement>) => {
         const { onChangeSquare } = this.props;
-        const square = e.target.value; 
+        const square = e.currentTarget.value; 
 
         if (onChangeSquare) {
             onChangeSquare(square);
         }
     };
 
-    private getSquares = () => {
-        let result = [];
-        boardsData.boardFiles.forEach(element => {
+    private getSquares = (): any[] => {
+        const result: any[] = [];
+        boardsData.boardFiles.forEach((element: any) => {
             result.push(<option key={element.code} value={element.code}>{element.name}</option>);
         });
 

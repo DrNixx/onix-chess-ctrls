@@ -1,4 +1,5 @@
 import * as React from 'react';
+import toSafeInteger from 'lodash-es/toSafeInteger';
 import { FormControl, FormControlProps } from 'react-bootstrap';
 import { BoardSize } from 'onix-board-assets';
 
@@ -22,18 +23,18 @@ export class SizeSelector extends React.Component<SizeSelectorProps, {}> {
         super(props);
     }
 
-    private onChange = (e) => {
+    private onChange = (e: React.FormEvent<HTMLSelectElement>) => {
         const { onChangeSize } = this.props;
-        const size: BoardSize = e.target.value; 
+        const size: BoardSize = toSafeInteger(e.currentTarget.value); 
 
         if (onChangeSize) {
             onChangeSize(size);
         }
     };
 
-    private getSizes = () => {
-        let result = [];
-        boardsData.boardSizes.forEach(element => {
+    private getSizes = (): any[] => {
+        const result: any[] = [];
+        boardsData.boardSizes.forEach((element: any) => {
             result.push(<option key={element.code} value={element.idx}>{element.name}</option>);
         });
 
@@ -44,7 +45,7 @@ export class SizeSelector extends React.Component<SizeSelectorProps, {}> {
         const { defaultValue, onChangeSize, size, ...otherProps } = this.props;
 
         return (
-            <FormControl as="select" size={size} onChange={this.onChange} defaultValue={defaultValue.toString()} {...otherProps}>
+            <FormControl as="select" size={size} onChange={this.onChange} defaultValue={defaultValue!.toString()} {...otherProps}>
                 { this.getSizes() }
             </FormControl>
         );

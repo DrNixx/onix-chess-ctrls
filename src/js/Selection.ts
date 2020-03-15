@@ -1,18 +1,17 @@
 export class Selection {
     public static toggle(): () => void {
+        const active = document.activeElement;
         const selection = document.getSelection();
-        if (!selection.rangeCount) {
+        if (!active || !selection || !selection.rangeCount) {
             return function () {};
         }
 
-        const active = document.activeElement;
-
-        const ranges = [];
+        const ranges: Range[] = [];
         for (var i = 0; i < selection.rangeCount; i++) {
             ranges.push(selection.getRangeAt(i));
         }
 
-        let focus: Function = null;
+        let focus: Function | undefined;
         switch (active.tagName.toUpperCase()) { // .toUpperCase handles XHTML
             case 'INPUT':
                 focus = (active as HTMLInputElement).focus;

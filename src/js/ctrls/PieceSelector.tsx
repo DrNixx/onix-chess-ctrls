@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { FormControl, FormControlProps } from 'react-bootstrap';
 
-const boardsData = require('onix-board-assets/dist/js/pieces.json');
+const boardsData: any = require('onix-board-assets/dist/js/pieces.json');
 
 export interface PieceSelectorProps extends FormControlProps {
     defaultValue?: string;
@@ -21,18 +21,18 @@ export class PieceSelector extends React.Component<PieceSelectorProps, {}> {
         super(props);
     }
 
-    private onChange = (e) => {
+    private onChange = (e: React.FormEvent<HTMLSelectElement>) => {
         const { onChangePiece } = this.props;
-        const piece = e.target.value; 
+        const piece = e.currentTarget.value; 
 
         if (onChangePiece) {
             onChangePiece(piece);
         }
     };
 
-    private getPieces = () => {
-        let result = [];
-        boardsData.pieceFaces.forEach(element => {
+    private getPieces = (): any[] => {
+        const result: any[] = [];
+        boardsData.pieceFaces.forEach((element: any) => {
             result.push(
                 <option key={element.code} value={element.code}>{element.name}</option>
             );
