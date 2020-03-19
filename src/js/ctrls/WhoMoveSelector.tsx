@@ -2,11 +2,11 @@ import * as React from 'react';
 import { Intl } from 'onix-core';
 import { Intl as IntlCtrls } from '../Intl';
 import { FormControl, FormControlProps } from 'react-bootstrap';
-import { ColorName } from 'onix-chess';
+import { Colors } from 'onix-chess';
 
 export interface WhoMoveSelectorProps extends FormControlProps {
-    defaultValue?: ColorName;
-    onChangeTurn?: (color: ColorName) => void;
+    defaultValue?: Colors.Name;
+    onChangeTurn?: (color: Colors.Name) => void;
 }
 
 export class WhoMoveSelector extends React.Component<WhoMoveSelectorProps, {}> {
@@ -26,7 +26,7 @@ export class WhoMoveSelector extends React.Component<WhoMoveSelectorProps, {}> {
 
     private onChange = (e: React.FormEvent<HTMLSelectElement>) => {
         const { onChangeTurn } = this.props;
-        const color: ColorName = e.currentTarget.value as ColorName; 
+        const color: Colors.Name = e.currentTarget.value as Colors.Name; 
 
         if (onChangeTurn) {
             onChangeTurn(color);
