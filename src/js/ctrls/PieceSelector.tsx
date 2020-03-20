@@ -21,9 +21,9 @@ export class PieceSelector extends React.Component<PieceSelectorProps, {}> {
         super(props);
     }
 
-    private onChange = (e: React.FormEvent<HTMLSelectElement>) => {
+    private onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const { onChangePiece } = this.props;
-        const piece = e.currentTarget.value; 
+        const piece = e.target.value; 
 
         if (onChangePiece) {
             onChangePiece(piece);

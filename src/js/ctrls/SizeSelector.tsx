@@ -23,9 +23,9 @@ export class SizeSelector extends React.Component<SizeSelectorProps, {}> {
         super(props);
     }
 
-    private onChange = (e: React.FormEvent<HTMLSelectElement>) => {
+    private onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const { onChangeSize } = this.props;
-        const size: BoardSize = toSafeInteger(e.currentTarget.value); 
+        const size: BoardSize = toSafeInteger(e.target.value); 
 
         if (onChangeSize) {
             onChangeSize(size);

@@ -76,9 +76,9 @@ export class StartPosSelector extends React.Component<StartPosSelectorProps, Sta
         });
     }
 
-    private onChange = (e: React.FormEvent<HTMLSelectElement>) => {
+    private onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const { onChangeFen } = this.props;
-        let fen: string = e.currentTarget.value; 
+        let fen: string = e.target.value; 
 
         if (fen === "---") {
             fen = window.prompt(Intl.t("chess-ctrls", "paste_fen_prompt"), "") || FenString.emptyBoard;

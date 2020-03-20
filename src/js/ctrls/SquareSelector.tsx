@@ -21,9 +21,9 @@ export class SquareSelector extends React.Component<SquareSelectorProps, {}> {
         super(props);
     }
 
-    private onChange = (e: React.FormEvent<HTMLSelectElement>) => {
+    private onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const { onChangeSquare } = this.props;
-        const square = e.currentTarget.value; 
+        const square = e.target.value; 
 
         if (onChangeSquare) {
             onChangeSquare(square);

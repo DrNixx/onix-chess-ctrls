@@ -25,9 +25,9 @@ export class WhoMoveSelector extends React.Component<WhoMoveSelectorProps, {}> {
         IntlCtrls.register();
     }
 
-    private onChange = (e: React.FormEvent<HTMLSelectElement>) => {
+    private onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const { onChangeTurn } = this.props;
-        const color: Colors.BW = toSafeInteger(e.currentTarget.value) as Colors.BW; 
+        const color: Colors.BW = toSafeInteger(e.target.value) as Colors.BW; 
 
         if (onChangeTurn) {
             onChangeTurn(color);

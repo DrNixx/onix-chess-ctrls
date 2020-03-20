@@ -25,9 +25,9 @@ export class PgnView extends React.Component<PgnViewProps, PgnViewState> {
         };
     }
 
-    private onChange = (e: React.FormEvent<HTMLTextAreaElement>) => {
+    private onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         const { onChange } = this.props;
-        const pgn: string = e.currentTarget.value; 
+        const pgn: string = e.target.value; 
 
         this.setState({
             ...this.state,
