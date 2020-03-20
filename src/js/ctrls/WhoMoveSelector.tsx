@@ -1,17 +1,18 @@
 import * as React from 'react';
+import toSafeInteger from 'lodash-es/toSafeInteger';
 import { Intl } from 'onix-core';
-import { Intl as IntlCtrls } from '../Intl';
 import { FormControl, FormControlProps } from 'react-bootstrap';
-import { Colors } from 'onix-chess';
+import { Intl as IntlCtrls } from '../Intl';
+import { Colors, Color } from 'onix-chess';
 
 export interface WhoMoveSelectorProps extends FormControlProps {
-    defaultValue?: Colors.Name;
-    onChangeTurn?: (color: Colors.Name) => void;
+    defaultValue?: Colors.BW;
+    onChangeTurn?: (color: Colors.BW) => void;
 }
 
 export class WhoMoveSelector extends React.Component<WhoMoveSelectorProps, {}> {
     public static defaultProps: WhoMoveSelectorProps = {
-        defaultValue: "white",
+        defaultValue: Color.White,
         size: "sm",
     }
 
@@ -26,7 +27,7 @@ export class WhoMoveSelector extends React.Component<WhoMoveSelectorProps, {}> {
 
     private onChange = (e: React.FormEvent<HTMLSelectElement>) => {
         const { onChangeTurn } = this.props;
-        const color: Colors.Name = e.currentTarget.value as Colors.Name; 
+        const color: Colors.BW = toSafeInteger(e.currentTarget.value) as Colors.BW; 
 
         if (onChangeTurn) {
             onChangeTurn(color);
@@ -35,10 +36,11 @@ export class WhoMoveSelector extends React.Component<WhoMoveSelectorProps, {}> {
 
     render() {
         const { defaultValue, onChangeTurn, size, ...otherProps } = this.props;
+        
         return (
             <FormControl as="select" size={size} onChange={this.onChange} defaultValue={defaultValue!.toString()} {...otherProps}>
-                <option value="white">{Intl.t("chess-ctrls", "white_move")}</option>
-                <option value="black">{Intl.t("chess-ctrls", "black_move")}</option>
+                <option value={Color.White.toString()}>{Intl.t("chess-ctrls", "white_move")}</option>
+                <option value={Color.Black.toString()}>{Intl.t("chess-ctrls", "black_move")}</option>
             </FormControl>
         );
     }
