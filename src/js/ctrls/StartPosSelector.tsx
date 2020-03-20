@@ -30,6 +30,8 @@ export class StartPosSelector extends React.Component<StartPosSelectorProps, Sta
         super(props);
         IntlCtrl.register();
 
+        this.setPosMap(FenString.emptyBoard);
+        this.setPosMap(FenString.standartStart);
         this.state = {
             openings: props.openingsPos!,
         };
@@ -65,8 +67,7 @@ export class StartPosSelector extends React.Component<StartPosSelectorProps, Sta
         let openings: IOpeningPosition[] = [];
         for (var i = 0; i < data.length; i++) {
             const option = data[i];
-            const key = FenString.trim(option.fen, FenFormat.castlingEp);
-            this.posMap[key] = option.fen;
+            this.setPosMap(option.fen);
             openings.push(option);
         }
         
@@ -75,6 +76,11 @@ export class StartPosSelector extends React.Component<StartPosSelectorProps, Sta
             openings: openings
         });
     }
+
+    private setPosMap = (fen: string) => {
+        let key = FenString.trim(fen, FenFormat.castlingEp);
+        this.posMap[key] = fen;
+    };
 
     private onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const { onChangeFen } = this.props;
@@ -94,9 +100,8 @@ export class StartPosSelector extends React.Component<StartPosSelectorProps, Sta
             let openings = [];
             for (let i = 0; i < openingsPos.length; i++) {
                 const option = openingsPos[i];
-                const fen = FenString.trim(option.fen, FenFormat.castlingEp);
                 openings.push(
-                    <option key={i} value={fen}>{option.name}</option>
+                    <option key={i+3} value={option.fen}>{option.name}</option>
                 );
             }
 
@@ -115,19 +120,18 @@ export class StartPosSelector extends React.Component<StartPosSelectorProps, Sta
         let { fen, openingsPos, onChangeFen, size, ...otherProps } = this.props;
         const { openings } = this.state;
         
-        const std = FenString.trim(FenString.standartStart, FenFormat.castlingEp);
-        const empt = FenString.trim(FenString.emptyBoard, FenFormat.castlingEp);
-        fen =  fen || "";
-        if (fen) {
-            fen = FenString.trim(fen, FenFormat.castlingEp);
+        const key = FenString.trim(fen!, FenFormat.castlingEp);
+        let value = this.posMap[key];
+        if (value === undefined) {
+            value = "---";
         }
         
         return (
-            <FormControl as="select" size={size} onChange={this.onChange} defaultValue={fen} {...otherProps}>
+            <FormControl as="select" size={size} onChange={this.onChange} defaultValue={value} {...otherProps}>
                 <optgroup label={Intl.t("chess-ctrls", "set_board")}>
                     <option value="">{Intl.t("chess-ctrls", "position_label")}</option>
-                    <option value={std}>{Intl.t("chess-ctrls", "std_fen")}</option>
-                    <option value={empt}>{Intl.t("chess-ctrls", "empty_fen")}</option>
+                    <option value={FenString.standartStart}>{Intl.t("chess-ctrls", "std_fen")}</option>
+                    <option value={FenString.emptyBoard}>{Intl.t("chess-ctrls", "empty_fen")}</option>
                     <option value="---">{Intl.t("chess-ctrls", "get_fen")}</option>
                 </optgroup>
                 {this.getOpenings(openings)}
