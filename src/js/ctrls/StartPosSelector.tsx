@@ -123,11 +123,11 @@ export class StartPosSelector extends React.Component<StartPosSelectorProps, Sta
         const key = FenString.trim(fen!, FenFormat.castlingEp);
         let value = this.posMap[key];
         if (value === undefined) {
-            value = "---";
+            value = "";
         }
         
         return (
-            <FormControl as="select" size={size} onChange={this.onChange} defaultValue={value} {...otherProps}>
+            <FormControl as="select" size={size} onChange={this.onChange} value={value} {...otherProps}>
                 <optgroup label={Intl.t("chess-ctrls", "set_board")}>
                     <option value="">{Intl.t("chess-ctrls", "position_label")}</option>
                     <option value={FenString.standartStart}>{Intl.t("chess-ctrls", "std_fen")}</option>
