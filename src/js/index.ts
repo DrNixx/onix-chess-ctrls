@@ -1,4 +1,3 @@
-export { Piece } from './ctrls/Piece';
 export { PieceSelector, PieceSelectorProps } from './ctrls/PieceSelector';
 export { SizeSelector, SizeSelectorProps } from './ctrls/SizeSelector';
 export { SquareSelector, SquareSelectorProps } from './ctrls/SquareSelector';
