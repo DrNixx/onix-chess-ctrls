@@ -30,7 +30,7 @@
   },
   "homepage": "https://github.com/DrNixx/onix-chess-ctrls#readme",
   "dependencies": {
-    "onix-board-assets": "^4.0.0",
+    "onix-board-assets": "^4.1.0",
     "onix-chess": "^3.3.3",
     "onix-core": "^1.8.0",
     "react": "^16.13.1",
@@ -39,7 +39,7 @@
   "devDependencies": {
     "@babel/core": "^7.9.0",
     "@babel/preset-env": "^7.9.0",
-    "@babel/preset-react": "^7.9.1",
+    "@babel/preset-react": "^7.9.4",
     "@babel/register": "^7.9.0",
     "@types/enzyme": "^3.10.5",
     "@types/lodash-es": "^4.17.3",
@@ -73,7 +73,7 @@
     "react-dom": "^16.13.1",
     "ts-loader": "^6.2.2",
     "typescript": "^3.8.3",
-    "webpack": "^4.42.0",
+    "webpack": "^4.42.1",
     "webpack-cli": "^3.3.11",
     "webpack-dev-middleware": "^3.7.1",
     "webpack-hot-middleware": "^2.25.0"
