@@ -1,6 +1,6 @@
 # onix-chess-ctrls 
 
-[![npm version][npm-badge]][npm] [![npm downloads][npd-badge]][npm] [![dependencies Status][dps-badge]][dps][![FOSSA Status][fossa-badge]][fossa]
+[![npm version][npm-badge]][npm] [![npm downloads][npd-badge]][npm] [![dependencies Status][dps-badge]][dps]
 
 Onix Chess classes library.
 
@@ -15,5 +15,3 @@ Onix Chess classes library.
 [dps-badge]: https://david-dm.org/DrNixx/onix-chess-ctrls/status.svg
 [dps]: https://david-dm.org/DrNixx/onix-chess-ctrls
 [npm]: https://www.npmjs.com/package/onix-chess-ctrls
-[fossa-badge]: https://app.fossa.com/api/projects/git%2Bgithub.com%2FDrNixx%2Fonix-chess-ctrls.svg?type=shield
-[fossa]: https://app.fossa.com/projects/git%2Bgithub.com%2FDrNixx%2Fonix-chess-ctrls?ref=badge_shield
