@@ -1,8 +1,8 @@
 import * as React from 'react';
 import toSafeInteger from 'lodash-es/toSafeInteger';
-import { Intl } from 'onix-core';
+import { _ } from 'onix-core';
 import { FormControl, FormControlProps } from 'react-bootstrap';
-import { Intl as IntlCtrls } from '../Intl';
+import { register as i18nRegister } from '../Intl';
 import { Colors, Color } from 'onix-chess';
 
 export interface WhoMoveSelectorProps extends FormControlProps {
@@ -21,8 +21,7 @@ export class WhoMoveSelector extends React.Component<WhoMoveSelectorProps, {}> {
      */
     constructor(props: WhoMoveSelectorProps) {
         super(props);
-
-        IntlCtrls.register();
+        i18nRegister();
     }
 
     private onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -39,8 +38,8 @@ export class WhoMoveSelector extends React.Component<WhoMoveSelectorProps, {}> {
         
         return (
             <FormControl as="select" size={size} onChange={this.onChange} defaultValue={defaultValue!.toString()} {...otherProps}>
-                <option value={Color.White.toString()}>{Intl.t("chess-ctrls", "white_move")}</option>
-                <option value={Color.Black.toString()}>{Intl.t("chess-ctrls", "black_move")}</option>
+                <option value={Color.White.toString()}>{_("chess-ctrls", "white_move")}</option>
+                <option value={Color.Black.toString()}>{_("chess-ctrls", "black_move")}</option>
             </FormControl>
         );
     }

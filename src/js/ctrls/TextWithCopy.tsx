@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { copy } from '../CopyToClipboard';
-import { Intl } from '../Intl';
-import { Intl as IntlCore } from 'onix-core';
+import { _ } from 'onix-core';
+import { register as i18nRegister } from '../Intl';
 import { InputGroup, FormControl, FormControlProps, Button } from 'react-bootstrap';
 
 export interface TextWithCopyProps extends FormControlProps {
@@ -24,9 +24,6 @@ export class TextWithCopy extends React.Component<TextWithCopyProps, TextWithCop
      */
     constructor(props: TextWithCopyProps) {
         super(props);
-
-        Intl.register();
-
         this.state = { 
             className: "",
         };
@@ -69,7 +66,7 @@ export class TextWithCopy extends React.Component<TextWithCopyProps, TextWithCop
                         variant="primary" 
                         tabIndex={-1}
                         onClick={this.onCopy} 
-                        title={IntlCore.t("chess-ctrls", "copy_to_clipboard")}><i className={icon}></i></Button>
+                        title={_("chess-ctrls", "copy_to_clipboard")}><i className={icon}></i></Button>
                 </InputGroup.Append>
             </InputGroup>
         );

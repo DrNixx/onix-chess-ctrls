@@ -6,8 +6,10 @@ export const SizeSelectorTest = (props: {}, container: HTMLElement) => {
     ReactDOM.render(React.createElement(SizeSelector, props), container, () => {});
 };
 
-if (!window['onixtest']) {
-    window['onixtest'] = {};
+type hash = { [key: string]: any };
+
+if (!(<hash>window)['onixtest']) {
+    (<hash>window)['onixtest'] = {};
 }
 
-window['onixtest'].SizeSelectorTest = SizeSelectorTest;
+(<hash>window)['onixtest'].SizeSelectorTest = SizeSelectorTest;

@@ -6,8 +6,10 @@ export const WhoMoveSelectorTest = (props: {}, container: HTMLElement) => {
     ReactDOM.render(React.createElement(WhoMoveSelector, props), container, () => {});
 };
 
-if (!window['onixtest']) {
-    window['onixtest'] = {};
+type hash = { [key: string]: any };
+
+if (!(<hash>window)['onixtest']) {
+    (<hash>window)['onixtest'] = {};
 }
 
-window['onixtest'].WhoMoveSelectorTest = WhoMoveSelectorTest;
+(<hash>window)['onixtest'].WhoMoveSelectorTest = WhoMoveSelectorTest;

@@ -6,8 +6,10 @@ export const PieceSelectorTest = (props: {}, container: HTMLElement) => {
     ReactDOM.render(React.createElement(PieceSelector, props), container, () => {});
 };
 
-if (!window['onixtest']) {
-    window['onixtest'] = {};
+type hash = { [key: string]: any };
+
+if (!(<hash>window)['onixtest']) {
+    (<hash>window)['onixtest'] = {};
 }
 
-window['onixtest'].PieceSelectorTest = PieceSelectorTest;
+(<hash>window)['onixtest'].PieceSelectorTest = PieceSelectorTest;

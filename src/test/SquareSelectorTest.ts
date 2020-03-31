@@ -6,8 +6,10 @@ export const SquareSelectorTest = (props: {}, container: HTMLElement) => {
     ReactDOM.render(React.createElement(SquareSelector, props), container, () => {});
 };
 
-if (!window['onixtest']) {
-    window['onixtest'] = {};
+type hash = { [key: string]: any };
+
+if (!(<hash>window)['onixtest']) {
+    (<hash>window)['onixtest'] = {};
 }
 
-window['onixtest'].SquareSelectorTest = SquareSelectorTest;
+(<hash>window)['onixtest'].SquareSelectorTest = SquareSelectorTest;
