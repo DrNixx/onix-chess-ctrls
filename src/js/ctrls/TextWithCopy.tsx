@@ -24,6 +24,7 @@ export class TextWithCopy extends React.Component<TextWithCopyProps, TextWithCop
      */
     constructor(props: TextWithCopyProps) {
         super(props);
+        i18nRegister();
         this.state = { 
             className: "",
         };

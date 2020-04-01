@@ -28,6 +28,8 @@ export class StartPosSelector extends React.Component<StartPosSelectorProps, Sta
      */
     constructor(props: StartPosSelectorProps) {
         super(props);
+        
+        i18nRegister();
 
         this.setPosMap(FenString.emptyBoard);
         this.setPosMap(FenString.standartStart);
