@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { copy } from '../CopyToClipboard';
 import { _ } from 'onix-core';
-import { register as i18nRegister } from '../Intl';
+import { register } from '../i18n';
 import { InputGroup, FormControl, FormControlProps, Button } from 'react-bootstrap';
 
 export interface TextWithCopyProps extends FormControlProps {
@@ -24,7 +24,9 @@ export class TextWithCopy extends React.Component<TextWithCopyProps, TextWithCop
      */
     constructor(props: TextWithCopyProps) {
         super(props);
-        i18nRegister();
+
+        register();
+        
         this.state = { 
             className: "",
         };

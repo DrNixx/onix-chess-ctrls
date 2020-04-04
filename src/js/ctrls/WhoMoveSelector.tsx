@@ -2,7 +2,7 @@ import * as React from 'react';
 import toSafeInteger from 'lodash-es/toSafeInteger';
 import { _ } from 'onix-core';
 import { FormControl, FormControlProps } from 'react-bootstrap';
-import { register as i18nRegister } from '../Intl';
+import { register } from '../i18n';
 import { Colors, Color } from 'onix-chess';
 
 export interface WhoMoveSelectorProps extends FormControlProps {
@@ -21,7 +21,8 @@ export class WhoMoveSelector extends React.Component<WhoMoveSelectorProps, {}> {
      */
     constructor(props: WhoMoveSelectorProps) {
         super(props);
-        i18nRegister();
+        
+        register();
     }
 
     private onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { _, Hashtable } from 'onix-core';
 import { IOpeningPosition, FenString, FenFormat } from 'onix-chess';
 import { FormControl, FormControlProps } from 'react-bootstrap';
-import { register as i18nRegister } from '../Intl';
+import { register } from '../i18n';
 
 export interface StartPosSelectorProps extends FormControlProps {
     fen?: string,
@@ -29,7 +29,7 @@ export class StartPosSelector extends React.Component<StartPosSelectorProps, Sta
     constructor(props: StartPosSelectorProps) {
         super(props);
         
-        i18nRegister();
+        register();
 
         this.setPosMap(FenString.emptyBoard);
         this.setPosMap(FenString.standartStart);
