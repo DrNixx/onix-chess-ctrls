@@ -1,14 +1,14 @@
 {
     "chess-ctrls": {
-        "white_move": "Las blancas mueven",
-        "black_move": "Las negros mueven",
+        "white_move": "Turno de las blancas",
+        "black_move": "Turno de las negros",
         "set_board": "Configurar el tablero",
         "position_label": "-- Posición --",
         "std_fen": "Inicio standart",
         "empty_fen": "Tablero vacío",
-        "get_fen": "Custom position",
+        "get_fen": "Cargar posición",
         "paste_fen_prompt": "Pegar posición FEN",
-        "popular_opening": "Populares aperturas",
+        "popular_opening": "Aperturas populares",
         "copy_to_clipboard": "Copiar al portapapeles"
     }
 }
