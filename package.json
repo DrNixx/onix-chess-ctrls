@@ -31,8 +31,8 @@
   "homepage": "https://github.com/DrNixx/onix-chess-ctrls#readme",
   "dependencies": {
     "onix-board-assets": "^4.2.0",
-    "onix-chess": "^4.2.0",
-    "onix-core": "^3.1.4",
+    "onix-chess": "^5.0.0",
+    "onix-core": "^4.0.0",
     "react": "^16.13.1",
     "react-bootstrap": "^1.0.1"
   },
