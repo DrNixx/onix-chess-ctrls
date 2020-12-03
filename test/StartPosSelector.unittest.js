@@ -1,7 +1,7 @@
 import React from 'react';
 import { expect } from 'chai';  
 import { shallow, mount, configure} from 'enzyme';
-import { StartPosSelector } from '../dist/ctrls/StartPosSelector';
+import { StartPosSelector } from '../dist/js/ctrls/StartPosSelector';
   
 describe('<StartPosSelector/>', function () {
     it('should have an select element', function () {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { expect } from 'chai';  
-import { UserName } from '../dist/ui/UserName';
+import { UserName } from '../dist/js/ui/UserName';
   
 describe('<UserName/>', function () {
     it('should have an Avatar to display the UserName', function () {

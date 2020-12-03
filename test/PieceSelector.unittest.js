@@ -1,7 +1,7 @@
 import React from 'react';
 import { expect } from 'chai';  
 import { shallow, mount, configure} from 'enzyme';
-import { PieceSelector } from '../dist/ctrls/PieceSelector';
+import { PieceSelector } from '../dist/js/ctrls/PieceSelector';
   
 describe('<PieceSelector/>', function () {
     it('should have an select element', function () {

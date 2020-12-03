@@ -1,7 +1,7 @@
 import React from 'react';
 import { expect } from 'chai';  
 import { shallow, mount, configure} from 'enzyme';
-import { WhoMoveSelector } from '../dist/ctrls/WhoMoveSelector';
+import { WhoMoveSelector } from '../dist/js/ctrls/WhoMoveSelector';
   
 describe('<WhoMoveSelector/>', function () {
     it('should have an select element', function () {

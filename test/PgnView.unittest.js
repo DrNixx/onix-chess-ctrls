@@ -1,6 +1,6 @@
 import React from 'react';
 import { expect } from 'chai';  
-import { PgnView } from '../dist/ctrls/PgnView';
+import { PgnView } from '../dist/js/ctrls/PgnView';
   
 describe('<PgnView/>', function () {
     it('should have an textarea to display the pgn text', function () {

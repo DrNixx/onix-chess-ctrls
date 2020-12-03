@@ -1,6 +1,6 @@
 import React from 'react';
 import { expect } from 'chai';  
-import { Avatar } from '../dist/ui/Avatar';
+import { Avatar } from '../dist/js/ui/Avatar';
   
 describe('<Avatar/>', function () {
     it('should have an image to display the avatar', function () {

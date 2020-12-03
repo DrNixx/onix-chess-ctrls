@@ -1,7 +1,7 @@
 import React from 'react';
 import { expect } from 'chai';  
 import { shallow, mount, configure} from 'enzyme';
-import { SquareSelector } from '../dist/ctrls/SquareSelector';
+import { SquareSelector } from '../dist/js/ctrls/SquareSelector';
   
 describe('<SquareSelector/>', function () {
     it('should have an select element', function () {

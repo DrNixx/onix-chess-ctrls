@@ -1,7 +1,7 @@
 import React from 'react';
 import { expect } from 'chai';  
 import { shallow, mount, configure} from 'enzyme';
-import { SizeSelector } from '../dist/ctrls/SizeSelector';
+import { SizeSelector } from '../dist/js/ctrls/SizeSelector';
   
 describe('<SizeSelector/>', function () {
     it('should have an select element', function () {
