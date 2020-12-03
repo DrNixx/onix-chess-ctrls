@@ -50,36 +50,6 @@ export class UserName extends React.Component<IUserNameProps, IUserNameState> {
 
     }
 
-    private renderUsername = (user: IChessUser) => {
-        if (user.display != user.name) {
-            return (
-                <div className="small"><span>({user.name})</span></div>
-            );
-        }
-
-        return null;
-    }
-
-    private renderTitle = (user: IChessUser) => {
-        if (user.title) {
-            if (isString(user.title)) {
-                return (
-                    <span className="label label-success text-uppercase fs-10 mr-1"
-                          data-toggle="tooltip"
-                          title="">{user.title}</span>
-                );
-            } else {
-                return (
-                    <span className="label label-success text-uppercase fs-10 mr-1"
-                          data-toggle="tooltip"
-                          title={user.title.name}>{user.title.id}</span>
-                );
-            }
-        }
-
-        return null;
-    };
-
     private miniCallback = (text: string) => {
         this.setState({
             popoverContent: text
@@ -151,6 +121,36 @@ export class UserName extends React.Component<IUserNameProps, IUserNameState> {
         );
     }
 
+    private renderUsername = (user: IChessUser) => {
+        if (user.display && (user.display != user.name)) {
+            return (
+                <div className="small"><span>{user.name}</span></div>
+            );
+        }
+
+        return null;
+    }
+
+    private renderTitle = (user: IChessUser) => {
+        if (user.title) {
+            if (isString(user.title)) {
+                return (
+                    <span className="label label-success text-uppercase fs-10 mr-1"
+                          data-toggle="tooltip"
+                          title="">{user.title}</span>
+                );
+            } else {
+                return (
+                    <span className="label label-success text-uppercase fs-10 mr-1"
+                          data-toggle="tooltip"
+                          title={user.title.name}>{user.title.id}</span>
+                );
+            }
+        }
+
+        return null;
+    };
+
     private renderUserLink = (user: IChessUser, userLink: string) =>  {
         const { popover } = this.props;
 
@@ -159,15 +159,17 @@ export class UserName extends React.Component<IUserNameProps, IUserNameState> {
             unClass.push(user.status);
         }
 
+        const display = user.display ?? user.name;
+
         if (popover) {
             return (
                 <OverlayTrigger rootClose={true} trigger="click" placement="auto" onToggle={this.onPopupToggle} overlay={this.popoverElement()}>
-                    <span className={classNames(unClass)}>{user.display}</span>
+                    <span className={classNames(unClass)}>{display}</span>
                 </OverlayTrigger>
             );
         } else {
             return(
-                <a href={userLink} className={classNames(unClass)}>{user.display}</a>
+                <a href={userLink} className={classNames(unClass)}>{display}</a>
             );
         }
     };
