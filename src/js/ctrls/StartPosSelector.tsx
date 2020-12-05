@@ -1,17 +1,17 @@
 import * as React from 'react';
 import { _, Hashtable } from 'onix-core';
-import { IOpeningPosition, FenString, FenFormat } from 'onix-chess';
+import { IChessOpening, FenString, FenFormat } from 'onix-chess';
 import { FormControl, FormControlProps } from 'react-bootstrap';
 import { register } from '../i18n';
 
 export interface StartPosSelectorProps extends FormControlProps {
     fen?: string,
-    openingsPos?: IOpeningPosition[],
+    openingsPos?: IChessOpening[],
     onChangeFen?: (fen: string) => void,
 }
 
 export interface StartPosSelectorState {
-    openings: IOpeningPosition[],
+    openings: IChessOpening[],
 }
 
 export class StartPosSelector extends React.Component<StartPosSelectorProps, StartPosSelectorState> {
@@ -65,7 +65,7 @@ export class StartPosSelector extends React.Component<StartPosSelectorProps, Sta
     private ajaxCallback = (data?: any) => {
         const { state } = this;
 
-        let openings: IOpeningPosition[] = [];
+        let openings: IChessOpening[] = [];
         for (var i = 0; i < data.length; i++) {
             const option = data[i];
             this.setPosMap(option.fen);
@@ -96,7 +96,7 @@ export class StartPosSelector extends React.Component<StartPosSelectorProps, Sta
         }
     };
 
-    private getOpenings = (openingsPos: IOpeningPosition[]) => {
+    private getOpenings = (openingsPos: IChessOpening[]) => {
         if (openingsPos && openingsPos.length) {
             let openings = [];
             for (let i = 0; i < openingsPos.length; i++) {
