@@ -32,7 +32,7 @@
   "dependencies": {
     "@types/react-transition-group": "^4.4.0",
     "onix-board-assets": "^4.3.1",
-    "onix-chess": "^5.4.0",
+    "onix-chess": "^7.0.0",
     "onix-core": "^4.2.1",
     "react": "^16.14.0",
     "react-bootstrap": "^1.4.0",
