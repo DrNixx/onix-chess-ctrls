@@ -1,5 +1,5 @@
 import * as React from 'react';
-import toSafeInteger from 'lodash-es/toSafeInteger';
+import toSafeInteger from 'lodash/toSafeInteger';
 import { _ } from 'onix-core';
 import { FormControl, FormControlProps } from 'react-bootstrap';
 import { register } from '../i18n';

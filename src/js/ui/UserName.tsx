@@ -1,7 +1,7 @@
 import React, { useEffect} from 'react';
 import shortid from 'shortid';
 import classNames from 'classnames';
-import {isString} from "lodash-es";
+import isString from "lodash/isString";
 import {OverlayTrigger, Popover, PopoverProps} from "react-bootstrap";
 import { Logger } from 'onix-core';
 import { IChessUser } from 'onix-chess';

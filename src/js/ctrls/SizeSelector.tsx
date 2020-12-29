@@ -1,5 +1,5 @@
 import * as React from 'react';
-import toSafeInteger from 'lodash-es/toSafeInteger';
+import toSafeInteger from 'lodash/toSafeInteger';
 import { FormControl, FormControlProps } from 'react-bootstrap';
 import { BoardSize } from 'onix-board-assets';
 
