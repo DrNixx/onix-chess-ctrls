@@ -8,6 +8,7 @@ export interface TextWithCopyProps extends FormControlProps {
     value?: string,
     placeholder?: string,
     icon?: string,
+    name?: string,
 }
 
 export interface TextWithCopyState {

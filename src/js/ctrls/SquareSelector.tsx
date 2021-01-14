@@ -6,6 +6,7 @@ const boardsData = require('onix-board-assets/dist/js/boards.json');
 export interface SquareSelectorProps extends FormControlProps {
     defaultValue?: string;
     onChangeSquare?: (square: string) => void;
+    name?: string;
 }
 
 export class SquareSelector extends React.Component<SquareSelectorProps, {}> {

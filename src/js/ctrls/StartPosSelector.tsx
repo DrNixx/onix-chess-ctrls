@@ -8,6 +8,7 @@ export interface StartPosSelectorProps extends FormControlProps {
     fen?: string,
     openingsPos?: IChessOpening[],
     onChangeFen?: (fen: string) => void,
+    name?: string,
 }
 
 export interface StartPosSelectorState {

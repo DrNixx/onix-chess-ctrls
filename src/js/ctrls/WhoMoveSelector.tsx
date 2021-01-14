@@ -8,6 +8,7 @@ import { Colors, Color } from 'onix-chess';
 export interface WhoMoveSelectorProps extends FormControlProps {
     defaultValue?: Colors.BW;
     onChangeTurn?: (color: Colors.BW) => void;
+    name?: string;
 }
 
 export class WhoMoveSelector extends React.Component<WhoMoveSelectorProps, {}> {

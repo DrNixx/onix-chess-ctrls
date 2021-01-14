@@ -6,6 +6,7 @@ const boardsData: any = require('onix-board-assets/dist/js/pieces.json');
 export interface PieceSelectorProps extends FormControlProps {
     defaultValue?: string;
     onChangePiece?: (piece: string) => void;
+    name?: string;
 }
 
 export class PieceSelector extends React.Component<PieceSelectorProps, {}> {

@@ -8,6 +8,7 @@ const boardsData = require('onix-board-assets/dist/js/boards.json');
 export interface SizeSelectorProps extends FormControlProps {
     defaultValue?: BoardSize;
     onChangeSize?: (size: BoardSize) => void;
+    name?: string;
 }
 
 export class SizeSelector extends React.Component<SizeSelectorProps, {}> {
